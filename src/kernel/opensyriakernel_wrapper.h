@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_KERNEL_BITCOINKERNEL_WRAPPER_H
-#define BITCOIN_KERNEL_BITCOINKERNEL_WRAPPER_H
+#ifndef OPENSYRIA_KERNEL_OPENSYRIAKERNEL_WRAPPER_H
+#define OPENSYRIA_KERNEL_OPENSYRIAKERNEL_WRAPPER_H
 
-#include <kernel/bitcoinkernel.h>
+#include <kernel/opensyriakernel.h>
 
 #include <array>
 #include <exception>
@@ -1155,4 +1155,4 @@ public:
 
 } // namespace btck
 
-#endif // BITCOIN_KERNEL_BITCOINKERNEL_WRAPPER_H
+#endif // OPENSYRIA_KERNEL_OPENSYRIAKERNEL_WRAPPER_H

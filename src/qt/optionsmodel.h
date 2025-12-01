@@ -58,7 +58,7 @@ public:
         ProxyUseTor,            // bool
         ProxyIPTor,             // QString
         ProxyPortTor,           // int
-        DisplayUnit,            // BitcoinUnit
+        DisplayUnit,            // OpenSyriaUnit
         ThirdPartyTxUrls,       // QString
         Language,               // QString
         FontForMoney,           // FontChoice
@@ -100,7 +100,7 @@ public:
     bool getShowTrayIcon() const { return m_show_tray_icon; }
     bool getMinimizeToTray() const { return fMinimizeToTray; }
     bool getMinimizeOnClose() const { return fMinimizeOnClose; }
-    BitcoinUnit getDisplayUnit() const { return m_display_bitcoin_unit; }
+    OpenSyriaUnit getDisplayUnit() const { return m_display_bitcoin_unit; }
     QString getThirdPartyTxUrls() const { return strThirdPartyTxUrls; }
     QFont getFontForMoney() const;
     bool getCoinControlFeatures() const { return fCoinControlFeatures; }
@@ -127,7 +127,7 @@ private:
     bool fMinimizeToTray;
     bool fMinimizeOnClose;
     QString language;
-    BitcoinUnit m_display_bitcoin_unit;
+    OpenSyriaUnit m_display_bitcoin_unit;
     QString strThirdPartyTxUrls;
     FontChoice m_font_money{FontChoiceAbstract::EmbeddedFont};
     bool fCoinControlFeatures;
@@ -148,7 +148,7 @@ private:
     void checkAndMigrate();
 
 Q_SIGNALS:
-    void displayUnitChanged(BitcoinUnit unit);
+    void displayUnitChanged(OpenSyriaUnit unit);
     void coinControlFeaturesChanged(bool);
     void showTrayIconChanged(bool);
     void fontForMoneyChanged(const QFont&);

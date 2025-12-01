@@ -34,8 +34,8 @@
 #include <utility>
 #include <variant>
 
-const char * const BITCOIN_CONF_FILENAME = "bitcoin.conf";
-const char * const BITCOIN_SETTINGS_FILENAME = "settings.json";
+const char * const OPENSYRIA_CONF_FILENAME = "opensyria.conf";
+const char * const OPENSYRIA_SETTINGS_FILENAME = "settings.json";
 
 ArgsManager gArgs;
 
@@ -379,7 +379,7 @@ bool ArgsManager::IsArgSet(const std::string& strArg) const
 
 bool ArgsManager::GetSettingsPath(fs::path* filepath, bool temp, bool backup) const
 {
-    fs::path settings = GetPathArg("-settings", BITCOIN_SETTINGS_FILENAME);
+    fs::path settings = GetPathArg("-settings", OPENSYRIA_SETTINGS_FILENAME);
     if (settings.empty()) {
         return false;
     }
@@ -743,11 +743,11 @@ fs::path GetDefaultDataDir()
 #ifdef WIN32
     // Windows
     // Check for existence of datadir in old location and keep it there
-    fs::path legacy_path = GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    fs::path legacy_path = GetSpecialFolderPath(CSIDL_APPDATA) / "OpenSyria";
     if (fs::exists(legacy_path)) return legacy_path;
 
     // Otherwise, fresh installs can start in the new, "proper" location
-    return GetSpecialFolderPath(CSIDL_LOCAL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_LOCAL_APPDATA) / "OpenSyria";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -757,7 +757,7 @@ fs::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef __APPLE__
     // macOS
-    return pathRet / "Library/Application Support/Bitcoin";
+    return pathRet / "Library/Application Support/OpenSyria";
 #else
     // Unix-like
     return pathRet / ".opensyria";

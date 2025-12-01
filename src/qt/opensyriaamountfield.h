@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_QT_BITCOINAMOUNTFIELD_H
-#define BITCOIN_QT_BITCOINAMOUNTFIELD_H
+#ifndef OPENSYRIA_QT_OPENSYRIAAMOUNTFIELD_H
+#define OPENSYRIA_QT_OPENSYRIAAMOUNTFIELD_H
 
 #include <consensus/amount.h>
 #include <qt/bitcoinunits.h>
@@ -18,7 +18,7 @@ QT_END_NAMESPACE
 
 /** Widget for entering bitcoin amounts.
   */
-class BitcoinAmountField: public QWidget
+class OpenSyriaAmountField: public QWidget
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ class BitcoinAmountField: public QWidget
     Q_PROPERTY(qint64 value READ value WRITE setValue NOTIFY valueChanged USER true)
 
 public:
-    explicit BitcoinAmountField(QWidget *parent = nullptr);
+    explicit OpenSyriaAmountField(QWidget *parent = nullptr);
 
     CAmount value(bool *value=nullptr) const;
     void setValue(const CAmount& value);
@@ -53,7 +53,7 @@ public:
     bool validate();
 
     /** Change unit used to display amount. */
-    void setDisplayUnit(BitcoinUnit new_unit);
+    void setDisplayUnit(OpenSyriaUnit new_unit);
 
     /** Make field empty and ready for new input. */
     void clear();
@@ -82,4 +82,4 @@ private Q_SLOTS:
 
 };
 
-#endif // BITCOIN_QT_BITCOINAMOUNTFIELD_H
+#endif // OPENSYRIA_QT_OPENSYRIAAMOUNTFIELD_H

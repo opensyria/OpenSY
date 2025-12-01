@@ -174,7 +174,7 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
             ui->lang->addItem(locale.nativeLanguageName() + QString(" (") + langStr + QString(")"), QVariant(langStr));
         }
     }
-    ui->unit->setModel(new BitcoinUnits(this));
+    ui->unit->setModel(new OpenSyriaUnits(this));
 
     /* Widget-to-option mapper */
     mapper = new QDataWidgetMapper(this);

@@ -20,7 +20,7 @@ add_windows_application_manifest(test_bitcoin-qt)
 
 target_link_libraries(test_bitcoin-qt
   core_interface
-  bitcoinqt
+  opensyriaqt
   test_util
   bitcoin_node
   Boost::headers

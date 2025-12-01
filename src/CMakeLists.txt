@@ -156,8 +156,8 @@ if(ENABLE_WALLET)
 
   if(BUILD_WALLET_TOOL)
     add_executable(bitcoin-wallet
-      bitcoin-wallet.cpp
-      init/bitcoin-wallet.cpp
+      opensyria-wallet.cpp
+      init/opensyria-wallet.cpp
       wallet/wallettool.cpp
     )
     set_target_properties(bitcoin-wallet PROPERTIES OUTPUT_NAME opensyria-wallet)
@@ -291,7 +291,7 @@ target_link_libraries(bitcoin_node
 
 # Bitcoin wrapper executable that can call other executables.
 if(BUILD_BITCOIN_BIN)
-  add_executable(bitcoin bitcoin.cpp)
+  add_executable(bitcoin opensyria.cpp)
   set_target_properties(bitcoin PROPERTIES OUTPUT_NAME opensyria)
   set_target_properties(bitcoin PROPERTIES OUTPUT_NAME opensyria)
   add_windows_resources(bitcoin bitcoin-res.rc)
@@ -303,8 +303,8 @@ endif()
 # Bitcoin Core bitcoind.
 if(BUILD_DAEMON)
   add_executable(bitcoind
-    bitcoind.cpp
-    init/bitcoind.cpp
+    opensyriad.cpp
+    init/opensyriad.cpp
   )
     set_target_properties(bitcoind PROPERTIES OUTPUT_NAME opensyriad)
     set_target_properties(bitcoind PROPERTIES OUTPUT_NAME opensyriad)
@@ -319,8 +319,8 @@ if(BUILD_DAEMON)
 endif()
 if(ENABLE_IPC AND BUILD_DAEMON)
   add_executable(bitcoin-node
-    bitcoind.cpp
-    init/bitcoin-node.cpp
+    opensyriad.cpp
+    init/opensyria-node.cpp
   )
     set_target_properties(bitcoin-node PROPERTIES OUTPUT_NAME opensyria-node)
     set_target_properties(bitcoin-node PROPERTIES OUTPUT_NAME opensyria-node)
@@ -363,7 +363,7 @@ target_link_libraries(bitcoin_cli
 
 # Bitcoin Core RPC client
 if(BUILD_CLI)
-  add_executable(bitcoin-cli bitcoin-cli.cpp)
+  add_executable(bitcoin-cli opensyria-cli.cpp)
   set_target_properties(bitcoin-cli PROPERTIES OUTPUT_NAME opensyria-cli)
   set_target_properties(bitcoin-cli PROPERTIES OUTPUT_NAME opensyria-cli)
   add_windows_resources(bitcoin-cli bitcoin-cli-res.rc)
@@ -381,7 +381,7 @@ endif()
 
 
 if(BUILD_TX)
-  add_executable(bitcoin-tx bitcoin-tx.cpp)
+  add_executable(bitcoin-tx opensyria-tx.cpp)
   set_target_properties(bitcoin-tx PROPERTIES OUTPUT_NAME opensyria-tx)
   set_target_properties(bitcoin-tx PROPERTIES OUTPUT_NAME opensyria-tx)
   add_windows_resources(bitcoin-tx bitcoin-tx-res.rc)
@@ -397,7 +397,7 @@ endif()
 
 
 if(BUILD_UTIL)
-  add_executable(bitcoin-util bitcoin-util.cpp)
+  add_executable(bitcoin-util opensyria-util.cpp)
   set_target_properties(bitcoin-util PROPERTIES OUTPUT_NAME opensyria-util)
   set_target_properties(bitcoin-util PROPERTIES OUTPUT_NAME opensyria-util)
   add_windows_resources(bitcoin-util bitcoin-util-res.rc)
@@ -423,7 +423,7 @@ if(BUILD_KERNEL_LIB)
   endif()
   if(BUILD_UTIL_CHAINSTATE)
     add_executable(bitcoin-chainstate
-      bitcoin-chainstate.cpp
+      opensyria-chainstate.cpp
     )
     set_target_properties(bitcoin-chainstate PROPERTIES OUTPUT_NAME opensyria-chainstate)
     set_target_properties(bitcoin-chainstate PROPERTIES OUTPUT_NAME opensyria-chainstate)

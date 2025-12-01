@@ -187,15 +187,15 @@ bool OptionsModel::Init(bilingual_str& error)
     fMinimizeOnClose = settings.value("fMinimizeOnClose").toBool();
 
     // Display
-    if (!settings.contains("DisplayBitcoinUnit")) {
-        settings.setValue("DisplayBitcoinUnit", QVariant::fromValue(BitcoinUnit::BTC));
+    if (!settings.contains("DisplayOpenSyriaUnit")) {
+        settings.setValue("DisplayOpenSyriaUnit", QVariant::fromValue(OpenSyriaUnit::BTC));
     }
-    QVariant unit = settings.value("DisplayBitcoinUnit");
-    if (unit.canConvert<BitcoinUnit>()) {
-        m_display_bitcoin_unit = unit.value<BitcoinUnit>();
+    QVariant unit = settings.value("DisplayOpenSyriaUnit");
+    if (unit.canConvert<OpenSyriaUnit>()) {
+        m_display_bitcoin_unit = unit.value<OpenSyriaUnit>();
     } else {
-        m_display_bitcoin_unit = BitcoinUnit::BTC;
-        settings.setValue("DisplayBitcoinUnit", QVariant::fromValue(m_display_bitcoin_unit));
+        m_display_bitcoin_unit = OpenSyriaUnit::BTC;
+        settings.setValue("DisplayOpenSyriaUnit", QVariant::fromValue(m_display_bitcoin_unit));
     }
 
     if (!settings.contains("strThirdPartyTxUrls"))
@@ -695,10 +695,10 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value, const std::
 
 void OptionsModel::setDisplayUnit(const QVariant& new_unit)
 {
-    if (new_unit.isNull() || new_unit.value<BitcoinUnit>() == m_display_bitcoin_unit) return;
-    m_display_bitcoin_unit = new_unit.value<BitcoinUnit>();
+    if (new_unit.isNull() || new_unit.value<OpenSyriaUnit>() == m_display_bitcoin_unit) return;
+    m_display_bitcoin_unit = new_unit.value<OpenSyriaUnit>();
     QSettings settings;
-    settings.setValue("DisplayBitcoinUnit", QVariant::fromValue(m_display_bitcoin_unit));
+    settings.setValue("DisplayOpenSyriaUnit", QVariant::fromValue(m_display_bitcoin_unit));
     Q_EMIT displayUnitChanged(m_display_bitcoin_unit);
 }
 

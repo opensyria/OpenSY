@@ -7,7 +7,7 @@
 #include <chainparams.h>
 #include <key.h>
 #include <logging.h>
-#include <qt/bitcoin.h>
+#include <qt/opensyria.h>
 #include <qt/bitcoingui.h>
 #include <qt/networkstyle.h>
 #include <qt/rpcconsole.h>

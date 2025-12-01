@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_QT_BITCOINUNITS_H
-#define BITCOIN_QT_BITCOINUNITS_H
+#ifndef OPENSYRIA_QT_OPENSYRIAUNITS_H
+#define OPENSYRIA_QT_OPENSYRIAUNITS_H
 
 #include <consensus/amount.h>
 
@@ -29,12 +29,12 @@
 /** Bitcoin unit definitions. Encapsulates parsing and formatting
    and serves as list model for drop-down selection boxes.
 */
-class BitcoinUnits: public QAbstractListModel
+class OpenSyriaUnits: public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    explicit BitcoinUnits(QObject *parent);
+    explicit OpenSyriaUnits(QObject *parent);
 
     /** Bitcoin units.
       @note Source: https://en.bitcoin.it/wiki/Units . Please add only sensible ones
@@ -108,9 +108,9 @@ public:
 private:
     QList<Unit> unitlist;
 };
-typedef BitcoinUnits::Unit BitcoinUnit;
+typedef OpenSyriaUnits::Unit OpenSyriaUnit;
 
-QDataStream& operator<<(QDataStream& out, const BitcoinUnit& unit);
-QDataStream& operator>>(QDataStream& in, BitcoinUnit& unit);
+QDataStream& operator<<(QDataStream& out, const OpenSyriaUnit& unit);
+QDataStream& operator>>(QDataStream& in, OpenSyriaUnit& unit);
 
-#endif // BITCOIN_QT_BITCOINUNITS_H
+#endif // OPENSYRIA_QT_OPENSYRIAUNITS_H

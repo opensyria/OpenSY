@@ -16,39 +16,45 @@
 
 namespace init {
 namespace {
-const char* EXE_NAME = "bitcoin-gui";
+const char* EXE_NAME = "bitcoin-node";
 
-class BitcoinGuiInit : public interfaces::Init
+class OpenSyriaNodeInit : public interfaces::Init
 {
 public:
-    BitcoinGuiInit(const char* arg0) : m_ipc(interfaces::MakeIpc(EXE_NAME, arg0, *this))
+    OpenSyriaNodeInit(node::NodeContext& node, const char* arg0)
+        : m_node(node),
+          m_ipc(interfaces::MakeIpc(EXE_NAME, arg0, *this))
     {
         InitContext(m_node);
         m_node.init = this;
     }
     std::unique_ptr<interfaces::Node> makeNode() override { return interfaces::MakeNode(m_node); }
     std::unique_ptr<interfaces::Chain> makeChain() override { return interfaces::MakeChain(m_node); }
+    std::unique_ptr<interfaces::Mining> makeMining() override { return interfaces::MakeMining(m_node); }
     std::unique_ptr<interfaces::WalletLoader> makeWalletLoader(interfaces::Chain& chain) override
     {
         return MakeWalletLoader(chain, *Assert(m_node.args));
     }
     std::unique_ptr<interfaces::Echo> makeEcho() override { return interfaces::MakeEcho(); }
     interfaces::Ipc* ipc() override { return m_ipc.get(); }
-    // bitcoin-gui accepts -ipcbind option even though it does not use it
-    // directly. It just returns true here to accept the option because
-    // bitcoin-node accepts the option, and bitcoin-gui accepts all bitcoin-node
-    // options and will start the node with those options.
     bool canListenIpc() override { return true; }
     const char* exeName() override { return EXE_NAME; }
-    node::NodeContext m_node;
+    node::NodeContext& m_node;
     std::unique_ptr<interfaces::Ipc> m_ipc;
 };
 } // namespace
 } // namespace init
 
 namespace interfaces {
-std::unique_ptr<Init> MakeGuiInit(int argc, char* argv[])
+std::unique_ptr<Init> MakeNodeInit(node::NodeContext& node, int argc, char* argv[], int& exit_status)
 {
-    return std::make_unique<init::BitcoinGuiInit>(argc > 0 ? argv[0] : "");
+    auto init = std::make_unique<init::OpenSyriaNodeInit>(node, argc > 0 ? argv[0] : "");
+    // Check if bitcoin-node is being invoked as an IPC server. If so, then
+    // bypass normal execution and just respond to requests over the IPC
+    // channel and return null.
+    if (init->m_ipc->startSpawnedProcess(argc, argv, exit_status)) {
+        return nullptr;
+    }
+    return init;
 }
 } // namespace interfaces

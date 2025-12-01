@@ -4,7 +4,7 @@
 
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
-#include <qt/bitcoin.h>
+#include <qt/opensyria.h>
 
 #include <chainparams.h>
 #include <common/args.h>
@@ -90,7 +90,7 @@ static void RegisterMetaTypes()
     qRegisterMetaType<std::function<void()>>("std::function<void()>");
     qRegisterMetaType<QMessageBox::Icon>("QMessageBox::Icon");
     qRegisterMetaType<interfaces::BlockAndHeaderTipInfo>("interfaces::BlockAndHeaderTipInfo");
-    qRegisterMetaType<BitcoinUnit>("BitcoinUnit");
+    qRegisterMetaType<OpenSyriaUnit>("OpenSyriaUnit");
 }
 
 static QString GetLangTerritory()
@@ -197,7 +197,7 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 static int qt_argc = 1;
 static const char* qt_argv = "bitcoin-qt";
 
-BitcoinApplication::BitcoinApplication()
+OpenSyriaApplication::OpenSyriaApplication()
     : QApplication(qt_argc, const_cast<char**>(&qt_argv))
 {
     // Qt runs setlocale(LC_ALL, "") on initialization.
@@ -205,20 +205,20 @@ BitcoinApplication::BitcoinApplication()
     setQuitOnLastWindowClosed(false);
 }
 
-void BitcoinApplication::setupPlatformStyle()
+void OpenSyriaApplication::setupPlatformStyle()
 {
     // UI per-platform customization
-    // This must be done inside the BitcoinApplication constructor, or after it, because
+    // This must be done inside the OpenSyriaApplication constructor, or after it, because
     // PlatformStyle::instantiate requires a QApplication
     std::string platformName;
-    platformName = gArgs.GetArg("-uiplatform", BitcoinGUI::DEFAULT_UIPLATFORM);
+    platformName = gArgs.GetArg("-uiplatform", OpenSyriaGUI::DEFAULT_UIPLATFORM);
     platformStyle = PlatformStyle::instantiate(QString::fromStdString(platformName));
     if (!platformStyle) // Fall back to "other" if specified name not found
         platformStyle = PlatformStyle::instantiate("other");
     assert(platformStyle);
 }
 
-BitcoinApplication::~BitcoinApplication()
+OpenSyriaApplication::~OpenSyriaApplication()
 {
     m_executor.reset();
 
@@ -229,13 +229,13 @@ BitcoinApplication::~BitcoinApplication()
 }
 
 #ifdef ENABLE_WALLET
-void BitcoinApplication::createPaymentServer()
+void OpenSyriaApplication::createPaymentServer()
 {
     paymentServer = new PaymentServer(this);
 }
 #endif
 
-bool BitcoinApplication::createOptionsModel(bool resetSettings)
+bool OpenSyriaApplication::createOptionsModel(bool resetSettings)
 {
     optionsModel = new OptionsModel(node(), this);
     if (resetSettings) {
@@ -257,10 +257,10 @@ bool BitcoinApplication::createOptionsModel(bool resetSettings)
     return true;
 }
 
-void BitcoinApplication::createWindow(const NetworkStyle *networkStyle)
+void OpenSyriaApplication::createWindow(const NetworkStyle *networkStyle)
 {
-    window = new BitcoinGUI(node(), platformStyle, networkStyle, nullptr);
-    connect(window, &BitcoinGUI::quitRequested, this, &BitcoinApplication::requestShutdown);
+    window = new OpenSyriaGUI(node(), platformStyle, networkStyle, nullptr);
+    connect(window, &OpenSyriaGUI::quitRequested, this, &OpenSyriaApplication::requestShutdown);
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, &QTimer::timeout, [this]{
@@ -270,41 +270,41 @@ void BitcoinApplication::createWindow(const NetworkStyle *networkStyle)
     });
 }
 
-void BitcoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
+void OpenSyriaApplication::createSplashScreen(const NetworkStyle *networkStyle)
 {
     assert(!m_splash);
     m_splash = new SplashScreen(networkStyle);
     m_splash->show();
 }
 
-void BitcoinApplication::createNode(interfaces::Init& init)
+void OpenSyriaApplication::createNode(interfaces::Init& init)
 {
     assert(!m_node);
     m_node = init.makeNode();
     if (m_splash) m_splash->setNode(*m_node);
 }
 
-bool BitcoinApplication::baseInitialize()
+bool OpenSyriaApplication::baseInitialize()
 {
     return node().baseInitialize();
 }
 
-void BitcoinApplication::startThread()
+void OpenSyriaApplication::startThread()
 {
     assert(!m_executor);
     m_executor.emplace(node());
 
     /*  communication to and from thread */
-    connect(&m_executor.value(), &InitExecutor::initializeResult, this, &BitcoinApplication::initializeResult);
+    connect(&m_executor.value(), &InitExecutor::initializeResult, this, &OpenSyriaApplication::initializeResult);
     connect(&m_executor.value(), &InitExecutor::shutdownResult, this, [] {
         QCoreApplication::exit(0);
     });
-    connect(&m_executor.value(), &InitExecutor::runawayException, this, &BitcoinApplication::handleRunawayException);
-    connect(this, &BitcoinApplication::requestedInitialize, &m_executor.value(), &InitExecutor::initialize);
-    connect(this, &BitcoinApplication::requestedShutdown, &m_executor.value(), &InitExecutor::shutdown);
+    connect(&m_executor.value(), &InitExecutor::runawayException, this, &OpenSyriaApplication::handleRunawayException);
+    connect(this, &OpenSyriaApplication::requestedInitialize, &m_executor.value(), &InitExecutor::initialize);
+    connect(this, &OpenSyriaApplication::requestedShutdown, &m_executor.value(), &InitExecutor::shutdown);
 }
 
-void BitcoinApplication::parameterSetup()
+void OpenSyriaApplication::parameterSetup()
 {
     // Default printtoconsole to false for the GUI. GUI programs should not
     // print to the console unnecessarily.
@@ -314,19 +314,19 @@ void BitcoinApplication::parameterSetup()
     InitParameterInteraction(gArgs);
 }
 
-void BitcoinApplication::InitPruneSetting(int64_t prune_MiB)
+void OpenSyriaApplication::InitPruneSetting(int64_t prune_MiB)
 {
     optionsModel->SetPruneTargetGB(PruneMiBtoGB(prune_MiB));
 }
 
-void BitcoinApplication::requestInitialize()
+void OpenSyriaApplication::requestInitialize()
 {
     qDebug() << __func__ << ": Requesting initialize";
     startThread();
     Q_EMIT requestedInitialize();
 }
 
-void BitcoinApplication::requestShutdown()
+void OpenSyriaApplication::requestShutdown()
 {
     for (const auto w : QGuiApplication::topLevelWindows()) {
         w->hide();
@@ -376,7 +376,7 @@ void BitcoinApplication::requestShutdown()
     Q_EMIT requestedShutdown();
 }
 
-void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHeaderTipInfo tip_info)
+void OpenSyriaApplication::initializeResult(bool success, interfaces::BlockAndHeaderTipInfo tip_info)
 {
     qDebug() << __func__ << ": Initialization result: " << success;
 
@@ -415,8 +415,8 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
         // Now that initialization/startup is done, process any command-line
         // bitcoin: URIs or payment requests:
         if (paymentServer) {
-            connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &BitcoinGUI::handlePaymentRequest);
-            connect(window, &BitcoinGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
+            connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &OpenSyriaGUI::handlePaymentRequest);
+            connect(window, &OpenSyriaGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
             connect(paymentServer, &PaymentServer::message, [this](const QString& title, const QString& message, unsigned int style) {
                 window->message(title, message, style);
             });
@@ -429,7 +429,7 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
     }
 }
 
-void BitcoinApplication::handleRunawayException(const QString &message)
+void OpenSyriaApplication::handleRunawayException(const QString &message)
 {
     QMessageBox::critical(
         nullptr, tr("Runaway exception"),
@@ -438,7 +438,7 @@ void BitcoinApplication::handleRunawayException(const QString &message)
     ::exit(EXIT_FAILURE);
 }
 
-void BitcoinApplication::handleNonFatalException(const QString& message)
+void OpenSyriaApplication::handleNonFatalException(const QString& message)
 {
     assert(QThread::currentThread() == thread());
     QMessageBox::warning(
@@ -448,7 +448,7 @@ void BitcoinApplication::handleNonFatalException(const QString& message)
         QLatin1String("<br><br>") + GUIUtil::MakeHtmlLink(message, CLIENT_BUGREPORT));
 }
 
-WId BitcoinApplication::getMainWinId() const
+WId OpenSyriaApplication::getMainWinId() const
 {
     if (!window)
         return 0;
@@ -456,7 +456,7 @@ WId BitcoinApplication::getMainWinId() const
     return window->winId();
 }
 
-bool BitcoinApplication::event(QEvent* e)
+bool OpenSyriaApplication::event(QEvent* e)
 {
     if (e->type() == QEvent::Quit) {
         requestShutdown();
@@ -473,7 +473,7 @@ static void SetupUIArgs(ArgsManager& argsman)
     argsman.AddArg("-min", "Start minimized", ArgsManager::ALLOW_ANY, OptionsCategory::GUI);
     argsman.AddArg("-resetguisettings", "Reset all settings changed in the GUI", ArgsManager::ALLOW_ANY, OptionsCategory::GUI);
     argsman.AddArg("-splash", strprintf("Show splash screen on startup (default: %u)", DEFAULT_SPLASHSCREEN), ArgsManager::ALLOW_ANY, OptionsCategory::GUI);
-    argsman.AddArg("-uiplatform", strprintf("Select platform to customize UI for (one of windows, macosx, other; default: %s)", BitcoinGUI::DEFAULT_UIPLATFORM), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::GUI);
+    argsman.AddArg("-uiplatform", strprintf("Select platform to customize UI for (one of windows, macosx, other; default: %s)", OpenSyriaGUI::DEFAULT_UIPLATFORM), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::GUI);
 }
 
 int GuiMain(int argc, char* argv[])
@@ -500,7 +500,7 @@ int GuiMain(int argc, char* argv[])
     QApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
 #endif
 
-    BitcoinApplication app;
+    OpenSyriaApplication app;
     GUIUtil::LoadFont(QStringLiteral(":/fonts/monospace"));
 
     /// 2. Parse command-line options. We do this after qt in order to show an error if there are problems parsing these

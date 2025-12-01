@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_KERNEL_BITCOINKERNEL_H
-#define BITCOIN_KERNEL_BITCOINKERNEL_H
+#ifndef OPENSYRIA_KERNEL_OPENSYRIAKERNEL_H
+#define OPENSYRIA_KERNEL_OPENSYRIAKERNEL_H
 
 #ifndef __cplusplus
 #include <stddef.h>
@@ -1576,4 +1576,4 @@ BITCOINKERNEL_API void btck_block_hash_destroy(btck_BlockHash* block_hash);
 } // extern "C"
 #endif // __cplusplus
 
-#endif // BITCOIN_KERNEL_BITCOINKERNEL_H
+#endif // OPENSYRIA_KERNEL_OPENSYRIAKERNEL_H

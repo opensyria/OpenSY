@@ -18,10 +18,10 @@ namespace init {
 namespace {
 const char* EXE_NAME = "bitcoin-qt";
 
-class BitcoinQtInit : public interfaces::Init
+class OpenSyriaQtInit : public interfaces::Init
 {
 public:
-    BitcoinQtInit()
+    OpenSyriaQtInit()
     {
         InitContext(m_node);
         m_node.init = this;
@@ -43,6 +43,6 @@ public:
 namespace interfaces {
 std::unique_ptr<Init> MakeGuiInit(int argc, char* argv[])
 {
-    return std::make_unique<init::BitcoinQtInit>();
+    return std::make_unique<init::OpenSyriaQtInit>();
 }
 } // namespace interfaces
