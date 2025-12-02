@@ -101,11 +101,12 @@ static constexpr auto HEADERS_RESPONSE_TIME{2min};
  */
 static constexpr int32_t MAX_OUTBOUND_PEERS_TO_PROTECT_FROM_DISCONNECT = 4;
 /** Timeout for (unprotected) outbound peers to sync to our chainwork */
-static constexpr auto CHAIN_SYNC_TIMEOUT{20min};
+// OpenSyria: Scaled for 2-minute blocks (vs Bitcoin's 10-minute blocks)
+static constexpr auto CHAIN_SYNC_TIMEOUT{4min};  // Bitcoin: 20min (2 blocks)
 /** How frequently to check for stale tips */
-static constexpr auto STALE_CHECK_INTERVAL{10min};
+static constexpr auto STALE_CHECK_INTERVAL{2min};  // Bitcoin: 10min (1 block)
 /** How frequently to check for extra outbound peers and disconnect */
-static constexpr auto EXTRA_PEER_CHECK_INTERVAL{45s};
+static constexpr auto EXTRA_PEER_CHECK_INTERVAL{9s};  // Bitcoin: 45s (scaled by 1/5)
 /** Minimum time an outbound-peer-eviction candidate must be connected for, in order to evict */
 static constexpr auto MINIMUM_CONNECT_TIME{30s};
 /** SHA256("main address relay")[0:8] */

@@ -143,10 +143,6 @@ void AddRandomOutboundPeer(NodeId& id, std::vector<CNode*>& vNodes, PeerManager&
 
 BOOST_FIXTURE_TEST_CASE(stale_tip_peer_management, OutboundTest)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - timing/network dependent test
-    // OpenSyria uses 2-minute blocks (vs Bitcoin 10-min), affecting stale tip timing calculations
-    return;
-#if 0 // Disabled to prevent unreachable code warning
     NodeId id{0};
     auto connman = std::make_unique<ConnmanTestMsg>(0x1337, 0x1337, *m_node.addrman, *m_node.netgroupman, Params());
     auto peerLogic = PeerManager::make(*connman, *m_node.addrman, nullptr, *m_node.chainman, *m_node.mempool, *m_node.warnings, {});
@@ -241,7 +237,6 @@ BOOST_FIXTURE_TEST_CASE(stale_tip_peer_management, OutboundTest)
     }
 
     connman->ClearTestNodes();
-#endif // 0
 }
 
 BOOST_FIXTURE_TEST_CASE(block_relay_only_eviction, OutboundTest)
