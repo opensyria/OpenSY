@@ -34,9 +34,9 @@ static CoinSelectionParams init_default_params()
         /*tx_noinputs_size=*/11 + P2WPKH_OUTPUT_VSIZE, //static header size + output size
         /*avoid_partial=*/false,
     };
-    dcsp.m_change_fee = /*155 sats=*/dcsp.m_effective_feerate.GetFee(dcsp.change_output_size);
-    dcsp.min_viable_change = /*204 sats=*/dcsp.m_discard_feerate.GetFee(dcsp.change_spend_size);
-    dcsp.m_cost_of_change = /*204 + 155 sats=*/dcsp.min_viable_change + dcsp.m_change_fee;
+    dcsp.m_change_fee = /*155 qirsh=*/dcsp.m_effective_feerate.GetFee(dcsp.change_output_size);
+    dcsp.min_viable_change = /*204 qirsh=*/dcsp.m_discard_feerate.GetFee(dcsp.change_spend_size);
+    dcsp.m_cost_of_change = /*204 + 155 qirsh=*/dcsp.min_viable_change + dcsp.m_change_fee;
     dcsp.m_subtract_fee_outputs = false;
     return dcsp;
 }
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(bnb_test)
         // BnB finds changeless solution while overshooting by up to cost_of_change
         TestBnBSuccess("Select upper bound", utxo_pool, /*selection_target=*/4 * CENT - default_cs_params.m_cost_of_change, /*expected_input_amounts=*/{1 * CENT, 3 * CENT}, cs_params);
 
-        // BnB fails to find changeless solution when overshooting by cost_of_change + 1 sat
+        // BnB fails to find changeless solution when overshooting by cost_of_change + 1 qirsh
         TestBnBFail("Overshoot upper bound", utxo_pool, /*selection_target=*/4 * CENT - default_cs_params.m_cost_of_change - 1);
 
         TestBnBSuccess("Select max weight", utxo_pool, /*selection_target=*/4 * CENT, /*expected_input_amounts=*/{1 * CENT, 3 * CENT}, cs_params, /*custom_spending_vsize=*/P2WPKH_INPUT_VSIZE, /*max_selection_weight=*/4 * 2 * P2WPKH_INPUT_VSIZE);
@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE(bnb_test)
          * combining small counts of UTXOs that in sum remain under the selection_target+cost_of_change. When there are
          * multiple UTXOs that have matching amount and cost, combinations with equivalent input sets are skipped. The
          * UTXO pool for this test is specifically crafted to create as much branching as possible. The selection target
-         * is 8 CENT while all UTXOs are slightly bigger than 1 CENT. The smallest eight are 100,000…100,007 sats, while
-         * the larger nine are 100,368…100,375 (i.e., 100,008…100,016 sats plus cost_of_change (359 sats)).
+         * is 8 CENT while all UTXOs are slightly bigger than 1 CENT. The smallest eight are 100,000…100,007 qirsh, while
+         * the larger nine are 100,368…100,375 (i.e., 100,008…100,016 qirsh plus cost_of_change (359 qirsh)).
          *
          * Because BnB will only select input sets that fall between selection_target and selection_target +
          * cost_of_change, and the search traverses the UTXO pool from large to small amounts, the search will visit

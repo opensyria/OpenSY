@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-namespace btck {
+namespace osyk {
 
 enum class LogCategory : osck_LogCategory {
     ALL = osck_LogCategory_ALL,
@@ -157,7 +157,7 @@ template <typename T>
 T check(T ptr)
 {
     if (ptr == nullptr) {
-        throw std::runtime_error("failed to instantiate btck object");
+        throw std::runtime_error("failed to instantiate osyk object");
     }
     return ptr;
 }
@@ -1153,6 +1153,6 @@ public:
     }
 };
 
-} // namespace btck
+} // namespace osyk
 
 #endif // OPENSYRIA_KERNEL_OPENSYRIAKERNEL_WRAPPER_H

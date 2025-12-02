@@ -34,7 +34,7 @@ enum class FeeEstimateMode {
 class CFeeRate
 {
 private:
-    /** Fee rate in sats/vB (qirsh per N virtualbytes) */
+    /** Fee rate in qirsh/vB (qirsh per N virtualbytes) */
     FeePerVSize m_feerate;
 
 public:

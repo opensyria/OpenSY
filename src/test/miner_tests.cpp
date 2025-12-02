@@ -223,7 +223,7 @@ void MinerTestingSetup::TestPackageSelection(const CScript& scriptPubKey, const 
     hashLowFeeTx = tx.GetHash();
     AddToMempool(tx_mempool, entry.Fee(feeToUse + 2).FromTx(tx));
 
-    // waitNext() should return if fees for the new template are at least 1 sat up
+    // waitNext() should return if fees for the new template are at least 1 qirsh up
     block_template = block_template->waitNext({.fee_threshold = 1});
     BOOST_REQUIRE(block_template);
     block = block_template->getBlock();
@@ -238,7 +238,7 @@ void MinerTestingSetup::TestPackageSelection(const CScript& scriptPubKey, const 
     tx.vout.resize(2);
     tx.vout[0].nValue = 5000000000LL - 100000000;
     tx.vout[1].nValue = 100000000; // 1SYL output
-    // Increase size to avoid rounding errors: when the feerate is extremely small (i.e. 1sat/kvB), evaluating the fee
+    // Increase size to avoid rounding errors: when the feerate is extremely small (i.e. 1qirsh/kvB), evaluating the fee
     // at smaller sizes gives us rounded values that are equal to each other, which means we incorrectly include
     // hashFreeTx2 + hashLowFeeTx2.
     BulkTransaction(tx, 4000);
