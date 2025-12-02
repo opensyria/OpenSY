@@ -69,10 +69,6 @@ BOOST_AUTO_TEST_CASE(validation_chainstate_resize_caches)
 //! of what it does for the active chainstate.
 BOOST_FIXTURE_TEST_CASE(chainstate_update_tip, TestChain100Setup)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
-    // Requires generating UTXO snapshot for OpenSyria with matching block height/hash
-    return;
-#if 0 // Disabled to prevent unreachable code warning
     ChainstateManager& chainman = *Assert(m_node.chainman);
     const auto get_notify_tip{[&]() {
         LOCK(m_node.notifications->m_tip_block_mutex);
@@ -149,7 +145,6 @@ BOOST_FIXTURE_TEST_CASE(chainstate_update_tip, TestChain100Setup)
     // validation chain.
     BOOST_CHECK(block_added);
     BOOST_CHECK_EQUAL(curr_tip, get_notify_tip());
-#endif // 0
 }
 
 BOOST_AUTO_TEST_SUITE_END()

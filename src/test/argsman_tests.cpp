@@ -1024,9 +1024,6 @@ BOOST_FIXTURE_TEST_CASE(util_ChainMerge, ChainMergeTestingSetup)
 
 BOOST_AUTO_TEST_CASE(util_ReadWriteSettings)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - macOS mv() moves files INTO directories instead of failing, breaking this test
-    return;
-#if 0 // Disabled to prevent unreachable code warning
     // Test writing setting.
     TestArgsManager args1;
     args1.ForceSetArg("-datadir", fs::PathToString(m_path_root));
@@ -1040,6 +1037,9 @@ BOOST_AUTO_TEST_CASE(util_ReadWriteSettings)
     args2.LockSettings([&](common::Settings& settings) { BOOST_CHECK_EQUAL(settings.rw_settings["name"].get_str(), "value"); });
 
     // Test error logging, and remove previously written setting.
+    // Note: On macOS, mv() moves files INTO directories instead of failing,
+    // so we skip this part of the test on macOS.
+#ifndef __APPLE__
     {
         ASSERT_DEBUG_LOG("Failed renaming settings file");
         fs::remove(args1.GetDataDirBase() / "settings.json");
@@ -1047,7 +1047,7 @@ BOOST_AUTO_TEST_CASE(util_ReadWriteSettings)
         args2.WriteSettingsFile();
         fs::remove(args1.GetDataDirBase() / "settings.json");
     }
-#endif // 0
+#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END()

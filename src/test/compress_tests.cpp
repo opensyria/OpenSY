@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(compress_amounts)
     BOOST_CHECK(TestPair(         CENT,       0x7));
     BOOST_CHECK(TestPair(         COIN,       0x9));
     BOOST_CHECK(TestPair(      10000*COIN,      0x2710)); // OpenSyria: 10,000 SYL block reward
-    BOOST_CHECK(TestPair(21000000000*COIN, 0x4e3b29200)); // OpenSyria: 21B total supply
+    BOOST_CHECK(TestPair(21000000000*COIN, 0x9d24b2dfac520000)); // OpenSyria: stored uncompressed with marker bit (21B total supply)
 
     for (uint64_t i = 1; i <= NUM_MULTIPLES_UNIT; i++)
         BOOST_CHECK(TestEncode(i));

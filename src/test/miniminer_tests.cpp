@@ -372,10 +372,6 @@ BOOST_FIXTURE_TEST_CASE(miniminer_1p1c, TestChain100Setup)
 
 BOOST_FIXTURE_TEST_CASE(miniminer_overlap, TestChain100Setup)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - test ordering assumption issue
-    // Test assumes specific feerate ordering which differs with OpenSyria's 10000 SYL block reward
-    return;
-#if 0 // Disabled to prevent unreachable code warning
 /*      Tx graph for `miniminer_overlap` unit test:
  *
  *     coinbase_tx [mined]        ... block-chain
@@ -581,8 +577,12 @@ BOOST_FIXTURE_TEST_CASE(miniminer_overlap, TestChain100Setup)
     BOOST_CHECK(miniminer_pool.IsReadyToCalculate());
     for (const auto& sequences : {miniminer_manual.Linearize(), miniminer_pool.Linearize()}) {
         // tx2 and tx4 selected first: high feerate with nothing to bump
-        BOOST_CHECK_EQUAL(Find(sequences, tx4->GetHash()), 0);
-        BOOST_CHECK_EQUAL(Find(sequences, tx2->GetHash()), 1);
+        // Both have same feerate, so order depends on hash comparison - accept either order
+        auto tx2_pos = Find(sequences, tx2->GetHash());
+        auto tx4_pos = Find(sequences, tx4->GetHash());
+        BOOST_CHECK(tx2_pos == 0 || tx2_pos == 1);
+        BOOST_CHECK(tx4_pos == 0 || tx4_pos == 1);
+        BOOST_CHECK(tx2_pos != tx4_pos); // They should be in different positions
 
         // tx5 + tx7 CPFP
         BOOST_CHECK_EQUAL(Find(sequences, tx5->GetHash()), 2);
@@ -596,7 +596,6 @@ BOOST_FIXTURE_TEST_CASE(miniminer_overlap, TestChain100Setup)
         // tx6 at medium feerate
         BOOST_CHECK_EQUAL(Find(sequences, tx6->GetHash()), 4);
     }
-#endif // 0
 }
 BOOST_FIXTURE_TEST_CASE(calculate_cluster, TestChain100Setup)
 {
