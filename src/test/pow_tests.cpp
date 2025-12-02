@@ -16,20 +16,16 @@ BOOST_FIXTURE_TEST_SUITE(pow_tests, BasicTestingSetup)
 /* Test calculation of next difficulty target with no constraints applying */
 BOOST_AUTO_TEST_CASE(get_next_work)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria mainnet historical values
-    return;
+    // OpenSyria: Test with perfect 2-week block timing - difficulty should stay the same
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
-    int64_t nLastRetargetTime = 1261130161; // Block #30240
+    int64_t nLastRetargetTime = 1733616000; // OpenSyria Genesis (Dec 8, 2024)
     CBlockIndex pindexLast;
-    pindexLast.nHeight = 32255;
-    pindexLast.nTime = 1262152739;  // Block #32255
-    pindexLast.nBits = 0x1d00ffff;
+    pindexLast.nHeight = 10079; // First retarget (10080 blocks per period with 2-min blocks)
+    pindexLast.nTime = 1734825600;  // Exactly 2 weeks later (perfect timing)
+    pindexLast.nBits = 0x1e00ffff;  // OpenSyria genesis difficulty
 
-    // Here (and below): expected_nbits is calculated in
-    // CalculateNextWorkRequired(); redoing the calculation here would be just
-    // reimplementing the same code that is written in pow.cpp. Rather than
-    // copy that code, we just hardcode the expected result.
-    unsigned int expected_nbits = 0x1d00d86aU;
+    // With perfect timing, difficulty should remain unchanged
+    unsigned int expected_nbits = 0x1e00ffffU;
     BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
     BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
 }
@@ -37,13 +33,16 @@ BOOST_AUTO_TEST_CASE(get_next_work)
 /* Test the constraint on the upper bound for next work */
 BOOST_AUTO_TEST_CASE(get_next_work_pow_limit)
 {
+    // OpenSyria: Test that difficulty doesn't go easier than powLimit when blocks are slow
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
-    int64_t nLastRetargetTime = 1231006505; // Block #0
+    int64_t nLastRetargetTime = 1733616000; // OpenSyria Genesis
     CBlockIndex pindexLast;
-    pindexLast.nHeight = 2015;
-    pindexLast.nTime = 1233061996;  // Block #2015
-    pindexLast.nBits = 0x1d00ffff;
-    unsigned int expected_nbits = 0x1d00ffffU;
+    pindexLast.nHeight = 10079;
+    pindexLast.nTime = 1739664000;  // 5x slower than expected (capped at 4x by protocol)
+    pindexLast.nBits = 0x1e00ffff;  // Already at powLimit
+    
+    // Result should stay at powLimit since we're already there
+    unsigned int expected_nbits = 0x1e00ffffU;
     BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
     BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
 }
@@ -51,15 +50,16 @@ BOOST_AUTO_TEST_CASE(get_next_work_pow_limit)
 /* Test the constraint on the lower bound for actual time taken */
 BOOST_AUTO_TEST_CASE(get_next_work_lower_limit_actual)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria mainnet historical values
-    return;
+    // OpenSyria: Test difficulty increase when blocks are too fast (capped at 4x)
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
-    int64_t nLastRetargetTime = 1279008237; // Block #66528
+    int64_t nLastRetargetTime = 1733616000; // OpenSyria Genesis
     CBlockIndex pindexLast;
-    pindexLast.nHeight = 68543;
-    pindexLast.nTime = 1279297671;  // Block #68543
-    pindexLast.nBits = 0x1c05a3f4;
-    unsigned int expected_nbits = 0x1c0168fdU;
+    pindexLast.nHeight = 10079;
+    pindexLast.nTime = 1733767200;  // 8x faster than expected (capped at 4x increase)
+    pindexLast.nBits = 0x1e00ffff;
+    
+    // Difficulty should increase by 4x (max allowed)
+    unsigned int expected_nbits = 0x1d3fffc0U;
     BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
     BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
     // Test that reducing nbits further would not be a PermittedDifficultyTransition.
@@ -70,15 +70,16 @@ BOOST_AUTO_TEST_CASE(get_next_work_lower_limit_actual)
 /* Test the constraint on the upper bound for actual time taken */
 BOOST_AUTO_TEST_CASE(get_next_work_upper_limit_actual)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria mainnet historical values
-    return;
+    // OpenSyria: Test difficulty decrease when blocks are too slow (capped at 4x)
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
-    int64_t nLastRetargetTime = 1263163443; // NOTE: Not an actual block time
+    int64_t nLastRetargetTime = 1733616000; // OpenSyria Genesis
     CBlockIndex pindexLast;
-    pindexLast.nHeight = 46367;
-    pindexLast.nTime = 1269211443;  // Block #46367
-    pindexLast.nBits = 0x1c387f6f;
-    unsigned int expected_nbits = 0x1d00e1fdU;
+    pindexLast.nHeight = 10079;
+    pindexLast.nTime = 1745712000;  // 10x slower than expected (capped at 4x decrease)
+    pindexLast.nBits = 0x1d00ffff;  // Start with harder difficulty
+    
+    // Difficulty should decrease by 4x (max allowed)
+    unsigned int expected_nbits = 0x1d03fffcU;
     BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
     BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
     // Test that increasing nbits further would not be a PermittedDifficultyTransition.

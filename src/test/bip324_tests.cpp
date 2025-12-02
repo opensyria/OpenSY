@@ -22,6 +22,7 @@
 namespace {
 
 struct BIP324Test : BasicTestingSetup {
+#if 0 // Function used by disabled test below
 void TestBIP324PacketVector(
     uint32_t in_idx,
     const std::string& in_priv_ours_hex,
@@ -157,6 +158,7 @@ void TestBIP324PacketVector(
         }
     }
 }
+#endif // 0 - Function used by disabled test
 }; // struct BIP324Test
 
 }  // namespace
@@ -165,7 +167,9 @@ BOOST_FIXTURE_TEST_SUITE(bip324_tests, BIP324Test)
 
 BOOST_AUTO_TEST_CASE(packet_test_vectors) {
     // TODO(OpenSyria): Re-enable after regenerating test vectors - test vectors use OpenSyria mainnet magic bytes in HKDF salt
+    // BIP324 uses network magic (0x53594c4d for OpenSyria vs 0xf9beb4d9 for Bitcoin) in HKDF salt
     return;
+#if 0 // Disabled to prevent unreachable code warning
     // BIP324 key derivation uses network magic in the HKDF process. We use mainnet params here
     // as that is what the test vectors are written for.
     SelectParams(ChainType::MAIN);
@@ -300,6 +304,7 @@ BOOST_AUTO_TEST_CASE(packet_test_vectors) {
         "fc2431beb9a666bf888df0662276a4b6a1af5061072992ef408f2b686c86a2ac",
         "",
         "1a7f3fb83ad2b050b663b8df6b7c2cc2d8e169a869a58bf7ef5ab5db97a505c84a812e100d9445da4fc39a1176d6aed3995f6868631224b86f10603217c8d13270e0c6d054ad9e0d0b7dc0c8e59a37cd05a0a45faa14b4ffc8d12b641f62e6f1b71c1f72b737e9ce3fe74be779b25e70bf11d98766b3876d0fa28d3c669087fc");
+#endif // 0
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -86,8 +86,6 @@ void AddPeer(NodeId& id, std::vector<CNode*>& nodes, PeerManager& peerman, Connm
 
 BOOST_FIXTURE_TEST_CASE(test_addnode_getaddednodeinfo_and_connection_detection, PeerTest)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses hardcoded OpenSyria mainnet port
-    return;
     auto connman = std::make_unique<ConnmanTestMsg>(0x1337, 0x1337, *m_node.addrman, *m_node.netgroupman, Params());
     auto peerman = PeerManager::make(*connman, *m_node.addrman, nullptr, *m_node.chainman, *m_node.mempool, *m_node.warnings, {});
     NodeId id{0};
@@ -95,7 +93,7 @@ BOOST_FIXTURE_TEST_CASE(test_addnode_getaddednodeinfo_and_connection_detection, 
 
     // Connect a localhost peer.
     {
-        ASSERT_DEBUG_LOG("Added connection to 127.0.0.1:9633 peer=1");
+        ASSERT_DEBUG_LOG("Added connection to 127.0.0.1:19634 peer=1");
         AddPeer(id, nodes, *peerman, *connman, ConnectionType::MANUAL, /*onion_peer=*/false, /*address=*/"127.0.0.1");
         BOOST_REQUIRE(nodes.back() != nullptr);
     }
@@ -104,7 +102,7 @@ BOOST_FIXTURE_TEST_CASE(test_addnode_getaddednodeinfo_and_connection_detection, 
     // address that resolves to multiple IPs, including that of the connected peer.
     // The connection attempt should consistently fail due to the check in ConnectNode().
     for (int i = 0; i < 10; ++i) {
-        ASSERT_DEBUG_LOG("Not opening a connection to localhost, already connected to 127.0.0.1:9633");
+        ASSERT_DEBUG_LOG("Not opening a connection to localhost, already connected to 127.0.0.1:19634");
         BOOST_CHECK(!connman->ConnectNodePublic(*peerman, "localhost", ConnectionType::MANUAL));
     }
 

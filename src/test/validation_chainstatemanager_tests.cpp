@@ -412,10 +412,11 @@ struct SnapshotTestSetup : TestChain100Setup {
 BOOST_FIXTURE_TEST_CASE(chainstatemanager_activate_snapshot, SnapshotTestSetup)
 {
     // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
+    // Requires generating UTXO snapshot for OpenSyria with matching block height/hash
     return;
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
-    return;
+#if 0 // Disabled to prevent unreachable code warning
     this->SetupSnapshot();
+#endif // 0
 }
 
 //! Test LoadBlockIndex behavior when multiple chainstates are in use.
@@ -431,9 +432,9 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_activate_snapshot, SnapshotTestSetup)
 BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
 {
     // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
+    // Requires generating UTXO snapshot for OpenSyria with matching block height/hash
     return;
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
-    return;
+#if 0 // Disabled to prevent unreachable code warning
     ChainstateManager& chainman = *Assert(m_node.chainman);
     Chainstate& cs1 = chainman.ActiveChainstate();
 
@@ -563,15 +564,16 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
     BOOST_CHECK_EQUAL(cs2.setBlockIndexCandidates.count(assumed_tip), 1);
     // Check that 11 blocks total are present.
     BOOST_CHECK_EQUAL(cs2.setBlockIndexCandidates.size(), num_indexes - last_assumed_valid_idx + 1);
+#endif // 0
 }
 
 //! Ensure that snapshot chainstates initialize properly when found on disk.
 BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_init, SnapshotTestSetup)
 {
     // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
+    // Requires generating UTXO snapshot for OpenSyria with matching block height/hash
     return;
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
-    return;
+#if 0 // Disabled to prevent unreachable code warning
     ChainstateManager& chainman = *Assert(m_node.chainman);
     Chainstate& bg_chainstate = chainman.ActiveChainstate();
 
@@ -637,14 +639,15 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_init, SnapshotTestSetup)
             }
         }
     }
+#endif // 0
 }
 
 BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion, SnapshotTestSetup)
 {
     // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
+    // Requires generating UTXO snapshot for OpenSyria with matching block height/hash
     return;
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
-    return;
+#if 0 // Disabled to prevent unreachable code warning
     this->SetupSnapshot();
 
     ChainstateManager& chainman = *Assert(m_node.chainman);
@@ -724,14 +727,15 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion, SnapshotTestSetup
         LOCK(chainman_restarted.GetMutex());
         BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 220);
     }
+#endif // 0
 }
 
 BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion_hash_mismatch, SnapshotTestSetup)
 {
     // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
+    // Requires generating UTXO snapshot for OpenSyria with matching block height/hash
     return;
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - uses OpenSyria assumeutxo data
-    return;
+#if 0 // Disabled to prevent unreachable code warning
     auto chainstates = this->SetupSnapshot();
     Chainstate& validation_chainstate = *std::get<0>(chainstates);
     ChainstateManager& chainman = *Assert(m_node.chainman);
@@ -795,6 +799,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion_hash_mismatch, Sna
         LOCK(::cs_main);
         BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 220);
     }
+#endif // 0
 }
 
 /** Helper function to parse args into args_man and return the result of applying them to opts */

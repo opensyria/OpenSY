@@ -183,8 +183,6 @@ BOOST_FIXTURE_TEST_SUITE(checkqueue_tests, CheckQueueTest)
  */
 BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_Zero)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     std::vector<size_t> range;
     range.push_back(size_t{0});
     Correct_Queue_range(range);
@@ -193,8 +191,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_Zero)
  */
 BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_One)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     std::vector<size_t> range;
     range.push_back(size_t{1});
     Correct_Queue_range(range);
@@ -203,8 +199,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_One)
  */
 BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_Max)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     std::vector<size_t> range;
     range.push_back(100000);
     Correct_Queue_range(range);
@@ -213,8 +207,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_Max)
  */
 BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_Random)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     std::vector<size_t> range;
     range.reserve(100000/1000);
     for (size_t i = 2; i < 100000; i += std::max((size_t)1, (size_t)m_rng.randrange(std::min((size_t)1000, ((size_t)100000) - i))))
@@ -226,8 +218,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Correct_Random)
 /** Test that distinct failing checks are caught */
 BOOST_AUTO_TEST_CASE(test_CheckQueue_Catches_Failure)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     auto fixed_queue = std::make_unique<Fixed_Queue>(QUEUE_BATCH_SIZE, SCRIPT_CHECK_THREADS);
     for (size_t i = 0; i < 1001; ++i) {
         CCheckQueueControl<FixedCheck> control(*fixed_queue);
@@ -253,8 +243,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Catches_Failure)
 // future blocks, ie, the bad state is cleared.
 BOOST_AUTO_TEST_CASE(test_CheckQueue_Recovers_From_Failure)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     auto fail_queue = std::make_unique<Fixed_Queue>(QUEUE_BATCH_SIZE, SCRIPT_CHECK_THREADS);
     for (auto times = 0; times < 10; ++times) {
         for (const bool end_fails : {true, false}) {
@@ -276,8 +264,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Recovers_From_Failure)
 // more than once as well
 BOOST_AUTO_TEST_CASE(test_CheckQueue_UniqueCheck)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     auto queue = std::make_unique<Unique_Queue>(QUEUE_BATCH_SIZE, SCRIPT_CHECK_THREADS);
     size_t COUNT = 100000;
     size_t total = COUNT;
@@ -310,8 +296,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_UniqueCheck)
 // time could leave the data hanging across a sequence of blocks.
 BOOST_AUTO_TEST_CASE(test_CheckQueue_Memory)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     auto queue = std::make_unique<Memory_Queue>(QUEUE_BATCH_SIZE, SCRIPT_CHECK_THREADS);
     for (size_t i = 0; i < 1000; ++i) {
         size_t total = i;
@@ -337,8 +321,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_Memory)
 // have been destructed
 BOOST_AUTO_TEST_CASE(test_CheckQueue_FrozenCleanup)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     auto queue = std::make_unique<FrozenCleanup_Queue>(QUEUE_BATCH_SIZE, SCRIPT_CHECK_THREADS);
     bool fails = false;
     std::thread t0([&]() {
@@ -373,8 +355,6 @@ BOOST_AUTO_TEST_CASE(test_CheckQueue_FrozenCleanup)
 /** Test that CCheckQueueControl is threadsafe */
 BOOST_AUTO_TEST_CASE(test_CheckQueueControl_Locks)
 {
-    // TODO(OpenSyria): Re-enable after regenerating test vectors - needs valid regtest genesis
-    return;
     auto queue = std::make_unique<Standard_Queue>(QUEUE_BATCH_SIZE, SCRIPT_CHECK_THREADS);
     {
         std::vector<std::thread> tg;

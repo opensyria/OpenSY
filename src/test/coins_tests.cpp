@@ -298,8 +298,10 @@ BOOST_FIXTURE_TEST_CASE(coins_cache_dbbase_simulation_test, CacheTest)
 {
     // TODO(OpenSyria): Re-enable after fixing coin value serialization issues
     return;
+#if 0 // Disabled to prevent unreachable code warning
     CCoinsViewDB db_base{{.path = "test", .cache_bytes = 1 << 23, .memory_only = true}, {}};
     SimulationTest(&db_base, true);
+#endif // 0
 }
 
 BOOST_AUTO_TEST_SUITE_END()

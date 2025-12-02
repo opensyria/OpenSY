@@ -1026,6 +1026,7 @@ BOOST_AUTO_TEST_CASE(util_ReadWriteSettings)
 {
     // TODO(OpenSyria): Re-enable after regenerating test vectors - flaky on macOS due to filesystem timing issues
     return;
+#if 0 // Disabled to prevent unreachable code warning
     // Test writing setting.
     TestArgsManager args1;
     args1.ForceSetArg("-datadir", fs::PathToString(m_path_root));
@@ -1046,6 +1047,7 @@ BOOST_AUTO_TEST_CASE(util_ReadWriteSettings)
         args2.WriteSettingsFile();
         fs::remove(args1.GetDataDirBase() / "settings.json");
     }
+#endif // 0
 }
 
 BOOST_AUTO_TEST_SUITE_END()
