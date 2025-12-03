@@ -23,7 +23,7 @@ class I2PPorts(OpenSyriaTestFramework):
 
         self.log.info("Ensure we don't try to connect if port!=0")
         addr = "zsxwyo6qcn3chqzwxnseusqgsnuw3maqnztkiypyfxtya4snkoka.b32.i2p:9633"
-        with node.assert_debug_log(expected_msgs=[f"Error connecting to {addr}, connection refused due to arbitrary port 8333"]):
+        with node.assert_debug_log(expected_msgs=[f"Error connecting to {addr}, connection refused due to arbitrary port 9633"]):
             node.addnode(node=addr, command="onetry")
 
         self.log.info("Ensure we try to connect if port=0 and get an error due to missing I2P proxy")

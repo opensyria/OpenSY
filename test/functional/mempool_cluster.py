@@ -170,7 +170,7 @@ class MempoolClusterTest(OpenSyriaTestFramework):
         # This number should be smaller than the cluster count limit.
         num_txns = 10
         # Leave some buffer so it is possible to add a reasonably-sized transaction.
-        target_vsize_per_tx = int((max_cluster_size_vbytes - 100000) / num_txns)
+        target_vsize_per_tx = int((max_cluster_size_vbytes - 500) / num_txns)
         cluster_submitted = self.add_chain_cluster(node, num_txns, target_vsize_per_tx)
 
         vsize_remaining = max_cluster_size_vbytes - weight_to_vsize(node.getmempoolcluster(cluster_submitted[0]["txid"])['weight'])
