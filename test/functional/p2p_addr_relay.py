@@ -110,7 +110,7 @@ class AddrTest(OpenSyriaTestFramework):
         addrs = []
         for i in range(num):
             addr = CAddress()
-            addr.time = self.mocktime + random.randrange(-100, 20000)
+            addr.time = self.mocktime + random.randrange(-100, 100)
             addr.nServices = P2P_SERVICES
             if sequential_ips:
                 assert self.counter < 256 ** 2  # Don't allow the returned ip addresses to wrap.

@@ -429,7 +429,7 @@ class AssumeutxoTest(OpenSyriaTestFramework):
         # In order for the snapshot to activate, we have to ferry over the new
         # headers to n1 and n2 so that they see the header of the snapshot's
         # base block while disconnected from n0.
-        for i in range(1, 60000):
+        for i in range(1, 300):
             block = n0.getblock(n0.getblockhash(i), 0)
             # make n1 and n2 aware of the new header, but don't give them the
             # block.
@@ -703,7 +703,7 @@ class AssumeutxoTest(OpenSyriaTestFramework):
             self.log.info(f"Check that restarting with {reindex_arg} will delete the snapshot chainstate")
             self.restart_node(2, extra_args=[reindex_arg, *self.extra_args[2]])
             assert_equal(1, len(n2.getchainstates()["chainstates"]))
-            for i in range(1, 60000):
+            for i in range(1, 300):
                 block = n0.getblock(n0.getblockhash(i), 0)
                 n2.submitheader(block)
             loaded = n2.loadtxoutset(dump_output['path'])

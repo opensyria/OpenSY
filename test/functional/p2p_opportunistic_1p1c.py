@@ -418,7 +418,7 @@ class PackageRelayTest(OpenSyriaTestFramework):
         """Create small orphan transaction"""
         tx = CTransaction()
         # Nonexistent UTXO
-        tx.vin = [CTxIn(COutPoint(random.randrange(1 << 256), random.randrange(1, 20000)))]
+        tx.vin = [CTxIn(COutPoint(random.randrange(1 << 256), random.randrange(1, 100)))]
         tx.wit.vtxinwit = [CTxInWitness()]
         tx.wit.vtxinwit[0].scriptWitness.stack = [CScript([OP_NOP] * 5)]
         tx.vout = [CTxOut(100, CScript([OP_RETURN, b'a' * 3]))]

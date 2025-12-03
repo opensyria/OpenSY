@@ -206,7 +206,7 @@ class AssumeValidTest(OpenSyriaTestFramework):
             tip_block = self.nodes[3].getblock(best_hash)
             second_chain_tip, second_chain_time, second_chain_height = int(best_hash, 16), tip_block["time"] + 1, tip_block["height"] + 1
             second_chain = []
-            for _ in range(30000):
+            for _ in range(150):
                 block = create_block(second_chain_tip, create_coinbase(second_chain_height), second_chain_time)
                 block.solve()
                 second_chain.append(block)

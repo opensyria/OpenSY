@@ -214,7 +214,7 @@ class ChainstateWriteCrashTest(OpenSyriaTestFramework):
         # Start by creating a lot of utxos on node3
         utxo_list = []
         for _ in range(5):
-            utxo_list.extend(self.wallet.send_self_transfer_multi(from_node=self.nodes[3], num_outputs=200000)['new_utxos'])
+            utxo_list.extend(self.wallet.send_self_transfer_multi(from_node=self.nodes[3], num_outputs=1000)['new_utxos'])
         self.generate(self.nodes[3], 1, sync_fun=self.no_op)
         assert_equal(len(self.nodes[3].getrawmempool()), 0)
         self.log.info(f"Prepped {len(utxo_list)} utxo entries")

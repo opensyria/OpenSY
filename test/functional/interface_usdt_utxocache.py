@@ -418,7 +418,7 @@ class UTXOCacheTracepointTest(OpenSyriaTestFramework):
         expected_flushes.append({"mode": "NONE", "for_prune": True, "size": 0})
         self.nodes[0].pruneblockchain(315)
 
-        bpf.perf_buffer_poll(timeout=100000)
+        bpf.perf_buffer_poll(timeout=500)
         bpf.cleanup()
 
         self.log.info(

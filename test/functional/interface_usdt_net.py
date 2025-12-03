@@ -479,7 +479,7 @@ class NetTracepointTest(OpenSyriaTestFramework):
             testnode = P2PInterface()
             self.nodes[0].add_p2p_connection(testnode)
             testnode.send_without_ping(msg)
-            bpf.perf_buffer_poll(timeout=100000)
+            bpf.perf_buffer_poll(timeout=500)
             testnode.peer_disconnect()
 
         assert_equal(EXPECTED_MISBEHAVING_CONNECTIONS, len(misbehaving_connections))
@@ -517,7 +517,7 @@ class NetTracepointTest(OpenSyriaTestFramework):
         for node in testnodes:
             node.peer_disconnect()
         self.wait_until(lambda: len(self.nodes[0].getpeerinfo()) == 0)
-        bpf.perf_buffer_poll(timeout=80000)
+        bpf.perf_buffer_poll(timeout=400)
 
         assert_equal(EXPECTED_CLOSED_CONNECTIONS, len(closed_connections))
         for closed_connection in closed_connections:
