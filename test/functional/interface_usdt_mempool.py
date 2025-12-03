@@ -182,7 +182,7 @@ class MempoolTracepointTest(OpenSyriaTestFramework):
         tx = self.wallet.send_self_transfer(from_node=node, fee=fee / COIN)
 
         self.log.info("Polling buffer...")
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         self.log.info("Cleaning up mempool...")
         self.generate(node, 1)
@@ -229,7 +229,7 @@ class MempoolTracepointTest(OpenSyriaTestFramework):
         self.wallet.send_self_transfer(from_node=node)
 
         self.log.info("Polling buffer...")
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         self.log.info("Ensuring mempool:removed event was handled successfully...")
         assert_equal(1, len(events))
@@ -276,7 +276,7 @@ class MempoolTracepointTest(OpenSyriaTestFramework):
         )
 
         self.log.info("Polling buffer...")
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         self.log.info("Ensuring mempool:replaced event was handled successfully...")
         assert_equal(1, len(events))
@@ -318,7 +318,7 @@ class MempoolTracepointTest(OpenSyriaTestFramework):
         node.p2ps[0].send_txs_and_test([tx["tx"]], node, success=False)
 
         self.log.info("Polling buffer...")
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         self.log.info("Ensuring mempool:rejected event was handled successfully...")
         assert_equal(1, len(events))

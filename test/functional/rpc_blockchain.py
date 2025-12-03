@@ -520,7 +520,7 @@ class BlockchainTest(OpenSyriaTestFramework):
         assert_raises_rpc_error(
             -8,
             "Invalid nblocks. Must be a positive number or -1.",
-            lambda: self.nodes[0].getnetworkhashps(-20000),
+            lambda: self.nodes[0].getnetworkhashps(-100),
         )
         assert_raises_rpc_error(
             -8,

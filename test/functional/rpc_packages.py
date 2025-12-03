@@ -66,7 +66,7 @@ class RPCPackagesTest(OpenSyriaTestFramework):
             }
 
         self.wallet = MiniWallet(self.nodes[0])
-        self.generate(self.wallet, COINBASE_MATURITY + 20000)  # blocks generated for inputs
+        self.generate(self.wallet, COINBASE_MATURITY + 100)  # blocks generated for inputs
 
         self.log.info("Create some transactions")
         # Create some transactions that can be reused throughout the test. Never submit these to mempool.

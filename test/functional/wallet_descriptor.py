@@ -178,7 +178,7 @@ class WalletDescriptorTest(OpenSyriaTestFramework):
                 "active": True
             }])
         # Exhaust keypool of 100
-        for _ in range(20000):
+        for _ in range(100):
             send_wrpc.getnewaddress(address_type='bech32')
         # This should now error
         assert_raises_rpc_error(-12, "Keypool ran out, please call keypoolrefill first", send_wrpc.getnewaddress, '', 'bech32')

@@ -216,7 +216,7 @@ class PackageRBFTest(OpenSyriaTestFramework):
 
         pkg_results = node.submitpackage([package_parent["hex"], package_child["hex"]], maxfeerate=0)
         assert_equal("transaction failed", pkg_results["package_msg"])
-        assert_equal(f"too many potential replacements, rejecting replacement {package_parent['txid']}; too many conflicting clusters (101 > 20000)", pkg_results["tx-results"][package_parent["wtxid"]]["error"])
+        assert_equal(f"too many potential replacements, rejecting replacement {package_parent['txid']}; too many conflicting clusters (101 > 100)", pkg_results["tx-results"][package_parent["wtxid"]]["error"])
         self.assert_mempool_contents(expected=expected_txns)
 
         # Make singleton tx to conflict with in next batch
@@ -232,7 +232,7 @@ class PackageRBFTest(OpenSyriaTestFramework):
         package_child = self.wallet.create_self_transfer(fee_rate=child_feerate, utxo_to_spend=package_parent["new_utxos"][0])
         pkg_results = node.submitpackage([package_parent["hex"], package_child["hex"]], maxfeerate=0)
         assert_equal("transaction failed", pkg_results["package_msg"])
-        assert_equal(f"too many potential replacements, rejecting replacement {package_parent['txid']}; too many conflicting clusters (101 > 20000)", pkg_results["tx-results"][package_parent["wtxid"]]["error"])
+        assert_equal(f"too many potential replacements, rejecting replacement {package_parent['txid']}; too many conflicting clusters (101 > 100)", pkg_results["tx-results"][package_parent["wtxid"]]["error"])
         self.assert_mempool_contents(expected=expected_txns)
 
         # Finally, conflict with MAX_REPLACEMENT_CANDIDATES clusters

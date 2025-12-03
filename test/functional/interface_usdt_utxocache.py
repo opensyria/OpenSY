@@ -313,7 +313,7 @@ class UTXOCacheTracepointTest(OpenSyriaTestFramework):
                         "is_coinbase": block_index == 0,
                     })
 
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         assert_equal(EXPECTED_HANDLE_ADD_SUCCESS, len(expected_utxocache_adds), len(actual_utxocache_adds))
         assert_equal(EXPECTED_HANDLE_SPENT_SUCCESS, len(expected_utxocache_spents), len(actual_utxocache_spents))
@@ -393,7 +393,7 @@ class UTXOCacheTracepointTest(OpenSyriaTestFramework):
         expected_flushes.append({"mode": "ALWAYS", "for_prune": False, "size": 0})
         self.stop_node(0)
 
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
         bpf.cleanup()
 
         self.log.info("check that we don't expect additional flushes")

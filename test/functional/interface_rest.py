@@ -117,7 +117,7 @@ class RESTTest (OpenSyriaTestFramework):
         spending = (txid, n)
 
         # Test /tx with an invalid and an unknown txid
-        resp = self.test_rest_request(uri=f"/tx/{INVALID_PARAM}", ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request(uri=f"/tx/{INVALID_PARAM}", ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), f"Invalid hash: {INVALID_PARAM}")
         resp = self.test_rest_request(uri=f"/tx/{UNKNOWN_PARAM}", ret_type=RetType.OBJ, status=404)
         assert_equal(resp.read().decode('utf-8').rstrip(), f"{UNKNOWN_PARAM} not found")
@@ -207,18 +207,18 @@ class RESTTest (OpenSyriaTestFramework):
         self.test_rest_request("/getutxos", http_method='POST', req_type=ReqType.JSON, body='{"checkmempool', status=400, ret_type=RetType.OBJ)
         self.test_rest_request("/getutxos", http_method='POST', req_type=ReqType.BIN, body='{"checkmempool', status=400, ret_type=RetType.OBJ)
         self.test_rest_request("/getutxos/checkmempool", http_method='POST', req_type=ReqType.JSON, status=400, ret_type=RetType.OBJ)
-        self.test_rest_request(f"/getutxos/{spending[0]}_+1", ret_type=RetType.OBJ, status=80000)
-        self.test_rest_request(f"/getutxos/{spending[0]}-+1", ret_type=RetType.OBJ, status=80000)
-        self.test_rest_request(f"/getutxos/{spending[0]}--1", ret_type=RetType.OBJ, status=80000)
-        self.test_rest_request(f"/getutxos/{spending[0]}aa-1234", ret_type=RetType.OBJ, status=80000)
-        self.test_rest_request("/getutxos/aa-1234", ret_type=RetType.OBJ, status=80000)
+        self.test_rest_request(f"/getutxos/{spending[0]}_+1", ret_type=RetType.OBJ, status=400)
+        self.test_rest_request(f"/getutxos/{spending[0]}-+1", ret_type=RetType.OBJ, status=400)
+        self.test_rest_request(f"/getutxos/{spending[0]}--1", ret_type=RetType.OBJ, status=400)
+        self.test_rest_request(f"/getutxos/{spending[0]}aa-1234", ret_type=RetType.OBJ, status=400)
+        self.test_rest_request("/getutxos/aa-1234", ret_type=RetType.OBJ, status=400)
 
         # Test limits
         long_uri = '/'.join([f"{txid}-{n_}" for n_ in range(20)])
         self.test_rest_request(f"/getutxos/checkmempool/{long_uri}", http_method='POST', status=400, ret_type=RetType.OBJ)
 
         long_uri = '/'.join([f'{txid}-{n_}' for n_ in range(15)])
-        self.test_rest_request(f"/getutxos/checkmempool/{long_uri}", http_method='POST', status=40000)
+        self.test_rest_request(f"/getutxos/checkmempool/{long_uri}", http_method='POST', status=200)
 
         self.generate(self.nodes[0], 1)  # generate block to not affect upcoming tests
 
@@ -271,15 +271,15 @@ class RESTTest (OpenSyriaTestFramework):
         assert_equal(blockhash, bb_hash)
 
         # Check invalid blockhashbyheight requests
-        resp = self.test_rest_request(f"/blockhashbyheight/{INVALID_PARAM}", ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request(f"/blockhashbyheight/{INVALID_PARAM}", ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), f"Invalid height: {INVALID_PARAM}")
-        resp = self.test_rest_request("/blockhashbyheight/+1", ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request("/blockhashbyheight/+1", ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), "Invalid height: +1")
         resp = self.test_rest_request("/blockhashbyheight/1000000", ret_type=RetType.OBJ, status=404)
         assert_equal(resp.read().decode('utf-8').rstrip(), "Block height out of range")
-        resp = self.test_rest_request("/blockhashbyheight/-1", ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request("/blockhashbyheight/-1", ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), "Invalid height: -1")
-        self.test_rest_request("/blockhashbyheight/", ret_type=RetType.OBJ, status=80000)
+        self.test_rest_request("/blockhashbyheight/", ret_type=RetType.OBJ, status=400)
 
         # Compare with json block header
         json_obj = self.test_rest_request(f"/headers/{bb_hash}", query_params={"count": 1})
@@ -288,7 +288,7 @@ class RESTTest (OpenSyriaTestFramework):
 
         # Check invalid uri (% symbol at the end of the request)
         for invalid_uri in [f"/headers/{bb_hash}%", f"/blockfilterheaders/basic/{bb_hash}%", "/mempool/contents.json?%"]:
-            resp = self.test_rest_request(invalid_uri, ret_type=RetType.OBJ, status=80000)
+            resp = self.test_rest_request(invalid_uri, ret_type=RetType.OBJ, status=400)
             assert_equal(resp.read().decode('utf-8').rstrip(), "URI parsing failed, it likely contained RFC 3986 invalid characters")
 
         # Compare with normal RPC block response
@@ -315,9 +315,9 @@ class RESTTest (OpenSyriaTestFramework):
         assert_equal(json_obj['filter'], rpc_blockfilter['filter'])
 
         # Test blockfilterheaders with an invalid hash and filtertype
-        resp = self.test_rest_request(f"/blockfilterheaders/{INVALID_PARAM}/{bb_hash}", ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request(f"/blockfilterheaders/{INVALID_PARAM}/{bb_hash}", ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), f"Unknown filtertype {INVALID_PARAM}")
-        resp = self.test_rest_request(f"/blockfilterheaders/basic/{INVALID_PARAM}", ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request(f"/blockfilterheaders/basic/{INVALID_PARAM}", ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), f"Invalid hash: {INVALID_PARAM}")
 
         # Test number parsing
@@ -342,7 +342,7 @@ class RESTTest (OpenSyriaTestFramework):
         json_obj = self.test_rest_request("/mempool/info")
         assert_equal(json_obj['size'], 3)
         # the size of the memory pool should be greater than 3x ~100 bytes
-        assert_greater_than(json_obj['bytes'], 60000)
+        assert_greater_than(json_obj['bytes'], 300)
 
         mempool_info = self.nodes[0].getmempoolinfo()
         # pop unstable unbroadcastcount before check
@@ -466,10 +466,10 @@ class RESTTest (OpenSyriaTestFramework):
         assert_equal(deployment_info, self.test_rest_request(f"/deploymentinfo/{previous_bb_hash}"))
 
         non_existing_blockhash = '42759cde25462784395a337460bde75f58e73d3f08bd31fdc3507cbac856a2c4'
-        resp = self.test_rest_request(f'/deploymentinfo/{non_existing_blockhash}', ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request(f'/deploymentinfo/{non_existing_blockhash}', ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), "Block not found")
 
-        resp = self.test_rest_request(f"/deploymentinfo/{INVALID_PARAM}", ret_type=RetType.OBJ, status=80000)
+        resp = self.test_rest_request(f"/deploymentinfo/{INVALID_PARAM}", ret_type=RetType.OBJ, status=400)
         assert_equal(resp.read().decode('utf-8').rstrip(), f"Invalid hash: {INVALID_PARAM}")
 
 if __name__ == '__main__':

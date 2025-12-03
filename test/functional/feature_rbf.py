@@ -31,7 +31,7 @@ class ReplaceByFeeTest(OpenSyriaTestFramework):
 
     def run_test(self):
         self.wallet = MiniWallet(self.nodes[0])
-        self.generate(self.nodes[0], 20000)
+        self.generate(self.nodes[0], 100)
 
         self.log.info("Running test simple doublespend...")
         self.test_simple_doublespend()
@@ -510,17 +510,17 @@ class ReplaceByFeeTest(OpenSyriaTestFramework):
             confirmed_utxo = self.wallet.get_utxo(confirmed_only=True)
             # Use different versions to avoid creating an identical transaction when failed_replacement_tx is created.
             # Use a target vsize that is small, but something larger than the minimum so that we can create a transaction that is 1vB smaller later.
-            replacee_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, fee_rate=low_feerate, version=3, target_vsize=40000)
+            replacee_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, fee_rate=low_feerate, version=3, target_vsize=200)
             node.sendrawtransaction(replacee_tx['hex'])
 
-            replacement_placeholder_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, target_vsize=40000)
+            replacement_placeholder_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, target_vsize=200)
             replacement_expected_size = replacement_placeholder_tx['tx'].get_vsize()
             replacement_required_fee = get_fee(replacement_expected_size, incremental_setting_decimal) + replacee_tx['fee']
 
             # Show that replacement fails when paying 1 qirsh shy of the required fee
-            failed_replacement_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, fee=replacement_required_fee - Decimal("0.00000001"), version=2, target_vsize=40000)
+            failed_replacement_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, fee=replacement_required_fee - Decimal("0.00000001"), version=2, target_vsize=200)
             assert_raises_rpc_error(-26, "insufficient fee", node.sendrawtransaction, failed_replacement_tx['hex'])
-            replacement_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, fee=replacement_required_fee, version=2, target_vsize=40000)
+            replacement_tx = self.wallet.create_self_transfer(utxo_to_spend=confirmed_utxo, fee=replacement_required_fee, version=2, target_vsize=200)
 
             if incremental_setting == 0:
                 # When incremental relay feerate is 0, additional fees are not required, but higher feerate is still required.

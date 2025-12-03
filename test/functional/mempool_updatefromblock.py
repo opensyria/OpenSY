@@ -124,7 +124,7 @@ class MempoolUpdateFromBlockTest(OpenSyriaTestFramework):
         # Generate coins for the hundreds of transactions we will make
         parent_target_vsize = 100_000
         wallet = MiniWallet(self.nodes[0])
-        self.generate(wallet, (MAX_DISCONNECTED_TX_POOL_BYTES // parent_target_vsize) + 20000)
+        self.generate(wallet, (MAX_DISCONNECTED_TX_POOL_BYTES // parent_target_vsize) + 100)
 
         assert_equal(self.nodes[0].getrawmempool(), [])
 

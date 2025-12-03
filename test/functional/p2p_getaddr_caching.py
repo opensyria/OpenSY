@@ -61,7 +61,7 @@ class AddrTest(OpenSyriaTestFramework):
 
         # Need to make sure we hit MAX_ADDR_TO_SEND records in the addr response later because
         # only a fraction of all known addresses can be cached and returned.
-        assert len(self.nodes[0].getnodeaddresses(0)) > int(MAX_ADDR_TO_SEND / (MAX_PCT_ADDR_TO_SEND / 20000))
+        assert len(self.nodes[0].getnodeaddresses(0)) > int(MAX_ADDR_TO_SEND / (MAX_PCT_ADDR_TO_SEND / 100))
 
         last_response_on_local_bind = None
         last_response_on_onion_bind1 = None

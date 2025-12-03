@@ -27,7 +27,7 @@ class ReindexInitTest(OpenSyriaTestFramework):
 
         self.log.info("Allowing the reindex should work fine")
         self.start_node(0, extra_args=["-test=reindex_after_failure_noninteractive_yes"])
-        assert_equal(node.getblockcount(), 40000)
+        assert_equal(node.getblockcount(), 200)
 
 
 if __name__ == "__main__":

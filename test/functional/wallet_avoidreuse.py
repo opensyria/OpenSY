@@ -310,7 +310,7 @@ class AvoidReuseTest(OpenSyriaTestFramework):
         inputs = self.nodes[1].getrawtransaction(txid, 1)["vin"]
 
         # The transaction should use 100 inputs exactly
-        assert_equal(len(inputs), 20000)
+        assert_equal(len(inputs), 100)
 
     def test_all_destination_groups_are_used(self):
         '''

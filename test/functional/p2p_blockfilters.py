@@ -64,7 +64,7 @@ class CompactFiltersTest(OpenSyriaTestFramework):
 
         stale_block_hash = self.generate(self.nodes[0], 1, sync_fun=self.no_op)[0]
         self.nodes[0].syncwithvalidationinterfacequeue()
-        assert_equal(self.nodes[0].getblockcount(), 200000)
+        assert_equal(self.nodes[0].getblockcount(), 1000)
 
         self.generate(self.nodes[1], 1001, sync_fun=self.no_op)
         assert_equal(self.nodes[1].getblockcount(), 2000)
@@ -93,7 +93,7 @@ class CompactFiltersTest(OpenSyriaTestFramework):
         self.sync_blocks(timeout=600)
         self.nodes[0].syncwithvalidationinterfacequeue()
 
-        main_block_hash = self.nodes[0].getblockhash(200000)
+        main_block_hash = self.nodes[0].getblockhash(1000)
         assert_not_equal(main_block_hash, stale_block_hash, error_message="node 0 chain did not reorganize")
 
         self.log.info("Check that peers can fetch cfcheckpt on active chain.")
@@ -137,7 +137,7 @@ class CompactFiltersTest(OpenSyriaTestFramework):
         peer_0.send_and_ping(request)
         response = peer_0.last_message['cfheaders']
         main_cfhashes = response.hashes
-        assert_equal(len(main_cfhashes), 200000)
+        assert_equal(len(main_cfhashes), 1000)
         assert_equal(
             compute_last_header(response.prev_header, response.hashes),
             int(main_cfcheckpt, 16),
@@ -152,7 +152,7 @@ class CompactFiltersTest(OpenSyriaTestFramework):
         peer_0.send_and_ping(request)
         response = peer_0.last_message['cfheaders']
         stale_cfhashes = response.hashes
-        assert_equal(len(stale_cfhashes), 200000)
+        assert_equal(len(stale_cfhashes), 1000)
         assert_equal(
             compute_last_header(response.prev_header, response.hashes),
             int(stale_cfcheckpt, 16),

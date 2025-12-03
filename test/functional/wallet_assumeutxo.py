@@ -88,7 +88,7 @@ class AssumeutxoTest(OpenSyriaTestFramework):
         # though, we have to ferry over the new headers to n1 so that it
         # isn't waiting forever to see the header of the snapshot's base block
         # while disconnected from n0.
-        for i in range(20000):
+        for i in range(100):
             if i % 3 == 0:
                 self.mini_wallet.send_self_transfer(from_node=n0)
             self.generate(n0, nblocks=1, sync_fun=self.no_op)
@@ -126,7 +126,7 @@ class AssumeutxoTest(OpenSyriaTestFramework):
         # will allow us to test n1's sync-to-tip on top of a snapshot.
         w_skp = address_to_scriptpubkey(w_address)
         w2_skp = address_to_scriptpubkey(w2_address)
-        for i in range(20000):
+        for i in range(100):
             if i % 3 == 0:
                 self.mini_wallet.send_to(from_node=n0, scriptPubKey=w_skp, amount=1 * COIN)
                 self.mini_wallet.send_to(from_node=n0, scriptPubKey=w2_skp, amount=10 * COIN)

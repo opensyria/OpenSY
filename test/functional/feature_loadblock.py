@@ -73,9 +73,9 @@ class LoadblockTest(OpenSyriaTestFramework):
 
         self.log.info("Restart second, unsynced node with bootstrap file")
         self.restart_node(1, extra_args=[f"-loadblock={bootstrap_file}"])
-        assert_equal(self.nodes[1].getblockcount(), 20000)  # start_node is blocking on all block files being imported
+        assert_equal(self.nodes[1].getblockcount(), 100)  # start_node is blocking on all block files being imported
 
-        assert_equal(self.nodes[1].getblockchaininfo()['blocks'], 20000)
+        assert_equal(self.nodes[1].getblockchaininfo()['blocks'], 100)
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
 
 

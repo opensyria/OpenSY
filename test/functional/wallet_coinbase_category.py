@@ -49,12 +49,12 @@ class CoinbaseCategoryTest(OpenSyriaTestFramework):
         # Mine one more block
         self.generate(self.nodes[0], 1)
         # Coinbase transaction is now matured, so category is "generate"
-        self.assert_category("generate", address, txid, 20000)
+        self.assert_category("generate", address, txid, 100)
 
         # Orphan block that paid to address
         self.nodes[0].invalidateblock(hash)
         # Coinbase transaction is now orphaned
-        self.assert_category("orphan", address, txid, 20000)
+        self.assert_category("orphan", address, txid, 100)
 
 if __name__ == '__main__':
     CoinbaseCategoryTest(__file__).main()

@@ -150,7 +150,7 @@ class WalletBackupTest(OpenSyriaTestFramework):
         # Generate more blocks so we can actually prune the older blocks
         self.generate(node, 300, sync_fun=self.no_op)
         # This gives us an actual prune height roughly in the range of 220 - 240
-        node.pruneblockchain(50000)
+        node.pruneblockchain(200)
         # The backup should be updated with the latest height (locator) for
         # the backup to load successfully this close to the prune height
         node.restorewallet('pruned', node.datadir_path / 'wallet_pruned.bak')
@@ -191,8 +191,8 @@ class WalletBackupTest(OpenSyriaTestFramework):
         total = balance0 + balance1 + balance2 + balance3
 
         # At this point, there are 214 blocks (103 for setup, then 10 rounds, then 101.)
-        # 114 are mature, so the sum of all wallets should be 114 * 50 = 5700.
-        assert_equal(total, 5700)
+        # 114 are mature, so the sum of all wallets should be 114 * 10000 = 1140000.
+        assert_equal(total, 1140000)
 
         ##
         # Test restoring spender wallets from backups

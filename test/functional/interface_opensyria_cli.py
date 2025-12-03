@@ -20,11 +20,11 @@ from test_framework.util import (
 )
 import time
 
-# The block reward of coinbaseoutput.nValue (50) SYL/block matures after
-# COINBASE_MATURITY (20000) blocks. Therefore, after mining 101 blocks we expect
+# The block reward of coinbaseoutput.nValue (10000) SYL/block matures after
+# COINBASE_MATURITY (100) blocks. Therefore, after mining 101 blocks we expect
 # node 0 to have a balance of (BLOCKS - COINBASE_MATURITY) * 50 SYL/block.
 BLOCKS = COINBASE_MATURITY + 1
-BALANCE = (BLOCKS - 20000) * 50
+BALANCE = (BLOCKS - COINBASE_MATURITY) * 10000
 
 JSON_PARSING_ERROR = 'error: Error parsing JSON: foo'
 BLOCKS_VALUE_OF_ZERO = 'error: the first argument (number of blocks to generate, default: 1) must be an integer value greater than zero'
@@ -222,7 +222,7 @@ class TestOpenSyriaCli(OpenSyriaTestFramework):
         network_info = self.nodes[0].getnetworkinfo()
         blockchain_info = self.nodes[0].getblockchaininfo()
         assert_equal(int(cli_get_info['Version']), network_info['version'])
-        assert_equal(cli_get_info['Verification progress'], "%.4f%%" % (blockchain_info['verificationprogress'] * 20000))
+        assert_equal(cli_get_info['Verification progress'], "%.4f%%" % (blockchain_info['verificationprogress'] * 100))
         assert_equal(int(cli_get_info['Blocks']), blockchain_info['blocks'])
         assert_equal(int(cli_get_info['Headers']), blockchain_info['headers'])
         assert_equal(int(cli_get_info['Time offset (s)']), network_info['timeoffset'])
@@ -255,7 +255,7 @@ class TestOpenSyriaCli(OpenSyriaTestFramework):
 
             # Setup to test -getinfo, -generate, and -rpcwallet= with multiple wallets.
             wallets = [self.default_wallet_name, 'Encrypted', 'secret']
-            amounts = [BALANCE + Decimal('9.999928'), Decimal(9), Decimal(31)]
+            amounts = [BALANCE + Decimal('9959.999928'), Decimal(9), Decimal(31)]
             self.nodes[0].createwallet(wallet_name=wallets[1])
             self.nodes[0].createwallet(wallet_name=wallets[2])
             w1 = self.nodes[0].get_wallet_rpc(wallets[0])
@@ -268,7 +268,7 @@ class TestOpenSyriaCli(OpenSyriaTestFramework):
             w1.sendtoaddress(w2.getnewaddress(), amounts[1])
             w1.sendtoaddress(w3.getnewaddress(), amounts[2])
 
-            # Mine a block to confirm; adds a block reward (50 SYL) to the default wallet.
+            # Mine a block to confirm; adds a block reward (10000 SYL) to the default wallet.
             self.generate(self.nodes[0], 1)
 
             self.log.info("Test -getinfo with multiple wallets and -rpcwallet returns specified wallet balance")

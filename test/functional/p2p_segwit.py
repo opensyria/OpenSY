@@ -1610,7 +1610,7 @@ class SegWitTest(OpenSyriaTestFramework):
         used_sighash_single_out_of_bounds = False
         for i in range(NUM_SIGHASH_TESTS):
             # Ping regularly to keep the connection alive
-            if (not i % 20000):
+            if (not i % 100):
                 self.test_node.sync_with_ping()
             # Choose random number of inputs to use.
             num_inputs = random.randint(1, 10)

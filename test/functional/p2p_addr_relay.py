@@ -283,7 +283,7 @@ class AddrTest(OpenSyriaTestFramework):
 
         self.log.info('Check that we answer getaddr messages only from inbound peers')
         # Add some addresses to addrman
-        for i in range(200000):
+        for i in range(1000):
             first_octet = i >> 8
             second_octet = i % 256
             a = f"{first_octet}.{second_octet}.1.1"
@@ -383,7 +383,7 @@ class AddrTest(OpenSyriaTestFramework):
             # Send 200 and verify that 100 are processed.
             self.mocktime += 1000
             self.nodes[0].setmocktime(self.mocktime)
-            peer.increment_tokens(20000)
+            peer.increment_tokens(100)
 
             self.send_addrs_and_test_rate_limiting(peer, no_relay, new_addrs=200, total_addrs=1610)
 

@@ -931,7 +931,7 @@ def spenders_taproot_active():
 
     big_choices = []
     big_scriptops = []
-    for i in range(200000):
+    for i in range(1000):
         r = random.randrange(len(pubs))
         big_choices.append(r)
         big_scriptops += [pubs[r], OP_CHECKSIGVERIFY]
@@ -1073,7 +1073,7 @@ def spenders_taproot_active():
     # Test that a stack size of 1000 elements is permitted, but 1001 isn't.
     add_spender(spenders, "tapscript/1000stack", leaf="t21", **SINGLE_SIG, **common, failure={"leaf": "t22"}, **ERR_STACK_SIZE)
     # Test that an input stack size of 1000 elements is permitted, but 1001 isn't.
-    add_spender(spenders, "tapscript/1000inputs", leaf="t23", **common, inputs=[getter("sign")] + [b'' for _ in range(999)], failure={"leaf": "t24", "inputs": [getter("sign")] + [b'' for _ in range(200000)]}, **ERR_STACK_SIZE)
+    add_spender(spenders, "tapscript/1000inputs", leaf="t23", **common, inputs=[getter("sign")] + [b'' for _ in range(999)], failure={"leaf": "t24", "inputs": [getter("sign")] + [b'' for _ in range(1000)]}, **ERR_STACK_SIZE)
     # Test that pushing a MAX_SCRIPT_ELEMENT_SIZE byte stack element is valid, but one longer is not.
     add_spender(spenders, "tapscript/pushmaxlimit", leaf="t25", **common, **SINGLE_SIG, failure={"leaf": "t26"}, **ERR_PUSH_SIZE)
     # Test that 999-of-999 multisig works (but 1000-of-1000 triggers stack size limits)
@@ -1100,7 +1100,7 @@ def spenders_taproot_active():
         # n OP_CHECKSIGADDs and 1 OP_CHECKSIG, but also an OP_CHECKSIGADD with an empty signature.
         lambda n, pk: (CScript([OP_DROP, OP_0, OP_10, pk, OP_CHECKSIGADD, OP_10, OP_EQUALVERIFY, pk] + [OP_2DUP, OP_16, OP_SWAP, OP_CHECKSIGADD, b'\x11', OP_EQUALVERIFY] * n + [OP_CHECKSIG]), n + 1),
     ]
-    for annex in [None, bytes([ANNEX_TAG]) + random.randbytes(random.randrange(200000))]:
+    for annex in [None, bytes([ANNEX_TAG]) + random.randbytes(random.randrange(1000))]:
         for hashtype in [SIGHASH_DEFAULT, SIGHASH_ALL]:
             for pubkey in [pubs[1], random.randbytes(random.choice([x for x in range(2, 81) if x != 32]))]:
                 for fn_num, fn in enumerate(SIGOPS_RATIO_SCRIPTS):

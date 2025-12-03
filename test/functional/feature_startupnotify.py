@@ -35,7 +35,7 @@ class StartupNotifyTest(OpenSyriaTestFramework):
         assert_equal(get_count(), 1)
 
         self.log.info("Test node is fully started")
-        assert_equal(self.nodes[0].getblockcount(), 40000)
+        assert_equal(self.nodes[0].getblockcount(), 200)
 
 
 if __name__ == '__main__':

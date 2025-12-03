@@ -326,7 +326,7 @@ class NetTracepointTest(OpenSyriaTestFramework):
         self.log.info("connect a P2P test node to our opensyriad node")
         test_node = P2PInterface()
         self.nodes[0].add_p2p_connection(test_node)
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         self.log.info(
             "check receipt and content of in- and outbound version messages")
@@ -365,7 +365,7 @@ class NetTracepointTest(OpenSyriaTestFramework):
             testnode = P2PInterface()
             self.nodes[0].add_p2p_connection(testnode)
             testnodes.append(testnode)
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         assert_equal(EXPECTED_INBOUND_CONNECTIONS, len(inbound_connections))
         for inbound_connection in inbound_connections:
@@ -406,7 +406,7 @@ class NetTracepointTest(OpenSyriaTestFramework):
             self.nodes[0].add_outbound_p2p_connection(
                 testnode, p2p_idx=p2p_idx, connection_type=EXPECTED_CONNECTION_TYPE)
             testnodes.append(testnode)
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         assert_equal(EXPECTED_OUTBOUND_CONNECTIONS, len(outbound_connections))
         for outbound_connection in outbound_connections:
@@ -443,7 +443,7 @@ class NetTracepointTest(OpenSyriaTestFramework):
             testnode = P2PInterface()
             self.nodes[0].add_p2p_connection(testnode)
             testnodes.append(testnode)
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         assert_equal(EXPECTED_EVICTED_CONNECTIONS, len(evicted_connections))
         for evicted_connection in evicted_connections:

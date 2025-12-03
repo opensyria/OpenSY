@@ -78,7 +78,7 @@ class DisconnectBanTest(OpenSyriaTestFramework):
         self.nodes[1].setban("127.0.0.0/24", "add")
         self.nodes[1].setban("pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion", "add")
         self.nodes[1].setban("192.168.0.1", "add", 1)  # ban for 1 seconds
-        self.nodes[1].setban("2001:4d48:ac57:400:cacf:e9ff:fe1d:9c63/19", "add", 200000)  # ban for 1000 seconds
+        self.nodes[1].setban("2001:4d48:ac57:400:cacf:e9ff:fe1d:9c63/19", "add", 1000)  # ban for 1000 seconds
         listBeforeShutdown = self.nodes[1].listbanned()
         assert_equal("192.168.0.1/32", listBeforeShutdown[2]['address'])
 
@@ -95,7 +95,7 @@ class DisconnectBanTest(OpenSyriaTestFramework):
                 assert_equal(ban["ban_duration"], 86400)
                 assert_equal(ban["time_remaining"], 86397)
             elif ban["address"] == "2001:4d48:ac57:400:cacf:e9ff:fe1d:9c63/19":
-                assert_equal(ban["ban_duration"], 200000)
+                assert_equal(ban["ban_duration"], 1000)
                 assert_equal(ban["time_remaining"], 997)
             elif ban["address"] == "192.168.0.2/32":
                 assert_equal(ban["ban_duration"], 120)

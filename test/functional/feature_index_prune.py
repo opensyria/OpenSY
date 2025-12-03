@@ -122,7 +122,7 @@ class FeatureIndexPruneTest(OpenSyriaTestFramework):
 
         self.log.info("prune further than the indices best blocks while the indices are disabled")
         self.restart_without_indices()
-        self.generate(self.nodes[0], 200000)
+        self.generate(self.nodes[0], 1000)
 
         for i in range(3):
             pruneheight_3 = self.nodes[i].pruneblockchain(2000)
