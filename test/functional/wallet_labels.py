@@ -101,7 +101,7 @@ class WalletLabelsTest(OpenSyriaTestFramework):
             linked_addresses.add(address_group[0][0])
 
         # send 50 from each address to a third address not in this wallet
-        common_address = "msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr"
+        common_address = "sWPWJQY3UvooNSr8y8DLw3zoHGdTBjP4FU"
         node.sendmany(
             amounts={common_address: 100},
             subtractfeefrom=[common_address],
