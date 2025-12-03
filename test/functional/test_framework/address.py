@@ -33,7 +33,7 @@ from test_framework.segwit_addr import (
 
 
 ADDRESS_BCRT1_UNSPENDABLE = 'rsyl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqlulf3n'
-ADDRESS_BCRT1_UNSPENDABLE_DESCRIPTOR = 'addr(rsyl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqlulf3n)#lxwp66k7'
+ADDRESS_BCRT1_UNSPENDABLE_DESCRIPTOR = 'addr(rsyl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqlulf3n)#uvp9szjw'
 # Coins sent to this address can be spent with a witness stack of just OP_TRUE
 ADDRESS_BCRT1_P2WSH_OP_TRUE = 'rsyl1qft5p2uhsdcdc3l2ua4ap5qqfg4pjaqlp250x7us7a8qqhrxrxfsq7r7gj4'
 
@@ -175,7 +175,7 @@ def check_script(script):
 
 def bech32_to_bytes(address):
     hrp = address.split('1')[0]
-    if hrp not in ['bc', 'tb', 'rsyl']:
+    if hrp not in ['bc', 'tb', 'syl', 'tsyl', 'rsyl']:
         return (None, None)
     version, payload = decode_segwit_address(hrp, address)
     if version is None:

@@ -87,7 +87,7 @@ class SignRawTransactionWithKeyTest(OpenSyriaTestFramework):
         unspent_output['redeemScript'] = script_to_p2wsh_script(unspent_output['witnessScript']).hex()
         assert_equal(spk, unspent_output['scriptPubKey'])
         # Now create and sign a transaction spending that output on node[0], which doesn't know the scripts or keys
-        spending_tx = self.nodes[0].createrawtransaction([unspent_output], {getnewdestination()[2]: Decimal("9999.998")})
+        spending_tx = self.nodes[0].createrawtransaction([unspent_output], {getnewdestination()[2]: Decimal("49.998")})
         spending_tx_signed = self.nodes[0].signrawtransactionwithkey(spending_tx, [embedded_privkey], [unspent_output])
         self.assert_signing_completed_successfully(spending_tx_signed)
 
@@ -100,7 +100,7 @@ class SignRawTransactionWithKeyTest(OpenSyriaTestFramework):
         [txid, vout] = self.send_to_address(p2a(), 49.999)
         spending_tx = self.nodes[0].createrawtransaction(
             [{"txid": txid, "vout": vout}],
-            [{getnewdestination()[2]: Decimal("9999.998")}])
+            [{getnewdestination()[2]: Decimal("49.998")}])
         spending_tx_signed = self.nodes[0].signrawtransactionwithkey(spending_tx, [], [])
         self.assert_signing_completed_successfully(spending_tx_signed)
         assert self.nodes[0].testmempoolaccept([spending_tx_signed["hex"]])[0]["allowed"]

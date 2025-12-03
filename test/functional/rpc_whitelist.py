@@ -92,7 +92,7 @@ class RPCWhitelistTest(OpenSyriaTestFramework):
         assert_equal(200, rpccall(self.nodes[0], self.strange_users[4], "getblockcount").status)
 
         self.test_users_permissions()
-        self.test_rpcwhitelistdefault_permissions(0, 40000)
+        self.test_rpcwhitelistdefault_permissions(0, 200)  # When default=0, access is allowed (HTTP 200)
 
         # Replace file configurations
         self.nodes[0].replace_in_config([("rpcwhitelistdefault=0", "rpcwhitelistdefault=1")])

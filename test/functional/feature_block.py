@@ -409,7 +409,7 @@ class FullBlockTest(OpenSyriaTestFramework):
         b30 = self.next_block(30)
         b30.vtx[0].vin[0].scriptSig = bytes(b30.vtx[0].vin[0].scriptSig)  # Convert CScript to raw bytes
         b30.vtx[0].vin[0].scriptSig += b'\x00' * (100 - len(b30.vtx[0].vin[0].scriptSig))  # Fill with 0s
-        assert_equal(len(b30.vtx[0].vin[0].scriptSig), 20000)
+        assert_equal(len(b30.vtx[0].vin[0].scriptSig), 100)
         b30 = self.update_block(30, [])
         self.send_blocks([b30], True)
         self.save_spendable_output()

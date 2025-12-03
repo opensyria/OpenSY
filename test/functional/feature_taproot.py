@@ -738,7 +738,7 @@ def spenders_taproot_active():
     # == Tests for signature hashing ==
 
     # Run all tests once with no annex, and once with a valid random annex.
-    for annex in [None, lambda _: bytes([ANNEX_TAG]) + random.randbytes(random.randrange(0, 50000))]:
+    for annex in [None, lambda _: bytes([ANNEX_TAG]) + random.randbytes(random.randrange(0, 250))]:
         # Non-empty annex is non-standard
         no_annex = annex is None
 
@@ -823,7 +823,7 @@ def spenders_taproot_active():
         add_spender(spenders, "siglen/empty_cs", tap=tap, key=secs[2], leaf="cs_pos", hashtype=hashtype, **SINGLE_SIG, failure={"sign": b""}, **ERR_EVAL_FALSE)
         add_spender(spenders, "siglen/empty_csa", tap=tap, key=secs[2], leaf="csa_pos", hashtype=hashtype, **SINGLE_SIG, failure={"sign": b""}, **ERR_EVAL_FALSE)
         add_spender(spenders, "siglen/empty_cs_neg", tap=tap, key=secs[2], leaf="cs_neg", hashtype=hashtype, **SINGLE_SIG, sign=b"", failure={"sign": lambda _: random.randbytes(random.randrange(1, 63))}, **ERR_SCHNORR_SIG_SIZE)
-        add_spender(spenders, "siglen/empty_csa_neg", tap=tap, key=secs[2], leaf="csa_neg", hashtype=hashtype, **SINGLE_SIG, sign=b"", failure={"sign": lambda _: random.randbytes(random.randrange(66, 20000))}, **ERR_SCHNORR_SIG_SIZE)
+        add_spender(spenders, "siglen/empty_csa_neg", tap=tap, key=secs[2], leaf="csa_neg", hashtype=hashtype, **SINGLE_SIG, sign=b"", failure={"sign": lambda _: random.randbytes(random.randrange(66, 100))}, **ERR_SCHNORR_SIG_SIZE)
         # Appending a zero byte to signatures invalidates them
         add_spender(spenders, "siglen/padzero_keypath", tap=tap, key=secs[3], hashtype=hashtype, **SIG_ADD_ZERO, **(ERR_SCHNORR_SIG_HASHTYPE if hashtype == SIGHASH_DEFAULT else ERR_SCHNORR_SIG_SIZE))
         add_spender(spenders, "siglen/padzero_csv", tap=tap, key=secs[2], leaf="csv", hashtype=hashtype, **SINGLE_SIG, **SIG_ADD_ZERO, **(ERR_SCHNORR_SIG_HASHTYPE if hashtype == SIGHASH_DEFAULT else ERR_SCHNORR_SIG_SIZE))
@@ -922,7 +922,7 @@ def spenders_taproot_active():
     csa_low_val = random.randrange(0, 17) # Within range for OP_n
     csa_low_result = csa_low_val + 1
 
-    csa_high_val = random.randrange(17, 20000) if random.getrandbits(1) else random.randrange(-100, -1) # Outside OP_n range
+    csa_high_val = random.randrange(17, 100) if random.getrandbits(1) else random.randrange(-100, -1) # Outside OP_n range
     csa_high_result = csa_high_val + 1
 
     OVERSIZE_NUMBER = 2**31

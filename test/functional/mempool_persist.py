@@ -87,7 +87,7 @@ class MempoolPersistTest(OpenSyriaTestFramework):
         assert_equal(fees['base'], fees['modified'])
         self.nodes[0].prioritisetransaction(txid=last_txid, fee_delta=200000)
         fees = self.nodes[0].getmempoolentry(txid=last_txid)['fees']
-        assert_equal(fees['base'] + Decimal('0.00001000'), fees['modified'])
+        assert_equal(fees['base'] + Decimal('0.00200000'), fees['modified'])  # 200000 qirsh = 0.002 SYL
 
         self.log.info('Check the total base fee is unchanged after prioritisetransaction')
         assert_equal(total_fee_old, self.nodes[0].getmempoolinfo()['total_fee'])
@@ -125,7 +125,7 @@ class MempoolPersistTest(OpenSyriaTestFramework):
 
         self.log.debug('Verify prioritization is loaded correctly')
         fees = self.nodes[0].getmempoolentry(txid=last_txid)['fees']
-        assert_equal(fees['base'] + Decimal('0.00001000'), fees['modified'])
+        assert_equal(fees['base'] + Decimal('0.00200000'), fees['modified'])  # 200000 qirsh = 0.002 SYL
 
         self.log.debug('Verify all fields are loaded correctly')
         new_entry = self.nodes[0].getmempoolentry(txid=last_txid)
@@ -165,7 +165,7 @@ class MempoolPersistTest(OpenSyriaTestFramework):
         assert_equal({}, self.nodes[0].importmempool(mempooldat0, {"apply_fee_delta_priority": True, "apply_unbroadcast_set": True}))
         assert_equal(2, self.nodes[0].getmempoolinfo()["unbroadcastcount"])
         fees = self.nodes[0].getmempoolentry(txid=last_txid)["fees"]
-        assert_equal(fees["base"] + Decimal("0.00001000"), fees["modified"])
+        assert_equal(fees["base"] + Decimal("0.00200000"), fees["modified"])  # 200000 qirsh = 0.002 SYL
 
         self.log.debug("Stop-start node0. Verify that it has the transactions in its mempool.")
         self.stop_nodes()

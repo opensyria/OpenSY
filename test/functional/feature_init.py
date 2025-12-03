@@ -212,8 +212,8 @@ class InitTest(OpenSyriaTestFramework):
                     # Since the genesis block is not checked by -checkblocks, the
                     # perturbation window must be chosen such that a higher block
                     # in blk*.dat is affected.
-                    tf.seek(30000)
-                    tf.write(b"1" * 40000)
+                    tf.seek(150)
+                    tf.write(b"1" * 200)
 
             start_expecting_error(err_fragment, startup_args)
 

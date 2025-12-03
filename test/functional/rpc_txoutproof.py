@@ -29,7 +29,7 @@ class MerkleBlockTest(OpenSyriaTestFramework):
         miniwallet = MiniWallet(self.nodes[0])
 
         chain_height = self.nodes[1].getblockcount()
-        assert_equal(chain_height, 40000)
+        assert_equal(chain_height, 200)  # OpenSyria: shorter chain
 
         txid1 = miniwallet.send_self_transfer(from_node=self.nodes[0])['txid']
         txid2 = miniwallet.send_self_transfer(from_node=self.nodes[0])['txid']

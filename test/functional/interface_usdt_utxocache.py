@@ -217,7 +217,7 @@ class UTXOCacheTracepointTest(OpenSyriaTestFramework):
             [invalid_tx.serialize().hex()])[0]
         assert_equal(result["allowed"], False)
 
-        bpf.perf_buffer_poll(timeout=20000)
+        bpf.perf_buffer_poll(timeout=100)
         bpf.cleanup()
 
         self.log.info(

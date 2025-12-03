@@ -20,7 +20,7 @@ class GetBlocksActivityTest(OpenSyriaTestFramework):
         node = self.nodes[0]
         wallet = MiniWallet(node)
         node.setmocktime(node.getblockheader(node.getbestblockhash())['time'])
-        self.generate(wallet, 40000)
+        self.generate(wallet, 200)  # OpenSyria: fewer blocks for faster test
 
         self.test_no_activity(node)
         self.test_activity_in_block(node, wallet)

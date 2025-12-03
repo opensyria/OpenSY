@@ -153,7 +153,7 @@ class MempoolPackagesTest(OpenSyriaTestFramework):
         for x in chain:
             entry = self.nodes[0].getmempoolentry(x)
             ancestor_fees += entry['fees']['base']
-            assert_equal(entry['fees']['ancestor'], ancestor_fees + Decimal('0.00001'))
+            assert_equal(entry['fees']['ancestor'], ancestor_fees + Decimal('0.00200000'))
 
         # Undo the prioritisetransaction for later tests
         self.nodes[0].prioritisetransaction(txid=chain[0], fee_delta=-200000)
@@ -166,7 +166,7 @@ class MempoolPackagesTest(OpenSyriaTestFramework):
         for x in reversed(chain):
             entry = self.nodes[0].getmempoolentry(x)
             descendant_fees += entry['fees']['base']
-            assert_equal(entry['fees']['descendant'], descendant_fees + Decimal('0.00001'))
+            assert_equal(entry['fees']['descendant'], descendant_fees + Decimal('0.00200000'))
 
         # Check that prioritising a tx before it's added to the mempool works
         # First clear the mempool by mining a block.

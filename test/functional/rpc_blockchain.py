@@ -29,6 +29,7 @@ import subprocess
 import textwrap
 
 from test_framework.blocktools import (
+    BLOCK_REWARD,
     MAX_FUTURE_BLOCK_TIME,
     TIME_GENESIS_BLOCK,
     REGTEST_N_BITS,
@@ -62,11 +63,11 @@ from test_framework.wallet import MiniWallet
 
 
 HEIGHT = 200  # blocks mined
-TIME_RANGE_STEP = 600  # ten-minute steps
+TIME_RANGE_STEP = 120  # OpenSyria: two-minute blocks
 TIME_RANGE_MTP = TIME_GENESIS_BLOCK + (HEIGHT - 6) * TIME_RANGE_STEP
 TIME_RANGE_TIP = TIME_GENESIS_BLOCK + (HEIGHT - 1) * TIME_RANGE_STEP
 TIME_RANGE_END = TIME_GENESIS_BLOCK + HEIGHT * TIME_RANGE_STEP
-DIFFICULTY_ADJUSTMENT_INTERVAL = 144
+DIFFICULTY_ADJUSTMENT_INTERVAL = 720  # OpenSyria: 86400 / 120 = 720
 
 
 class BlockchainTest(OpenSyriaTestFramework):
@@ -362,7 +363,7 @@ class BlockchainTest(OpenSyriaTestFramework):
         node = self.nodes[0]
         res = node.gettxoutsetinfo()
 
-        assert_equal(res['total_amount'], Decimal('8725.00000000'))
+        assert_equal(res['total_amount'], Decimal('1745000.00000000'))  # OpenSyria: 174.5 mature coinbases × 10000 SYL
         assert_equal(res['transactions'], HEIGHT)
         assert_equal(res['height'], HEIGHT)
         assert_equal(res['txouts'], HEIGHT)
@@ -437,7 +438,7 @@ class BlockchainTest(OpenSyriaTestFramework):
         # Validate the gettxout response
         assert_equal(txout['bestblock'], best_block_hash)
         assert_equal(txout['confirmations'], 1)
-        assert_equal(txout['value'], 25)
+        assert_equal(txout['value'], 5000)  # OpenSyria: half of 10000 SYL coinbase
         assert_equal(txout['scriptPubKey']['address'], self.wallet.get_address())
         assert_equal(txout['scriptPubKey']['hex'], self.wallet.get_output_script().hex())
         decoded_script = node.decodescript(self.wallet.get_output_script().hex())
@@ -531,9 +532,9 @@ class BlockchainTest(OpenSyriaTestFramework):
         hashes_per_second = self.nodes[0].getnetworkhashps(100, 0)
         assert_equal(hashes_per_second, 0)
 
-        # This should be 2 hashes every 10 minutes or 1/300
+        # OpenSyria: This should be 2 hashes every 2 minutes or 1/60
         hashes_per_second = self.nodes[0].getnetworkhashps()
-        assert abs(hashes_per_second * 300 - 1) < 0.0001
+        assert abs(hashes_per_second * 60 - 1) < 0.0001
 
         # Test setting the first param of getnetworkhashps to -1 returns the average network
         # hashes per second from the last difficulty change.

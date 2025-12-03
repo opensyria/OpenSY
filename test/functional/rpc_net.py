@@ -298,7 +298,7 @@ class NetTest(OpenSyriaTestFramework):
             second_octet = i % 256
             a = f"{first_octet}.{second_octet}.1.1"
             imported_addrs.append(a)
-            self.nodes[0].addpeeraddress(a, 8333)
+            self.nodes[0].addpeeraddress(a, 9633)
 
         # Fetch the addresses via the RPC and test the results.
         assert_equal(len(self.nodes[0].getnodeaddresses()), 1)  # default count is 1
@@ -308,13 +308,13 @@ class NetTest(OpenSyriaTestFramework):
         # Maximum possible addresses in AddrMan is 10000. The actual number will
         # usually be less due to bucket and bucket position collisions.
         node_addresses = self.nodes[0].getnodeaddresses(0, "ipv4")
-        assert_greater_than(len(node_addresses), 1000000)
+        assert_greater_than(len(node_addresses), 5000)
         assert_greater_than(10000, len(node_addresses))
         for a in node_addresses:
             assert_greater_than(a["time"], 1527811200)  # 1st June 2018
             assert_equal(a["services"], P2P_SERVICES)
             assert a["address"] in imported_addrs
-            assert_equal(a["port"], 8333)
+            assert_equal(a["port"], 9633)
             assert_equal(a["network"], "ipv4")
 
         # Test the IPv6 address.
@@ -322,7 +322,7 @@ class NetTest(OpenSyriaTestFramework):
         assert_equal(len(res), 1)
         assert_equal(res[0]["address"], ipv6_addr)
         assert_equal(res[0]["network"], "ipv6")
-        assert_equal(res[0]["port"], 8333)
+        assert_equal(res[0]["port"], 9633)
         assert_equal(res[0]["services"], P2P_SERVICES)
 
         # Test for the absence of onion, I2P and CJDNS addresses.
@@ -366,7 +366,7 @@ class NetTest(OpenSyriaTestFramework):
         new_table = list(addrman["new"].values())
         assert_equal(len(new_table), 1)
         assert_equal(new_table[0]["address"], "1.0.0.0")
-        assert_equal(new_table[0]["port"], 8333)
+        assert_equal(new_table[0]["port"], 9633)
 
         self.log.debug("Test that adding an already-present new address to the new and tried tables fails")
         for value in [True, False]:
@@ -380,7 +380,7 @@ class NetTest(OpenSyriaTestFramework):
         tried_table = list(addrman["tried"].values())
         assert_equal(len(tried_table), 1)
         assert_equal(tried_table[0]["address"], "1.2.3.4")
-        assert_equal(tried_table[0]["port"], 8333)
+        assert_equal(tried_table[0]["port"], 9633)
         node.getnodeaddresses(count=0)  # getnodeaddresses re-runs the addrman checks
 
         self.log.debug("Test that adding an already-present tried address to the new and tried tables fails")
@@ -503,7 +503,7 @@ class NetTest(OpenSyriaTestFramework):
                     {
                         "bucket_position": "82/8",
                         "address": "2.0.0.0",
-                        "port": 8333,
+                        "port": 9633,
                         "services": 9,
                         "network": "ipv4",
                         "source": "2.0.0.0",
@@ -512,7 +512,7 @@ class NetTest(OpenSyriaTestFramework):
                     {
                         "bucket_position": "336/24",
                         "address": "fc00:1:2:3:4:5:6:7",
-                        "port": 8333,
+                        "port": 9633,
                         "services": 9,
                         "network": "cjdns",
                         "source": "fc00:1:2:3:4:5:6:7",
@@ -521,7 +521,7 @@ class NetTest(OpenSyriaTestFramework):
                     {
                         "bucket_position": "963/46",
                         "address": "c4gfnttsuwqomiygupdqqqyy5y5emnk5c73hrfvatri67prd7vyq.b32.i2p",
-                        "port": 8333,
+                        "port": 9633,
                         "services": 9,
                         "network": "i2p",
                         "source": "c4gfnttsuwqomiygupdqqqyy5y5emnk5c73hrfvatri67prd7vyq.b32.i2p",
@@ -541,7 +541,7 @@ class NetTest(OpenSyriaTestFramework):
                     {
                         "bucket_position": "6/33",
                         "address": "1.2.3.4",
-                        "port": 8333,
+                        "port": 9633,
                         "services": 9,
                         "network": "ipv4",
                         "source": "1.2.3.4",
@@ -550,7 +550,7 @@ class NetTest(OpenSyriaTestFramework):
                     {
                         "bucket_position": "197/34",
                         "address": "1233:3432:2434:2343:3234:2345:6546:4534",
-                        "port": 8333,
+                        "port": 9633,
                         "services": 9,
                         "network": "ipv6",
                         "source": "1233:3432:2434:2343:3234:2345:6546:4534",
@@ -559,7 +559,7 @@ class NetTest(OpenSyriaTestFramework):
                     {
                         "bucket_position": "72/61",
                         "address": "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion",
-                        "port": 8333,
+                        "port": 9633,
                         "services": 9,
                         "network": "onion",
                         "source": "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion",

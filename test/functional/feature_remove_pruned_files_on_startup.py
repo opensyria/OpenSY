@@ -17,8 +17,8 @@ class FeatureRemovePrunedFilesOnStartupTest(OpenSyriaTestFramework):
     def mine_batches(self, blocks):
         n = blocks // 250
         for _ in range(n):
-            self.generate(self.nodes[0], 50000)
-        self.generate(self.nodes[0], blocks % 50000)
+            self.generate(self.nodes[0], 250)
+        self.generate(self.nodes[0], blocks % 250)
 
     def run_test(self):
         blk0 = self.nodes[0].blocks_path / "blk00000.dat"

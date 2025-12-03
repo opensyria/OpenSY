@@ -65,7 +65,7 @@ class DataCarrierTest(OpenSyriaTestFramework):
         # only 80 bytes are used for data (+1 for OP_RETURN, +2 for the pushdata opcodes).
         custom_size_data = randbytes(CUSTOM_DATACARRIER_ARG - 3)
         too_long_data = randbytes(CUSTOM_DATACARRIER_ARG - 2)
-        extremely_long_data = randbytes(MAX_OP_RETURN_RELAY - 40000)
+        extremely_long_data = randbytes(MAX_OP_RETURN_RELAY - 200)
         one_byte = randbytes(1)
         zero_bytes = randbytes(0)
 

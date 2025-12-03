@@ -48,7 +48,7 @@ class FeatureIndexPruneTest(OpenSyriaTestFramework):
         expected_stats = {
             'coinstatsindex': {'synced': True, 'best_block_height': height}
         }
-        self.wait_until(lambda: self.nodes[1].getindexinfo() == expected_stats, timeout=30000)
+        self.wait_until(lambda: self.nodes[1].getindexinfo() == expected_stats, timeout=150)
 
         expected = {**expected_filter, **expected_stats}
         self.wait_until(lambda: self.nodes[2].getindexinfo() == expected)
@@ -62,14 +62,14 @@ class FeatureIndexPruneTest(OpenSyriaTestFramework):
         stats_nodes = [self.nodes[1], self.nodes[2]]
 
         self.log.info("check if we can access blockfilters and coinstats when pruning is enabled but no blocks are actually pruned")
-        self.sync_index(height=40000)
+        self.sync_index(height=200)
         tip = self.nodes[0].getbestblockhash()
         for node in filter_nodes:
             assert_greater_than(len(node.getblockfilter(tip)['filter']), 0)
         for node in stats_nodes:
             assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=tip)['muhash']
 
-        self.generate(self.nodes[0], 100000)
+        self.generate(self.nodes[0], 500)
         self.sync_index(height=700)
 
         self.log.info("prune some blocks")

@@ -118,7 +118,7 @@ class ValidationTracepointTest(OpenSyriaTestFramework):
             generatetoaddress_duration[hash] = (time.time() - start) * 1e9  # in nanoseconds
             expected_blocks[hash] = self.nodes[0].getblock(hash, 2)
 
-        bpf.perf_buffer_poll(timeout=40000)
+        bpf.perf_buffer_poll(timeout=200)
 
         self.log.info(f"check that we correctly traced {BLOCKS_EXPECTED} blocks")
         for event in events:

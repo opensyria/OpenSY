@@ -261,7 +261,7 @@ class EstimateFeeTest(OpenSyriaTestFramework):
         utxos_to_respend = []
         txids_to_replace = []
 
-        assert_greater_than_or_equal(len(utxos), 50000)
+        assert_greater_than_or_equal(len(utxos), 250)
         for _ in range(5):
             # Broadcast 45 low fee transactions that will need to be RBF'd
             txs = []

@@ -315,7 +315,7 @@ class PruneTest(OpenSyriaTestFramework):
         assert_raises_rpc_error(-8, "Negative block height", node.pruneblockchain, -10)
 
         # height=100 too low to prune first block file so this is a no-op
-        prune(20000)
+        prune(100)
         assert has_block(0), "blk00000.dat is missing when should still be there"
 
         # Does nothing
@@ -357,7 +357,7 @@ class PruneTest(OpenSyriaTestFramework):
         self.log.info("Syncing node 5 to test wallet")
         self.connect_nodes(0, 5)
         nds = [self.nodes[0], self.nodes[5]]
-        self.sync_blocks(nds, wait=5, timeout=60000)
+        self.sync_blocks(nds, wait=5, timeout=300)
         self.restart_node(5, extra_args=["-prune=550", "-blockfilterindex=1"]) # restart to trigger rescan
         self.log.info("Success")
 

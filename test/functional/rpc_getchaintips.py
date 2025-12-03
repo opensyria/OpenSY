@@ -26,7 +26,7 @@ class GetChainTipsTest (OpenSyriaTestFramework):
         tips = self.nodes[0].getchaintips()
         assert_equal(len(tips), 1)
         assert_equal(tips[0]['branchlen'], 0)
-        assert_equal(tips[0]['height'], 40000)
+        assert_equal(tips[0]['height'], 200)  # OpenSyria: shorter chain
         assert_equal(tips[0]['status'], 'active')
 
         self.log.info("Split the network and build two chains of different lengths.")

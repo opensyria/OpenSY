@@ -663,7 +663,7 @@ class MempoolTRUC(OpenSyriaTestFramework):
         self.log.info("Generate blocks to create UTXOs")
         node = self.nodes[0]
         self.wallet = MiniWallet(node)
-        self.generate(self.wallet, 40000)
+        self.generate(self.wallet, 200)  # OpenSyria: fewer blocks for faster test
         self.test_truc_max_vsize()
         self.test_truc_acceptance()
         self.test_truc_replacement()

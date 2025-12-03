@@ -88,7 +88,7 @@ class FeeFilterTest(OpenSyriaTestFramework):
         conn.clear_invs()
 
         # Set a fee filter of 0.15 sat/byte on test connection
-        conn.send_and_ping(msg_feefilter(30000))
+        conn.send_and_ping(msg_feefilter(150))
 
         self.log.info("Test txs paying 0.15 sat/byte are received by test connection")
         txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00000150'), from_node=node1)['wtxid'] for _ in range(3)]

@@ -50,7 +50,7 @@ from test_framework.wallet import (
 )
 
 
-DIFFICULTY_ADJUSTMENT_INTERVAL = 144
+DIFFICULTY_ADJUSTMENT_INTERVAL = 720  # OpenSyria: 86400 / 120 = 720 (one day / 2-minute blocks)
 MAX_FUTURE_BLOCK_TIME = 2 * 3600
 MAX_TIMEWARP = 600
 VERSIONBITS_TOP_BITS = 0x20000000
@@ -69,11 +69,11 @@ class MiningTest(OpenSyriaTestFramework):
 
     def mine_chain(self):
         self.log.info('Create some old blocks')
-        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 200 * 600, 600):
+        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 200 * 120, 120):
             self.nodes[0].setmocktime(t)
             self.generate(self.wallet, 1, sync_fun=self.no_op)
         mining_info = self.nodes[0].getmininginfo()
-        assert_equal(mining_info['blocks'], 40000)
+        assert_equal(mining_info['blocks'], 200)
         assert_equal(mining_info['currentblocktx'], 0)
         assert_equal(mining_info['currentblockweight'], DEFAULT_BLOCK_RESERVED_WEIGHT)
 
@@ -201,7 +201,7 @@ class MiningTest(OpenSyriaTestFramework):
         t = blockchain_info['time']
 
         for _ in range(n):
-            t += 600
+            t += 120  # OpenSyria: 2-minute blocks
             self.nodes[0].setmocktime(t)
             self.generate(self.wallet, 1, sync_fun=self.no_op)
 
@@ -252,7 +252,7 @@ class MiningTest(OpenSyriaTestFramework):
         prune_node = self.nodes[2]
         self.generate(prune_node, 400, sync_fun=self.no_op)
         pruned_block = prune_node.getblock(prune_node.getblockhash(2), verbosity=0)
-        pruned_height = prune_node.pruneblockchain(80000)
+        pruned_height = prune_node.pruneblockchain(300)  # OpenSyria: use height less than 400 blocks mined
         assert_greater_than_or_equal(pruned_height, 2)
         pruned_blockhash = prune_node.getblockhash(2)
 
@@ -383,7 +383,7 @@ class MiningTest(OpenSyriaTestFramework):
 
         self.log.info('getmininginfo')
         mining_info = node.getmininginfo()
-        assert_equal(mining_info['blocks'], 40000)
+        assert_equal(mining_info['blocks'], 200)
         assert_equal(mining_info['chain'], self.chain)
         assert 'currentblocktx' not in mining_info
         assert 'currentblockweight' not in mining_info
@@ -395,7 +395,7 @@ class MiningTest(OpenSyriaTestFramework):
         assert_equal(mining_info['next']['target'], target_str(REGTEST_TARGET))
         assert_equal(mining_info['next']['bits'], nbits_str(REGTEST_N_BITS))
         assert_equal(round(mining_info['next']['difficulty'], 10), Decimal('0.0000000005'))
-        assert_equal(round(mining_info['networkhashps'], 5), Decimal('0.00333'))
+        assert_equal(round(mining_info['networkhashps'], 5), Decimal('0.01667'))  # ~5x higher due to 2-min blocks vs 10-min
         assert_equal(mining_info['pooledtx'], 0)
 
         self.log.info("getblocktemplate: Test default witness commitment")
