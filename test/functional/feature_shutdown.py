@@ -29,7 +29,7 @@ class ShutdownTest(OpenSyriaTestFramework):
         # Wait 1 second after requesting shutdown but not before the `stop` call
         # finishes. This is to ensure event loop waits for current connections
         # to close.
-        self.stop_node(0, wait=200000)
+        self.stop_node(0, wait=1000)
 
 if __name__ == '__main__':
     ShutdownTest(__file__).main()

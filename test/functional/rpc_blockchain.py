@@ -545,7 +545,7 @@ class BlockchainTest(OpenSyriaTestFramework):
         assert_equal(self.nodes[0].getnetworkhashps(-1), expected_hashes_per_second_since_diff_change)
 
         # Ensure long lookups get truncated to chain length
-        hashes_per_second = self.nodes[0].getnetworkhashps(self.nodes[0].getblockcount() + 200000)
+        hashes_per_second = self.nodes[0].getnetworkhashps(self.nodes[0].getblockcount() + 1000)
         assert hashes_per_second > 0.003
 
     def _test_stopatheight(self):
@@ -586,7 +586,7 @@ class BlockchainTest(OpenSyriaTestFramework):
         node.reconsiderblock(rollback_hash)
         # The chain has probably already been restored by the time reconsiderblock returns,
         # but poll anyway.
-        self.wait_until(lambda: node.waitforblock(blockhash=current_hash, timeout=20000)['hash'] == current_hash)
+        self.wait_until(lambda: node.waitforblock(blockhash=current_hash, timeout=100)['hash'] == current_hash)
 
         # roll back again
         node.invalidateblock(rollback_hash)

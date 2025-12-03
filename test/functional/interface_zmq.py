@@ -157,7 +157,7 @@ class ZMQTest (OpenSyriaTestFramework):
         #   3. If all subscribers get the message within the timeout (1 second),
         #      we are done, otherwise repeat starting from step 1
         for sub in subscribers:
-            sub.socket.set(zmq.RCVTIMEO, 200000)
+            sub.socket.set(zmq.RCVTIMEO, 1000)
         while True:
             test_block = ZMQTestSetupBlock(self, self.nodes[0])
             recv_failed = False
@@ -174,7 +174,7 @@ class ZMQTest (OpenSyriaTestFramework):
 
         # set subscriber's desired timeout for the test
         for sub in subscribers:
-            sub.socket.set(zmq.RCVTIMEO, recv_timeout*200000)
+            sub.socket.set(zmq.RCVTIMEO, recv_timeout*1000)
 
         self.connect_nodes(0, 1)
         if sync_blocks:

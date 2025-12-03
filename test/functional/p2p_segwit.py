@@ -1767,7 +1767,7 @@ class SegWitTest(OpenSyriaTestFramework):
 
         # Create scripts for tests
         scripts = []
-        scripts.append(CScript([OP_DROP] * 20000))
+        scripts.append(CScript([OP_DROP] * 100))
         scripts.append(CScript([OP_DROP] * 99))
         scripts.append(CScript([pad * 59] * 59 + [OP_DROP] * 60))
         scripts.append(CScript([pad * 59] * 59 + [OP_DROP] * 61))
@@ -1778,7 +1778,7 @@ class SegWitTest(OpenSyriaTestFramework):
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
 
         # For each script, generate a pair of P2WSH and P2SH-P2WSH output.
-        outputvalue = (self.utxo[0].nValue - 200000) // (len(scripts) * 2)
+        outputvalue = (self.utxo[0].nValue - 1000) // (len(scripts) * 2)
         for i in scripts:
             p2wsh = script_to_p2wsh_script(i)
             p2wsh_scripts.append(p2wsh)
