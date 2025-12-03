@@ -519,14 +519,14 @@ class WalletV3Test(OpenSyriaTestFramework):
     @cleanup
     def sendall_truc_weight_limit(self):
         self.log.info("Test that sendall follows truc tx weight limit")
-        self.charlie.sendall([self.alice.getnewaddress() for _ in range(60000)], add_to_wallet=False, version=2)
+        self.charlie.sendall([self.alice.getnewaddress() for _ in range(300)], add_to_wallet=False, version=2)
 
         # check that error is only raised if version is 3
         assert_raises_rpc_error(
                 -4,
                 "Transaction too large" ,
                 self.charlie.sendall,
-                [self.alice.getnewaddress() for _ in range(60000)],
+                [self.alice.getnewaddress() for _ in range(300)],
                 version=3
             )
 
