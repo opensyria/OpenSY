@@ -157,7 +157,7 @@ class TransactionTimeRescanTest(OpenSyriaTestFramework):
 
         # proceed to rescan, first with an incomplete one, then with a full rescan
         self.log.info('Rescan last history part')
-        restorewo_wallet.rescanblockchain(initial_mine + 70000)
+        restorewo_wallet.rescanblockchain(initial_mine + 350)
         self.log.info('Rescan all history')
         restorewo_wallet.rescanblockchain()
 

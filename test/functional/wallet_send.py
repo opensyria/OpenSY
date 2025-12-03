@@ -152,7 +152,7 @@ class WalletSendTest(OpenSyriaTestFramework):
                 decoded_tx = from_wallet.gettransaction(txid=res["txid"], verbose=True)["decoded"]
                 # the locktime should be within 100 blocks of the
                 # block height
-                assert_greater_than_or_equal(decoded_tx["locktime"], from_wallet.getblockcount() - 20000)
+                assert_greater_than_or_equal(decoded_tx["locktime"], from_wallet.getblockcount() - 100)
 
         if expect_sign:
             assert_equal(res["complete"], True)
