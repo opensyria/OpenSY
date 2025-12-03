@@ -79,7 +79,7 @@ class PackageRBFTest(OpenSyriaTestFramework):
 
         # Make more than enough coins for the sum of all tests,
         # otherwise a wallet rescan is needed later
-        self.generate(self.wallet, 60000)
+        self.generate(self.wallet, 300)
         self.coins = self.wallet.get_utxos(mark_as_spent=False)
 
         self.test_package_rbf_basic()

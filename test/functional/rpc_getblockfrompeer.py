@@ -127,7 +127,7 @@ class GetBlockFromPeerTest(OpenSyriaTestFramework):
         # We need to generate more blocks to be able to prune
         self.generate(self.nodes[0], 400, sync_fun=self.no_op)
         self.sync_blocks([self.nodes[0], pruned_node])
-        pruneheight = pruned_node.pruneblockchain(60000)
+        pruneheight = pruned_node.pruneblockchain(300)
         assert_equal(pruneheight, 248)
         # Ensure the block is actually pruned
         pruned_block = self.nodes[0].getblockhash(2)

@@ -302,7 +302,7 @@ class MempoolClusterTest(OpenSyriaTestFramework):
     def run_test(self):
         node = self.nodes[0]
         self.wallet = MiniWallet(node)
-        self.generate(self.wallet, 80000)
+        self.generate(self.wallet, 400)
 
         self.test_cluster_limit_rbf(DEFAULT_CLUSTER_LIMIT)
 

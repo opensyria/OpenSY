@@ -344,7 +344,7 @@ class InvalidMessagesTest(OpenSyriaTestFramework):
             conn2.sync_with_ping(timeout=2)
 
         self.log.info("(c) Wait for node to drop junk messages, while remaining connected")
-        conn.sync_with_ping(timeout=80000)
+        conn.sync_with_ping(timeout=400)
 
         # Despite being served up a bunch of nonsense, the peers should still be connected.
         assert conn.is_connected
