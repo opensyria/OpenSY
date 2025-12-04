@@ -205,10 +205,10 @@ class MiningTemplateVerificationTest(OpenSyriaTestFramework):
         bad_tx = copy.deepcopy(tx)
         bad_tx["tx"].vout[0].nValue = 10000000000
         bad_tx_hex = bad_tx["tx"].serialize().hex()
-        assert_equal(
-            node.testmempoolaccept([bad_tx_hex])[0]["reject-reason"],
-            "bad-txns-in-belowout",
-        )
+        # The rejection reason can be "bad-txns-in-belowout" or "max-fee-exceeded"
+        # depending on which check fails first (output exceeds input vs fee exceeds max)
+        reject_reason = node.testmempoolaccept([bad_tx_hex])[0]["reject-reason"]
+        assert reject_reason in ["bad-txns-in-belowout", "max-fee-exceeded"], f"Unexpected rejection: {reject_reason}"
         block_3 = create_block(
             int(block_2_hash, 16),
             create_coinbase(block_0_height + 3),

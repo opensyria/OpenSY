@@ -177,7 +177,7 @@ class HTTPBasicsTest(OpenSyriaTestFramework):
 
         self.log.info('Check -norpcauth disables previous -rpcauth params')
         self.restart_node(0, extra_args=[rpcauth_user1, rpcauth_user2, '-norpcauth'])
-        assert_equal(401, call_with_auth(self.nodes[0], 'user1.*opensyria').status)
+        assert_equal(401, call_with_auth(self.nodes[0], 'user1', 'opensyria').status)
         assert_equal(401, call_with_auth(self.nodes[0], 'rt', self.rtpassword).status)
         self.stop_node(0)
 

@@ -16,7 +16,7 @@ import copy
 import time
 
 from test_framework.blocktools import (
-from test_framework.blocktools import BLOCK_REWARD
+    BLOCK_REWARD,
     MAX_FUTURE_BLOCK_TIME,
     create_block,
     create_coinbase,
