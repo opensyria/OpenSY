@@ -827,10 +827,11 @@ class FullBlockTest(OpenSyriaTestFramework):
         self.send_blocks([b58], success=False, reject_reason='bad-txns-inputs-missingorspent', reconnect=True)
 
         # tx with output value > input value
+        # OpenSyria coinbase is 10,000 SYL (vs Bitcoin's 50 BTC), so we need to output > 10,000 SYL
         self.log.info("Reject a block with a transaction with outputs > inputs")
         self.move_tip(57)
         self.next_block(59)
-        tx = self.create_and_sign_transaction(out[17], 51 * COIN)
+        tx = self.create_and_sign_transaction(out[17], 10001 * COIN)
         b59 = self.update_block(59, [tx])
         self.send_blocks([b59], success=False, reject_reason='bad-txns-in-belowout', reconnect=True)
 
@@ -1186,7 +1187,7 @@ class FullBlockTest(OpenSyriaTestFramework):
         b78 = self.update_block(78, [tx78])
         self.send_blocks([b78], True)
 
-        self.next_block(19979)
+        self.next_block(79)
         tx79 = self.create_tx(tx78, 0, 8 * COIN)
         b79 = self.update_block(79, [tx79])
         self.send_blocks([b79], True)
