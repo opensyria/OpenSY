@@ -20,6 +20,9 @@ from test_framework.messages import (
 from test_framework.p2p import P2PInterface
 from test_framework.util import p2p_port
 
+# Window, in blocks, for connecting to NODE_NETWORK_LIMITED peers
+NODE_NETWORK_LIMITED_ALLOW_CONN_BLOCKS = 144
+
 
 # Desirable service flags for outbound non-pruned and pruned peers. Note that
 # the desirable service flags for pruned peers are dynamic and only apply if
@@ -78,11 +81,15 @@ class P2PHandshakeTest(OpenSyriaTestFramework):
         self.test_desirable_service_flags(node, [NODE_NETWORK | NODE_WITNESS],
                                           DESIRABLE_SERVICE_FLAGS_FULL, expect_disconnect=False)
 
-        self.log.info("Check that limited peers are only desired if the local chain is close to the tip (<24h)")
-        self.generate_at_mocktime(int(time.time()) - 25 * 3600)  # tip outside the 24h window, should fail
+        self.log.info("Check that limited peers are only desired if the local chain is close to the tip")
+        # Window is NODE_NETWORK_LIMITED_ALLOW_CONN_BLOCKS (144) blocks
+        # Calculate time window based on chain's target spacing (120s for OpenSyria, 600s for Bitcoin)
+        target_spacing = 120  # OpenSyria's 2-minute block time
+        window_seconds = NODE_NETWORK_LIMITED_ALLOW_CONN_BLOCKS * target_spacing
+        self.generate_at_mocktime(int(time.time()) - window_seconds - 600)  # tip outside the window, should fail
         self.test_desirable_service_flags(node, [NODE_NETWORK_LIMITED | NODE_WITNESS],
                                           DESIRABLE_SERVICE_FLAGS_FULL, expect_disconnect=True)
-        self.generate_at_mocktime(int(time.time()) - 23 * 3600)  # tip inside the 24h window, should succeed
+        self.generate_at_mocktime(int(time.time()) - window_seconds + 600)  # tip inside the window, should succeed
         self.test_desirable_service_flags(node, [NODE_NETWORK_LIMITED | NODE_WITNESS],
                                           DESIRABLE_SERVICE_FLAGS_PRUNED, expect_disconnect=False)
 
