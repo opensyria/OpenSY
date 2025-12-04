@@ -126,10 +126,20 @@ class BlockDataCopier:
 
     def read_xored(self, f, size):
         offset = f.tell()
-        data = bytearray(f.read(size))
-        for i in range(len(data)):
-            data[i] ^= self.xor_key[(i + offset) % len(self.xor_key)]
-        return bytes(data)
+        data = f.read(size)
+        if not data:
+            return data
+        # Fast XOR using integer operations
+        key_len = len(self.xor_key)
+        start_offset = offset % key_len
+        # Build the repeating XOR key pattern
+        key_pattern = (self.xor_key * ((len(data) // key_len) + 2))
+        key_bytes = key_pattern[start_offset:start_offset + len(data)]
+        # Use integer XOR for fast operation
+        data_int = int.from_bytes(data, 'big')
+        key_int = int.from_bytes(key_bytes, 'big')
+        result = (data_int ^ key_int).to_bytes(len(data), 'big')
+        return result
 
     def writeBlock(self, inhdr, blk_hdr, rawblock):
         blockSizeOnDisk = len(inhdr) + len(blk_hdr) + len(rawblock)
