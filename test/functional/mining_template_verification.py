@@ -203,7 +203,7 @@ class MiningTemplateVerificationTest(OpenSyriaTestFramework):
         block_2_hash = node.getblockhash(block_0_height + 2)
 
         bad_tx = copy.deepcopy(tx)
-        bad_tx["tx"].vout[0].nValue = 10000000000
+        bad_tx["tx"].vout[0].nValue = 2000000000000000  # 200x Bitcoin value to exceed OpenSyria's 10,000 SYL block reward
         bad_tx_hex = bad_tx["tx"].serialize().hex()
         # The rejection reason can be "bad-txns-in-belowout" or "max-fee-exceeded"
         # depending on which check fails first (output exceeds input vs fee exceeds max)
