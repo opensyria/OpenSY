@@ -3,10 +3,7 @@
 #### Preparation
 
 As of OpenSyria Core v22.0, releases are signed by a number of public keys on the basis
-of the [guix.sigs repository](https://github.com/opensyria/guix.sigs/).
-<!-- TODO [INFRASTRUCTURE]: Fork https://github.com/bitcoin-core/guix.sigs to opensyria/guix.sigs
-     and set up signing infrastructure for reproducible builds -->
-When
+of the [guix.sigs repository](https://github.com/opensyria/guix.sigs/). When
 verifying binary downloads, you (the end user) decide which of these public keys you
 trust and then use that trust model to evaluate the signature on a file that contains
 hashes of the release binaries. The downloaded binaries are then hashed and compared to

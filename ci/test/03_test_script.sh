@@ -81,10 +81,7 @@ elif [ "$RUN_UNIT_TESTS" = "true" ]; then
   export DIR_UNIT_TEST_DATA=${DIR_QA_ASSETS}/unit_test_data/
   if [ ! -d "$DIR_UNIT_TEST_DATA" ]; then
     mkdir -p "$DIR_UNIT_TEST_DATA"
-    # TODO [CI]: Set up opensyria/qa-assets repo with test data
-    # For now, using Bitcoin Core's qa-assets as script tests are compatible
-    # When ready, update URL to: https://github.com/opensyria/qa-assets/raw/main/unit_test_data/script_assets_test.json
-    ${CI_RETRY_EXE} curl --location --fail https://github.com/bitcoin-core/qa-assets/raw/main/unit_test_data/script_assets_test.json -o "${DIR_UNIT_TEST_DATA}/script_assets_test.json"
+    ${CI_RETRY_EXE} curl --location --fail https://github.com/opensyria/qa-assets/raw/main/unit_test_data/script_assets_test.json -o "${DIR_UNIT_TEST_DATA}/script_assets_test.json"
   fi
 fi
 

@@ -73,8 +73,6 @@ for the build process to remain somewhat deterministic. Here's how it works:
   users may choose to bless, self-codesign, and run. It also outputs an unsigned app structure
   in the form of a tarball.
 - The Apple keyholder uses this unsigned app to create a detached signature, using the
-  included script.
-  <!-- TODO [INFRASTRUCTURE]: Create opensyria/opensyria-detached-sigs repo for code signing -->
-  Detached signatures are available from this [repository](https://github.com/opensyria/opensyria-detached-sigs).
+  included script. Detached signatures are available from this [repository](https://github.com/opensyria/opensyria-detached-sigs).
 - Builders feed the unsigned app + detached signature back into Guix, which combines the
   pieces into a deterministic ZIP.

@@ -3,8 +3,6 @@ Repository Tools
 
 ### [Developer tools](/contrib/devtools) ###
 Specific tools for developers working on this repository.
-<!-- TODO [INFRASTRUCTURE]: Fork https://github.com/bitcoin-core/bitcoin-maintainer-tools
-     to opensyria/opensyria-maintainer-tools for the github-merge.py script -->
 Additional tools, including the `github-merge.py` script, are available in the [maintainer-tools](https://github.com/opensyria/opensyria-maintainer-tools) repository.
 
 ### [Verify-Commits](/contrib/verify-commits) ###
@@ -26,8 +24,6 @@ Build Tools and Keys
 ### Packaging ###
 The [Debian](/contrib/debian) subfolder contains the copyright file.
 
-<!-- TODO [INFRASTRUCTURE]: Fork https://github.com/bitcoin-core/packaging
-     to opensyria/packaging for distribution packages (snap, flatpak, etc.) -->
 All other packaging related files can be found in the [opensyria/packaging](https://github.com/opensyria/packaging) repository.
 
 ### [MacDeploy](/contrib/macdeploy) ###

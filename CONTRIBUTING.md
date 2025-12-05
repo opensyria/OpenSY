@@ -85,8 +85,7 @@ To contribute a patch, the workflow is as follows:
   1. Commit patches
 
 For GUI-related issues or pull requests, the https://github.com/opensyria/gui repository should be used.
-<!-- TODO [INFRASTRUCTURE]: Create opensyria/gui repository for GUI-specific changes -->
-For all other issues and pull requests, the https://github.com/opensyria/opensyria node repository should be used.
+For all other issues and pull requests, the https://github.com/opensyria/OpenSyria node repository should be used.
 
 The master branch for all monotree repositories is identical.
 
@@ -435,7 +434,6 @@ https://github.com/opensyria/opensyria/pull/16189).
 
 Also see the [backport.py script](
 https://github.com/opensyria/opensyria-maintainer-tools#backport).
-<!-- TODO [INFRASTRUCTURE]: Fork bitcoin-core/bitcoin-maintainer-tools to opensyria/opensyria-maintainer-tools -->
 
 Copyright
 ---------
