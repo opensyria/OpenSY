@@ -48,7 +48,7 @@ information or see https://opensource.org/license/MIT.
 Development Process
 -------------------
 
-The `master` branch is regularly built (see `doc/build-*.md` for instructions) and tested, but it is not guaranteed to be
+The `main` branch is regularly built (see `doc/build-*.md` for instructions) and tested, but it is not guaranteed to be
 completely stable. [Tags](https://github.com/opensyria/OpenSyria/tags) are created
 regularly from release branches to indicate new official, stable release versions of OpenSyria Core.
 
