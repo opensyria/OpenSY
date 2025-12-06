@@ -14,7 +14,7 @@ the Syrian community with a modern, decentralized digital currency. It maintains
 Bitcoin's proven security model while introducing Syria-specific customizations.
 
 **Key Features:**
-- **Address Prefix:** Mainnet addresses start with 'S' (Syria)
+- **Address Prefix:** Mainnet addresses start with 'F' (Freedom)
 - **Network Ports:** 9633 (mainnet), based on Syria's country code 963
 - **Block Reward:** 10,000 SYL initial reward
 - **Genesis Date:** December 8, 2024 (Syria Liberation Day)
@@ -33,8 +33,8 @@ Network Parameters
 ------------------
 
 | Parameter | Mainnet | Testnet | Regtest |
-|-----------|---------|---------|---------|
-| Address Prefix | S | s | s |
+|-----------|---------|---------|---------|  
+| Address Prefix | F | f | f |
 | Default Port | 9633 | 19633 | 19634 |
 | Bech32 Prefix | syl | tsyl | rsyl |
 | Block Time | ~2 minutes | ~2 minutes | instant |

@@ -23,15 +23,15 @@
 using namespace util::hex_literals;
 using util::ToString;
 
-// OpenSyria regtest test vectors (prefix 239 for SECRET_KEY, 125 for PUBKEY_ADDRESS)
+// OpenSyria regtest test vectors (prefix 239 for SECRET_KEY, 95 for PUBKEY_ADDRESS 'f')
 static const std::string strSecret1 = "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgwmaKkrx";
 static const std::string strSecret2 = "91avARGdfge8E4tZfYLoxeJ5sGBdNJQH4kvjJoQFacbgww7vXtT";
 static const std::string strSecret1C = "cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA";
 static const std::string strSecret2C = "cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87K7XCyj5v";
-static const std::string addr1 = "sXXmeff54XxS9YfnPVmxNu5PPojcrHpixP";
-static const std::string addr2 = "sdq5Mt131X81FgRgRj8gHihsw7fMS1MFu8";
-static const std::string addr1C = "sUvfdj9d7cnHNVcpHDkASXSKoAeTsKojEm";
-static const std::string addr2C = "sJrkmbH9318FAcZPw2DatoBUd3qvCt6D55";
+static const std::string addr1 = "fTPg7QiRm849cYVBeunPq8unWg1KXFZ4Wx";
+static const std::string addr2 = "fZgypd4Pi7DiigF5h997jxYH3yw48SUWE1";
+static const std::string addr1C = "fQna6UCypCszqVSDYdkbtmGiv2vAYP9zmo";
+static const std::string addr2C = "fEifELLVjbDxdcNoCSE2M31sjv7crtKR3V";
 
 static const std::string strAddressBad = "1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF";
 

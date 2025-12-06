@@ -26,7 +26,7 @@ Prints genesis block hashes for all OpenSyria networks (mainnet, testnet, regtes
 | Difficulty Adjustment | Every 10,080 blocks (~2 weeks) |
 | Mainnet Port | 9633 |
 | Testnet Port | 19633 |
-| Address Prefix | 'S' (mainnet), 's' (testnet) |
+| Address Prefix | 'F' (mainnet), 'f' (testnet) - Freedom |
 
 ## License
 

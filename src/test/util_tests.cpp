@@ -1465,19 +1465,19 @@ BOOST_AUTO_TEST_CASE(message_verify)
         MessageVerificationResult::ERR_INVALID_ADDRESS);
 
     // P2SH address - cannot verify signatures (no direct key)
-    // OpenSyria P2SH address (version 64)
+    // OpenSyria P2SH address (version 36, 'F' for Freedom)
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "Sv2FWGpX8DpqAfhA6VCQjvdjevxdQ2DJBG",
+            "FVAiSujNZVgYSc27t6zUTWoKfAGxpLQPQd",
             "signature should be irrelevant",
             "message too"),
         MessageVerificationResult::ERR_ADDRESS_NO_KEY);
 
     // P2PKH address with invalid base64 signature
-    // OpenSyria P2PKH address (version 63)
+    // OpenSyria P2PKH address (version 35, 'F' for Freedom)
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "Sg8bDf87ocMdHmAfbvYrm7y7PXiMZmBntk",
+            "FJP3rGFekexCf13rczHSYphSY5wF1oJQbf",
             "invalid signature, not in base64 encoding",
             "message should be irrelevant"),
         MessageVerificationResult::ERR_MALFORMED_SIGNATURE);
@@ -1485,7 +1485,7 @@ BOOST_AUTO_TEST_CASE(message_verify)
     // Valid base64 but invalid signature bytes
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "Sg8bDf87ocMdHmAfbvYrm7y7PXiMZmBntk",
+            "FJP3rGFekexCf13rczHSYphSY5wF1oJQbf",
             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
             "message should be irrelevant"),
         MessageVerificationResult::ERR_PUBKEY_NOT_RECOVERED);

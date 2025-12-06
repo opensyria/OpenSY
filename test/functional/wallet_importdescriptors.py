@@ -400,7 +400,7 @@ class ImportDescriptorsTest(OpenSyriaTestFramework):
                               },
                              success=True)
         address = w1.getrawchangeaddress('legacy')
-        assert_equal(address, "sStUJDKfs5wPRjBZAt9FeEaBcfh38mbQ4M")
+        assert_equal(address, "fNkNkxP2Zg36tizxSJ9h6UQajXxjnQKgeF")
 
         self.log.info('Check can deactivate active descriptor')
         self.test_importdesc({'desc': descsum_create('pkh([12345678]' + xpub + '/*)'),

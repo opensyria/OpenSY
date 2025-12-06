@@ -35,9 +35,9 @@ BECH32_INVALID_CHAR = 'rsyl1q04oedschfnwystcqnsvyfpj23mpsg3jc48p5rv'  # 'o' at p
 BECH32_MULTISIG_TWO_ERRORS = 'rsyl1qdg3myrgvzw7mlxq0ejxhlkyxu7vl9r56yzkfgvzclrf4hkpx9yfqemnvr3'  # errors at pos 19, 30
 BECH32_WRONG_VERSION = 'rsyl1ptmp74ayg7p24uslctssvjm06q5phz4yr2pvve8'  # error at pos 5
 
-BASE58_VALID = 'sMZ3y7Ri6Cqyem5DfboMdbShcdWnyZCM6g'
+BASE58_VALID = 'fHQxRrV4nnwh7ktcw1oo5qH6jVnVc2zcVP'
 BASE58_INVALID_PREFIX = '17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem'
-BASE58_INVALID_CHECKSUM = 'sMZ3y7Ri6Cqyem5DfboMdbShcdWnyZCM6f'
+BASE58_INVALID_CHECKSUM = 'fHQxRrV4nnwh7ktcw1oo5qH6jVnVc2zcVQ'
 BASE58_INVALID_LENGTH = '2VKf7XKMrp4bVNVmuRbyCewkP8FhGLP2E54LHDPakr9Sq5mtU2'
 
 INVALID_ADDRESS = 'asfah14i8fajz0123f'

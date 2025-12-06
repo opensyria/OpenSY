@@ -42,7 +42,7 @@ INPUTS = [
     {'txid': '83a4f6a6b73660e13ee6cb3c6063fa3759c50c9b7521d0536022961898f4fb02', 'vout': 0,
      'scriptPubKey': '76a914669b857c03a5ed269d5d85a1ffac9ed5d663072788ac'},
 ]
-OUTPUTS = {'sT4rXBV967bTeZ1hhBAhHvY6AtZLUKAcvm': 0.1}
+OUTPUTS = {'fNvkyvYVnhhB7Yq6xbB8kANVHkq39QiSD9': 0.1}
 
 class SignRawTransactionWithKeyTest(OpenSyriaTestFramework):
     def set_test_params(self):

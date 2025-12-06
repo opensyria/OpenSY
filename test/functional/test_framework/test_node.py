@@ -200,19 +200,19 @@ class TestNode():
 
     AddressKeyPair = collections.namedtuple('AddressKeyPair', ['address', 'key'])
     PRIV_KEYS = [
-            # address , privkey
-            AddressKeyPair('sNCCHZPmdW3tC8Gp4JaLMdeUVe9fwrV2qj', 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
-            AddressKeyPair('sWFYWvhxuEryQ7MJNFz789fifuAcXi5qPr', 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
-            AddressKeyPair('sRYDyt9K5zFSKWgFgwogfM6969eg5Ez3US', 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
-            AddressKeyPair('sU3Mc73AAQXB6wqcZo9VA2rSHCWmduHBGu', 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
-            AddressKeyPair('sWH2PdbxZcUDDAmT7dQSkTQD2PSitYufPc', 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
-            AddressKeyPair('sfbEgzxyHD277DhxNdQPHWwRtFAWzE9Tgq', 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
-            AddressKeyPair('scjMBUbypBYCNLwTFs486uBfqVH9UUo9pq', 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
-            AddressKeyPair('sYWPF6XvYUievwtyg3qpqgAAcL36D1n58F', 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
-            AddressKeyPair('sTDZMncjJGnU1kYiT7mBMSfwiStwZY7N76', 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
-            AddressKeyPair('sTo6xtoegoPBz6iw5Vp3Ys2Sgf2Nuz4aKr', 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
-            AddressKeyPair('sSyc4juZ3rLv8R14qgZ6KkDnZfZ6ZhkT8F', 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
-            AddressKeyPair('sdA5uvjPboCLaPviYkJVSimF4vaEoje74q', 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
+            # address , privkey (testnet/regtest addresses start with 'f' for Freedom)
+            AddressKeyPair('fJ46kJT8L69bf86DKiamosUscWRNe6Xzoc', 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
+            AddressKeyPair('fS7SyfmKbpxgs7AhdfzYaPW7nmSKHRHaRh', 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
+            AddressKeyPair('fMQ8SdCfnaM9nWVexMp87avYD1vNjUPPuc', 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
+            AddressKeyPair('fPuG4r6WrzctZwf1qD9vcGgqQ4nUEDLgyr', 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
+            AddressKeyPair('fS8vrNfKGCZvgAarP3QtChEc9FiRZdfNNE', 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
+            AddressKeyPair('fbT99k2Kyo7paDXMe3Qpjkmq17SDh7E4ra', 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
+            AddressKeyPair('fYbFeDfLWmduqLkrXH4ZZ924xMYrBAJFYX', 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
+            AddressKeyPair('fUNHhqbHF4pNPwiNwTrGHuzZjCJnrhMWvc', 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
+            AddressKeyPair('fP5TpXg5zrtBUkN7iXmcogWLqKAeFsd5Ky', 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
+            AddressKeyPair('fPf1Rds1PPUuT6YLLupV16rqoXJ5cdZCPR', 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
+            AddressKeyPair('fNqWXUxukSSdbQpU76ZXmz4BgXpoGpHhJD', 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
+            AddressKeyPair('fZ1zNfnkJPJ43Pk7pAJvtxbeBnqwRG4CSy', 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
     ]
 
     def get_deterministic_priv_key(self):

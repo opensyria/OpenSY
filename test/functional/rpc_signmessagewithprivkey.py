@@ -36,7 +36,7 @@ class SignMessagesWithPrivTest(OpenSyriaTestFramework):
 
         self.log.info('test that verifying with P2PKH address succeeds')
         addresses = self.addresses_from_privkey(priv_key)
-        assert_equal(addresses[0], 'sT4rXBV967bTeZ1hhBAhHvY6AtZLUKAcvm')
+        assert_equal(addresses[0], 'fNvkyvYVnhhB7Yq6xbB8kANVHkq39QiSD9')
         assert self.nodes[0].verifymessage(addresses[0], signature, message)
 
         self.log.info('test that verifying with non-P2PKH addresses throws error')
@@ -56,7 +56,7 @@ class SignMessagesWithPrivTest(OpenSyriaTestFramework):
         assert_raises_rpc_error(-5, "Invalid private key", self.nodes[0].signmessagewithprivkey, "invalid_key", message)
         assert_raises_rpc_error(-5, "Invalid address", self.nodes[0].verifymessage, "invalid_addr", signature, message)
         # malformed signature provided
-        assert_raises_rpc_error(-3, "Malformed base64 encoding", self.nodes[0].verifymessage, 'sT4rXBV967bTeZ1hhBAhHvY6AtZLUKAcvm', "invalid_sig", message)
+        assert_raises_rpc_error(-3, "Malformed base64 encoding", self.nodes[0].verifymessage, 'fNvkyvYVnhhB7Yq6xbB8kANVHkq39QiSD9', "invalid_sig", message)
 
 
 if __name__ == '__main__':

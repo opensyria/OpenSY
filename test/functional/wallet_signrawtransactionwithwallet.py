@@ -84,7 +84,7 @@ class SignRawTransactionWithWalletTest(OpenSyriaTestFramework):
              'scriptPubKey': 'badbadbadbad'}
         ]
 
-        outputs = {'sT4rXBV967bTeZ1hhBAhHvY6AtZLUKAcvm': 0.1}
+        outputs = {'fNvkyvYVnhhB7Yq6xbB8kANVHkq39QiSD9': 0.1}
 
         rawTx = self.nodes[0].createrawtransaction(inputs, outputs)
 

@@ -162,8 +162,8 @@ public:
         // vSeeds.emplace_back("seed.opensyria.net");
         // vSeeds.emplace_back("seed2.opensyria.net");
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,63); // Addresses start with 'S'
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,64); // Addresses start with 'S' (Syria)
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,35); // Addresses start with 'F' (Freedom)
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,36); // Script addresses start with 'F'
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,128); // WIF keys - Bitcoin mainnet compatible for wallet interop
         // Extended key prefixes kept Bitcoin-compatible for HD wallet interoperability
         // Future: Consider unique prefixes (e.g., spub/sprv) once ecosystem matures
@@ -268,8 +268,8 @@ public:
         // DNS seeds cleared until OpenSyria testnet seed infrastructure is established
         // Use -addnode or -connect for initial bootstrap
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,125); // Testnet addresses start with 's'
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,95);  // Testnet addresses start with 'f' (freedom)
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,96);  // Script addresses start with 'f'
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239); // WIF testnet keys - Bitcoin testnet compatible for test compatibility
         // Extended key prefixes kept Bitcoin testnet-compatible for test compatibility
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF}; // tpub - Bitcoin testnet compatible
@@ -365,8 +365,8 @@ public:
         // DNS seeds cleared until OpenSyria testnet4 seed infrastructure is established
         // Use -addnode or -connect for initial bootstrap
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,125); // Testnet addresses start with 's'
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,95);  // Testnet addresses start with 'f' (freedom)
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,96);  // Script addresses start with 'f'
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239); // WIF testnet keys - Bitcoin testnet compatible for test compatibility
         // Extended key prefixes kept Bitcoin testnet-compatible for test compatibility
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF}; // tpub - Bitcoin testnet compatible
@@ -498,14 +498,14 @@ public:
         m_assumeutxo_data = {};
 
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,125); // Testnet addresses start with 's'
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,95);  // Signet addresses start with 'f' (freedom)
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,96);  // Script addresses start with 'f'
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239); // WIF testnet keys - Bitcoin testnet compatible for test compatibility
         // Extended key prefixes kept Bitcoin testnet-compatible for test compatibility
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF}; // tpub - Bitcoin testnet compatible
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94}; // tprv - Bitcoin testnet compatible
 
-        bech32_hrp = "tsyl"; // OpenSyria testnet SegWit
+        bech32_hrp = "tsyl"; // OpenSyria signet SegWit
 
         fDefaultConsistencyChecks = false;
         m_is_mockable_chain = false;
@@ -636,8 +636,8 @@ public:
         };
 
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,125); // Regtest addresses start with 's'
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,95);  // Regtest addresses start with 'f' (freedom)
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,96);  // Script addresses start with 'f'
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239); // WIF testnet keys - Bitcoin testnet compatible for test compatibility
         // Extended key prefixes kept Bitcoin testnet-compatible for test compatibility
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF}; // tpub - Bitcoin testnet compatible

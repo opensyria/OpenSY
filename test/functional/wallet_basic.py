@@ -528,8 +528,8 @@ class WalletTest(OpenSyriaTestFramework):
 
         # Test getaddressinfo on external address. Note that these addresses are taken from disablewallet.py
         assert_raises_rpc_error(-5, "Invalid or unsupported Base58-encoded address.", self.nodes[0].getaddressinfo, "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
-        address_info = self.nodes[0].getaddressinfo("sUvfdj9d7cnHNVcpHDkASXSKoAeTsKojEm")
-        assert_equal(address_info['address'], "sUvfdj9d7cnHNVcpHDkASXSKoAeTsKojEm")
+        address_info = self.nodes[0].getaddressinfo("fQna6UCypCszqVSDYdkbtmGiv2vAYP9zmo")
+        assert_equal(address_info['address'], "fQna6UCypCszqVSDYdkbtmGiv2vAYP9zmo")
         assert_equal(address_info["scriptPubKey"], "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac")
         assert not address_info["ismine"]
         assert not address_info["isscript"]

@@ -102,7 +102,7 @@ class WalletSignerTest(OpenSyriaTestFramework):
         assert_equal(address_info['hdkeypath'], "m/49h/1h/0h/0/0")
 
         address3 = hww.getnewaddress(address_type="legacy")
-        assert_equal(address3, "se4mSFLcZtay86D4XQTvo5fxL8WWxWAgff")
+        assert_equal(address3, "fZvftzPyGUggb62TnpUNFKWMSznDdLT12N")
         address_info = hww.getaddressinfo(address3)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
