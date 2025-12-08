@@ -1,7 +1,7 @@
 # OpenSyria Deployment Progress
 
-**Last Updated:** June 2025  
-**Status:** Ready for Infrastructure Deployment  
+**Last Updated:** December 7, 2025  
+**Status:** 🚀 AWS Ready - Deploying First Node  
 
 ---
 
@@ -34,40 +34,59 @@
 - [x] Domain acquired: **opensyria.net**
 - [x] Registrar: Namecheap
 - [x] DNS: Cloudflare (Active)
-- [x] Nameservers: `blair.ns.cloudflare.com`, `elliot.ns.cloudflare.com`
+- [x] Nameservers configured
 - [x] Parking page records removed
 
 ### 5. Cloud Accounts
-- [x] Oracle Cloud created (Riyadh region)
-- [ ] Hetzner (ID verification failed - try again later)
+- [x] **AWS Account** ✅ (Active - using this!)
+- [x] Oracle Cloud (Riyadh) - capacity issues, abandoned
+- [x] Hetzner - ID verification failed, abandoned
 
 ---
 
-## ⏳ In Progress / Blocked
+## ⏳ In Progress
 
-### Oracle VM Creation
-**Issue:** "Out of capacity for shape VM.Standard.A1.Flex in availability domain AD-1"
+### AWS EC2 Deployment
+**Status:** Ready to launch first instance
 
-**Solutions to try:**
-1. **Wait and retry** - Capacity frees up overnight (try early morning Saudi time)
-2. **Try Frankfurt region** - Subscribe to additional Oracle region
-3. **Alternative clouds:**
-   - Vultr ($5/mo servers in multiple regions)
-   - DigitalOcean ($4/mo basic droplet)
-   - Linode ($5/mo Nanode)
+**Instance Configuration:**
+- **Name:** `opensyria-seed-1`
+- **AMI:** Ubuntu Server 24.04 LTS
+- **Type:** `t2.micro` (Free tier) or `t3.small` ($15/mo)
+- **Storage:** 30 GB gp3
+- **Security Group Ports:**
+  - SSH (22) - Your IP only
+  - OpenSyria P2P (9633) - Anywhere
+  - OpenSyria RPC (9632) - Your IP only
 
 ---
 
 ## 📋 Next Steps (Priority Order)
 
-### Step 1: Deploy First Seed Node
-```bash
-# Once Oracle VM is ready (or alternative VPS):
-ssh ubuntu@<server-ip>
-curl -fsSL https://raw.githubusercontent.com/hamoudi/OpenSyria/main/contrib/deploy/setup-node.sh | bash
+### Step 1: Launch AWS EC2 Instance ⬅️ YOU ARE HERE
+1. Go to **AWS Console** → EC2 → **Launch Instance**
+2. Configure:
+   - **Name:** `opensyria-seed-1`
+   - **AMI:** Ubuntu Server 24.04 LTS (Free tier eligible)
+   - **Instance type:** `t2.micro` (Free tier) or `t3.small` (~$15/mo)
+   - **Key pair:** Create new, download `.pem` file (SAVE IT!)
+   - **Security Group:** Add ports 22, 9633, 9632
+   - **Storage:** 30 GB gp3
+3. Launch and note the **Public IP**
 
-# Or manually:
-git clone https://github.com/hamoudi/OpenSyria
+### Step 2: SSH & Setup Node
+```bash
+# Make key usable
+chmod 400 ~/Downloads/opensyria-seed-1.pem
+
+# SSH into server
+ssh -i ~/Downloads/opensyria-seed-1.pem ubuntu@<PUBLIC-IP>
+
+# Run setup (on server)
+sudo apt update && sudo apt install -y git build-essential cmake pkg-config \
+  libboost-all-dev libevent-dev libsqlite3-dev
+
+git clone https://github.com/opensyria/OpenSyria.git
 cd OpenSyria
 cmake -B build -DBUILD_DAEMON=ON -DBUILD_CLI=ON
 cmake --build build -j$(nproc)
@@ -80,49 +99,42 @@ server=1
 daemon=1
 listen=1
 rpcuser=opensyriarpc
-rpcpassword=$(openssl rand -hex 32)
+rpcpassword=CHANGE_THIS_TO_RANDOM_STRING
 rpcallowip=127.0.0.1
 EOF
 
-# Start and mine first block
+# Start daemon
 opensyriad -daemon
-opensyria-cli generatetoaddress 1 $(opensyria-cli getnewaddress)
+opensyria-cli getblockchaininfo
 ```
 
-### Step 2: Configure Cloudflare DNS
-After first node is running, add these records:
-| Type | Name | Content |
-|------|------|---------|
-| A | node1 | `<seed-node-ip>` |
-| A | ns1 | `<seeder-server-ip>` |
-| NS | seed | ns1.opensyria.net |
+### Step 3: Configure Cloudflare DNS
+After node is running, add these records in Cloudflare:
+| Type | Name | Content | Proxy |
+|------|------|---------|-------|
+| A | node1 | `<EC2-PUBLIC-IP>` | DNS only (grey) |
+| A | @ | `<EC2-PUBLIC-IP>` | Proxied (orange) |
+| A | www | `<EC2-PUBLIC-IP>` | Proxied (orange) |
 
-### Step 3: Deploy DNS Seeder
+### Step 4: Mine First Blocks
+```bash
+# Generate wallet and mine
+opensyria-cli createwallet "miner"
+opensyria-cli getnewaddress
+opensyria-cli generatetoaddress 100 <YOUR-ADDRESS>
+```
+
+### Step 5: Deploy DNS Seeder (Later)
 ```bash
 # On seeder server:
 cd /contrib/seeder/opensyria-seeder
 ./dnsseed -h seed.opensyria.net -n ns1.opensyria.net -m admin@opensyria.net -p 5353
-
-# Or use setup script:
-curl -fsSL .../setup-dns-seeder.sh | bash
 ```
 
-### Step 4: Update chainparams.cpp
-After nodes are running, update `/src/kernel/chainparams.cpp`:
+### Step 6: Update chainparams.cpp (After deployment)
 ```cpp
-// In CMainParams constructor, add:
+// In CMainParams constructor:
 vSeeds.emplace_back("seed.opensyria.net");
-
-// After first nodes have static IPs:
-vFixedSeeds = {
-    // Add node IPs here
-};
-```
-
-### Step 5: Block Explorer
-```bash
-curl -fsSL .../setup-explorer.sh | bash
-# Access at: explorer.opensyria.net
 ```
 
 ---

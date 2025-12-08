@@ -1,10 +1,10 @@
 # OpenSyria Infrastructure Deployment Guide
 
-## Complete Setup: Oracle Cloud (Free) + Hetzner (Budget) + Cloudflare (Free)
+## AWS + Cloudflare Production Deployment
 
-**Total Monthly Cost: ~$7-10/month**
+**Total Monthly Cost: ~$15-50/month (scales with usage)**
 
-This guide will walk you through deploying a production-ready OpenSyria blockchain infrastructure using the most cost-effective approach.
+This guide walks you through deploying production-ready OpenSyria blockchain infrastructure using AWS and Cloudflare.
 
 ---
 
@@ -12,60 +12,56 @@ This guide will walk you through deploying a production-ready OpenSyria blockcha
 
 1. [Architecture Overview](#1-architecture-overview)
 2. [Prerequisites](#2-prerequisites)
-3. [Phase 1: Domain & Cloudflare Setup](#3-phase-1-domain--cloudflare-setup)
-4. [Phase 2: Oracle Cloud Free Tier Setup](#4-phase-2-oracle-cloud-free-tier-setup)
-5. [Phase 3: Hetzner Budget Nodes](#5-phase-3-hetzner-budget-nodes)
-6. [Phase 4: DNS Seeder Configuration](#6-phase-4-dns-seeder-configuration)
-7. [Phase 5: Block Explorer Deployment](#7-phase-5-block-explorer-deployment)
-8. [Phase 6: Monitoring Setup](#8-phase-6-monitoring-setup)
-9. [Phase 7: Final Integration](#9-phase-7-final-integration)
-10. [AWS Enterprise Upgrade Path](#10-aws-enterprise-upgrade-path)
-11. [Maintenance Procedures](#11-maintenance-procedures)
+3. [Phase 1: AWS Account Setup](#3-phase-1-aws-account-setup)
+4. [Phase 2: Launch First Seed Node](#4-phase-2-launch-first-seed-node)
+5. [Phase 3: Server Configuration](#5-phase-3-server-configuration)
+6. [Phase 4: Build & Install OpenSyria](#6-phase-4-build--install-opensyria)
+7. [Phase 5: Configure DNS (Cloudflare)](#7-phase-5-configure-dns-cloudflare)
+8. [Phase 6: DNS Seeder Setup](#8-phase-6-dns-seeder-setup)
+9. [Phase 7: Block Explorer](#9-phase-7-block-explorer)
+10. [Phase 8: Monitoring](#10-phase-8-monitoring)
+11. [Scaling & Multi-Region](#11-scaling--multi-region)
+12. [Maintenance](#12-maintenance)
 
 ---
 
 ## 1. Architecture Overview
 
 ```
-                                    INTERNET
-                                        │
-                                        ▼
-                    ┌───────────────────────────────────────┐
-                    │           CLOUDFLARE (FREE)           │
-                    │  • DNS Hosting                        │
-                    │  • DDoS Protection                    │
-                    │  • CDN for static assets              │
-                    │  • SSL/TLS Termination                │
-                    └───────────────────────────────────────┘
-                                        │
-            ┌───────────────────────────┼───────────────────────────┐
-            │                           │                           │
-            ▼                           ▼                           ▼
-┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐
-│  ORACLE CLOUD FREE  │   │  ORACLE CLOUD FREE  │   │   HETZNER (€6.58)   │
-│     SINGAPORE       │   │     FRANKFURT       │   │      GERMANY        │
-│                     │   │                     │   │                     │
-│  ┌───────────────┐  │   │  ┌───────────────┐  │   │  ┌───────────────┐  │
-│  │  Seed Node 1  │  │   │  │  Seed Node 2  │  │   │  │  Seed Node 3  │  │
-│  │  2 OCPU       │  │   │  │  2 OCPU       │  │   │  │  2 vCPU       │  │
-│  │  12GB RAM     │  │   │  │  12GB RAM     │  │   │  │  4GB RAM      │  │
-│  │  100GB SSD    │  │   │  │  100GB SSD    │  │   │  │  40GB SSD     │  │
-│  └───────────────┘  │   │  └───────────────┘  │   │  └───────────────┘  │
-│                     │   │                     │   │                     │
-│  ┌───────────────┐  │   │                     │   │  ┌───────────────┐  │
-│  │  DNS Seeder   │  │   │                     │   │  │Block Explorer │  │
-│  │  (shared)     │  │   │                     │   │  │  (CX22)       │  │
-│  └───────────────┘  │   │                     │   │  └───────────────┘  │
-└─────────────────────┘   └─────────────────────┘   └─────────────────────┘
+                              INTERNET
+                                  │
+                                  ▼
+              ┌───────────────────────────────────────┐
+              │         CLOUDFLARE (FREE)             │
+              │  • DNS Management                     │
+              │  • DDoS Protection                    │
+              │  • SSL/TLS                            │
+              └───────────────────────────────────────┘
+                                  │
+        ┌─────────────────────────┼─────────────────────────┐
+        │                         │                         │
+        ▼                         ▼                         ▼
+┌───────────────┐       ┌───────────────┐       ┌───────────────┐
+│  AWS EC2      │       │  AWS EC2      │       │  AWS EC2      │
+│  SEED NODE 1  │       │  SEED NODE 2  │       │  EXPLORER     │
+│  (Primary)    │       │  (Secondary)  │       │  (Optional)   │
+│               │       │               │       │               │
+│  t3.small     │       │  t3.micro     │       │  t3.small     │
+│  $15/mo       │       │  Free tier    │       │  $15/mo       │
+│               │       │  or $8/mo     │       │               │
+│  + DNS Seeder │       │               │       │  + Nginx      │
+└───────────────┘       └───────────────┘       └───────────────┘
 
-Cost Breakdown:
-├── Oracle Cloud Singapore:  $0/month (Free Forever)
-├── Oracle Cloud Frankfurt:  $0/month (Free Forever)
-├── Hetzner CX22 (Node):     €3.29/month (~$3.50)
-├── Hetzner CX22 (Explorer): €3.29/month (~$3.50)
-├── Cloudflare:              $0/month (Free)
-├── Domain (opensyria.net):  ~$12/year (~$1/month)
-└── TOTAL:                   ~$8/month
+Domain: opensyria.net (Namecheap → Cloudflare DNS)
+
+Cost Breakdown (Minimum):
+├── AWS EC2 t3.small (seed1):     ~$15/month
+├── AWS EC2 t2.micro (seed2):     $0 (Free tier) or ~$8/month
+├── AWS EBS Storage (30GB each):  ~$3/month
+├── AWS Data Transfer:            ~$5/month (first 100GB free)
+├── Cloudflare:                   $0 (Free plan)
+├── Domain:                       ~$1/month ($12/year)
+└── TOTAL:                        ~$15-30/month
 ```
 
 ---
@@ -74,248 +70,251 @@ Cost Breakdown:
 
 ### 2.1 Accounts Required
 
-| Service | URL | Credit Card Required? |
-|---------|-----|----------------------|
-| Oracle Cloud | https://cloud.oracle.com | Yes (for verification, not charged) |
-| Hetzner Cloud | https://console.hetzner.cloud | Yes |
-| Cloudflare | https://cloudflare.com | No |
-| Domain Registrar | Namecheap, Porkbun, etc. | Yes |
+| Service | URL | Status |
+|---------|-----|--------|
+| ✅ AWS | https://aws.amazon.com | Your account ready |
+| ✅ Cloudflare | https://cloudflare.com | Active, DNS configured |
+| ✅ Namecheap | https://namecheap.com | Domain: opensyria.net |
 
 ### 2.2 Local Requirements
 
 ```bash
-# Required on your local machine
-brew install ssh-keygen  # or use existing SSH keys
-ssh-keygen -t ed25519 -C "opensyria-deploy"
-cat ~/.ssh/id_ed25519.pub  # Save this for later
+# SSH key for server access
+ssh-keygen -t ed25519 -C "opensyria-aws"
+cat ~/.ssh/id_ed25519.pub  # Copy this for AWS
 ```
 
-### 2.3 Domain Registration
+### 2.3 Current Status
 
-Register `opensyria.net` (or your chosen domain) at:
-- **Porkbun** (~$9/year) - Recommended, cheapest
-- **Namecheap** (~$12/year) - Good support
-- **Cloudflare Registrar** (~$10/year) - Direct integration
+- [x] Domain `opensyria.net` registered
+- [x] Cloudflare DNS active
+- [x] Nameservers configured
+- [x] AWS account created
+- [ ] EC2 instance launched ← **YOU ARE HERE**
 
 ---
 
-## 3. Phase 1: Domain & Cloudflare Setup
+## 3. Phase 1: AWS Account Setup
 
-### 3.1 Create Cloudflare Account
+### 3.1 Enable Free Tier Alerts
 
-1. Go to https://cloudflare.com
-2. Sign up for free account
-3. Verify email
+1. Go to **AWS Console** → **Billing** → **Budgets**
+2. Create budget:
+   - Budget type: **Cost budget**
+   - Budget amount: **$10** (alerts before charges)
+   - Alert threshold: **80%**
+   - Email: your email
 
-### 3.2 Add Your Domain to Cloudflare
+### 3.2 Create IAM User (Best Practice)
 
-1. Click "Add a Site"
-2. Enter `opensyria.net`
-3. Select **Free Plan**
-4. Cloudflare will scan existing DNS records
-5. Note the Cloudflare nameservers:
-   ```
-   Example:
-   - aria.ns.cloudflare.com
-   - ben.ns.cloudflare.com
-   ```
+1. Go to **IAM** → **Users** → **Add user**
+2. Username: `opensyria-admin`
+3. Access: **AWS Management Console**
+4. Permissions: **AdministratorAccess** (or EC2FullAccess for limited)
+5. Save credentials securely
 
-### 3.3 Update Domain Nameservers
+### 3.3 Choose Your Region
 
-At your domain registrar:
-1. Find "Nameservers" settings
-2. Change to Custom/Cloudflare nameservers
-3. Enter both Cloudflare nameservers
-4. Save and wait 24-48 hours for propagation
+**Recommended regions for Middle East:**
+| Region | Code | Latency |
+|--------|------|---------|
+| Bahrain | me-south-1 | Best for ME |
+| Frankfurt | eu-central-1 | Good for EU/ME |
+| Mumbai | ap-south-1 | Good for Asia |
+| N. Virginia | us-east-1 | Most services |
 
-### 3.4 Initial DNS Records (Placeholder)
-
-In Cloudflare DNS dashboard, add these placeholder records:
-
-| Type | Name | Content | Proxy | TTL |
-|------|------|---------|-------|-----|
-| A | @ | 1.2.3.4 | Yes | Auto |
-| A | www | 1.2.3.4 | Yes | Auto |
-| A | seed | 1.2.3.4 | No | Auto |
-| A | seed2 | 1.2.3.4 | No | Auto |
-| A | seed3 | 1.2.3.4 | No | Auto |
-| A | explore | 1.2.3.4 | Yes | Auto |
-| A | api | 1.2.3.4 | Yes | Auto |
-| A | stats | 1.2.3.4 | Yes | Auto |
-
-> **Note:** We'll update these IPs after deploying servers. Seed nodes must have Proxy OFF (gray cloud) for P2P to work.
-
-### 3.5 Cloudflare SSL/TLS Settings
-
-1. Go to SSL/TLS → Overview
-2. Set mode to **Full (strict)**
-3. Go to Edge Certificates
-4. Enable **Always Use HTTPS**
-5. Enable **Automatic HTTPS Rewrites**
+> **Tip:** Start with **me-south-1** (Bahrain) for lowest latency to Syria/Middle East.
 
 ---
 
-## 4. Phase 2: Oracle Cloud Free Tier Setup
+## 4. Phase 2: Launch First Seed Node
 
-### 4.1 Create Oracle Cloud Account
+### 4.1 Go to EC2 Dashboard
 
-1. Go to https://cloud.oracle.com
-2. Click "Start for free"
-3. Fill in details (use real info - they verify)
-4. Add credit card (verification only, won't be charged for free tier)
-5. Select home region: **Choose Frankfurt (eu-frankfurt-1)**
+1. AWS Console → **EC2** → **Launch Instance**
 
-> ⚠️ **Important:** Your home region cannot be changed. Frankfurt is recommended for European presence.
+### 4.2 Configure Instance
 
-### 4.2 Understanding Oracle Cloud Free Tier
+#### Basic Settings
+| Setting | Value |
+|---------|-------|
+| **Name** | `opensyria-seed-1` |
+| **AMI** | Ubuntu Server 24.04 LTS (64-bit x86) |
+| **Architecture** | 64-bit (x86) |
 
-**Always Free Resources:**
-- 4 Ampere A1 (ARM) OCPUs + 24GB RAM total
-- 200GB block storage
-- 10TB outbound data/month
-- 2 AMD micro instances (1GB RAM each) - less useful
-- 1 Load Balancer
+#### Instance Type
+| Option | Specs | Cost | Recommendation |
+|--------|-------|------|----------------|
+| `t2.micro` | 1 vCPU, 1GB RAM | **Free tier** | Testing only |
+| `t3.micro` | 2 vCPU, 1GB RAM | ~$8/mo | Minimum for production |
+| `t3.small` | 2 vCPU, 2GB RAM | ~$15/mo | **Recommended** |
+| `t3.medium` | 2 vCPU, 4GB RAM | ~$30/mo | Heavy usage |
 
-**Our Allocation:**
-- Seed Node 1: 2 OCPU, 12GB RAM (Singapore)
-- Seed Node 2: 2 OCPU, 12GB RAM (Frankfurt)
+> **Choose `t3.small`** for reliable seed node operation.
 
-### 4.3 Create Virtual Cloud Network (VCN)
-
-1. Go to **Networking → Virtual Cloud Networks**
-2. Click **Start VCN Wizard**
-3. Select **Create VCN with Internet Connectivity**
-4. Configure:
-   ```
-   VCN Name: opensyria-vcn
-   VCN CIDR: 10.0.0.0/16
-   Public Subnet CIDR: 10.0.0.0/24
-   Private Subnet CIDR: 10.0.1.0/24
-   ```
-5. Click **Create**
-
-### 4.4 Configure Security List (Firewall)
-
-1. Go to **Networking → Virtual Cloud Networks**
-2. Click on `opensyria-vcn`
-3. Click on **Security Lists** → **Default Security List**
-4. Add **Ingress Rules**:
-
-| Source CIDR | Protocol | Dest Port | Description |
-|-------------|----------|-----------|-------------|
-| 0.0.0.0/0 | TCP | 22 | SSH |
-| 0.0.0.0/0 | TCP | 9633 | OpenSyria P2P |
-| 0.0.0.0/0 | TCP | 19633 | OpenSyria Testnet |
-| 0.0.0.0/0 | UDP | 53 | DNS Seeder |
-| 0.0.0.0/0 | TCP | 53 | DNS Seeder |
-| 0.0.0.0/0 | TCP | 8332 | RPC (optional) |
-
-### 4.5 Create Seed Node 1 (Frankfurt)
-
-1. Go to **Compute → Instances**
-2. Click **Create Instance**
-3. Configure:
-   ```
-   Name: opensyria-seed-1
-   Compartment: (root)
-   
-   Placement:
-     Availability Domain: AD-1 (or any available)
-   
-   Image: 
-     - Click "Change Image"
-     - Select "Ubuntu"
-     - Version: 22.04 (Canonical Ubuntu)
-     - Image type: Platform image
-   
-   Shape:
-     - Click "Change Shape"
-     - Select "Ampere" (ARM)
-     - Series: VM.Standard.A1.Flex
-     - OCPUs: 2
-     - Memory: 12 GB
-   
-   Networking:
-     - VCN: opensyria-vcn
-     - Subnet: Public Subnet
-     - Public IP: Assign IPv4
-   
-   SSH Keys:
-     - Paste your public key from: cat ~/.ssh/id_ed25519.pub
-   
-   Boot Volume:
-     - Size: 100 GB
-     - VPU: 10 (Balanced)
-   ```
-4. Click **Create**
-5. Note the **Public IP** when assigned
-
-### 4.6 Create Seed Node 2 (Singapore - Different Region)
-
-1. Change region selector (top right) to **Singapore (ap-singapore-1)**
-2. You need to set up a new VCN in this region (repeat 4.3 and 4.4)
-3. Create instance with same specs as Seed Node 1
-4. Note the **Public IP**
-
-### 4.7 Initial Server Setup (Both Nodes)
-
-SSH into each node:
+#### Key Pair
+1. Click **Create new key pair**
+2. Name: `opensyria-key`
+3. Type: **ED25519** (or RSA)
+4. Format: **.pem**
+5. **Download and save securely!**
 
 ```bash
-ssh -i ~/.ssh/id_ed25519 ubuntu@<PUBLIC_IP>
+# After download, secure the key
+mv ~/Downloads/opensyria-key.pem ~/.ssh/
+chmod 400 ~/.ssh/opensyria-key.pem
 ```
 
-Run initial setup:
+#### Network Settings (Security Group)
+
+Click **Edit** and configure:
+
+| Type | Protocol | Port | Source | Description |
+|------|----------|------|--------|-------------|
+| SSH | TCP | 22 | My IP | SSH access |
+| Custom TCP | TCP | **9633** | 0.0.0.0/0 | OpenSyria P2P |
+| Custom TCP | TCP | **9632** | My IP | RPC (restricted) |
+| Custom TCP | TCP | **19633** | 0.0.0.0/0 | Testnet P2P |
+| Custom UDP | UDP | **53** | 0.0.0.0/0 | DNS Seeder |
+| Custom TCP | TCP | **53** | 0.0.0.0/0 | DNS Seeder |
+
+> **Security Group Name:** `opensyria-sg`
+
+#### Storage
+
+| Setting | Value |
+|---------|-------|
+| Size | **30 GiB** |
+| Type | **gp3** |
+| IOPS | 3000 (default) |
+| Throughput | 125 (default) |
+
+> 30GB is sufficient for initial blockchain. Can expand later.
+
+### 4.3 Launch!
+
+1. Review all settings
+2. Click **Launch Instance**
+3. Wait for status: **Running**
+4. Note the **Public IPv4 address**
+
+### 4.4 Allocate Elastic IP (Recommended)
+
+Static IP that persists across restarts:
+
+1. EC2 → **Elastic IPs** → **Allocate**
+2. Click **Allocate**
+3. Select the new IP → **Actions** → **Associate**
+4. Choose your instance
+5. **Associate**
+
+> Now your server has a permanent IP address.
+
+---
+
+## 5. Phase 3: Server Configuration
+
+### 5.1 Connect via SSH
 
 ```bash
-#!/bin/bash
-# Run on BOTH Oracle Cloud instances
+# Connect to your server
+ssh -i ~/.ssh/opensyria-key.pem ubuntu@YOUR_PUBLIC_IP
 
+# Example:
+ssh -i ~/.ssh/opensyria-key.pem ubuntu@3.28.123.45
+```
+
+### 5.2 Initial System Setup
+
+```bash
 # Update system
 sudo apt update && sudo apt upgrade -y
 
-# Install dependencies
+# Set timezone
+sudo timedatectl set-timezone Asia/Riyadh  # Or your preference
+
+# Set hostname
+sudo hostnamectl set-hostname opensyria-seed-1
+
+# Install essential packages
 sudo apt install -y \
     build-essential \
     cmake \
     pkg-config \
-    libevent-dev \
-    libboost-dev \
-    libboost-system-dev \
-    libboost-filesystem-dev \
-    libboost-test-dev \
-    libsqlite3-dev \
-    libzmq3-dev \
-    libssl-dev \
     git \
     ufw \
     fail2ban \
     htop \
-    tmux
+    tmux \
+    curl \
+    wget \
+    unzip
+```
 
-# Configure firewall
+### 5.3 Configure Firewall (UFW)
+
+```bash
+# Reset and configure UFW
+sudo ufw --force reset
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-sudo ufw allow 22/tcp      # SSH
-sudo ufw allow 9633/tcp    # OpenSyria P2P
-sudo ufw allow 53/udp      # DNS (only on seed1)
-sudo ufw allow 53/tcp      # DNS (only on seed1)
-sudo ufw --force enable
 
-# Configure fail2ban
+# Allow required ports
+sudo ufw allow 22/tcp comment 'SSH'
+sudo ufw allow 9633/tcp comment 'OpenSyria P2P'
+sudo ufw allow 9632/tcp comment 'OpenSyria RPC'
+sudo ufw allow 19633/tcp comment 'OpenSyria Testnet'
+sudo ufw allow 53/udp comment 'DNS Seeder'
+sudo ufw allow 53/tcp comment 'DNS Seeder'
+
+# Enable firewall
+sudo ufw --force enable
+sudo ufw status verbose
+```
+
+### 5.4 Configure Fail2Ban
+
+```bash
+# Enable and start fail2ban
 sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
 
-# Create opensyria user
+# Check status
+sudo fail2ban-client status
+```
+
+### 5.5 Create OpenSyria User
+
+```bash
+# Create dedicated user
 sudo useradd -m -s /bin/bash opensyria
 sudo usermod -aG sudo opensyria
 
-# Create data directory
+# Create directories
 sudo mkdir -p /opt/opensyria
 sudo chown opensyria:opensyria /opt/opensyria
 ```
 
-### 4.8 Build OpenSyria on ARM
+---
+
+## 6. Phase 4: Build & Install OpenSyria
+
+### 6.1 Install Build Dependencies
+
+```bash
+# Install all dependencies
+sudo apt install -y \
+    libboost-all-dev \
+    libevent-dev \
+    libsqlite3-dev \
+    libzmq3-dev \
+    libssl-dev \
+    libminiupnpc-dev \
+    libnatpmp-dev \
+    systemtap-sdt-dev
+```
+
+### 6.2 Clone and Build
 
 ```bash
 # Switch to opensyria user
@@ -326,34 +325,50 @@ cd /opt/opensyria
 git clone https://github.com/opensyria/OpenSyria.git source
 cd source
 
-# Build for ARM64
+# Build (daemon and CLI only, no GUI)
 cmake -B build \
     -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_DAEMON=ON \
+    -DBUILD_CLI=ON \
     -DBUILD_GUI=OFF \
     -DBUILD_TESTS=OFF
 
+# Compile (takes 10-30 minutes)
 cmake --build build -j$(nproc)
 
 # Verify build
 ./build/bin/opensyriad --version
+./build/bin/opensyria-cli --version
 ```
 
-### 4.9 Configure OpenSyria Node
+### 6.3 Install Binaries
 
 ```bash
-# Create config directory
+# Install system-wide
+sudo cmake --install build --prefix /usr/local
+
+# Verify installation
+which opensyriad
+opensyriad --version
+```
+
+### 6.4 Configure OpenSyria Node
+
+```bash
+# Create config directory (as opensyria user)
 mkdir -p ~/.opensyria
 
-# Generate RPC credentials
-RPC_USER="opensyriarpc"
+# Generate secure RPC password
 RPC_PASS=$(openssl rand -hex 32)
 
 # Create configuration
 cat > ~/.opensyria/opensyria.conf << EOF
 # OpenSyria Seed Node Configuration
-# Node: seed1.opensyria.net (or seed2)
+# Server: seed1.opensyria.net
 
-# Network
+# =============
+# NETWORK
+# =============
 server=1
 daemon=1
 listen=1
@@ -362,46 +377,64 @@ bind=0.0.0.0
 
 # Peer connections
 maxconnections=256
-maxuploadtarget=5000  # MB per day
+maxuploadtarget=5000
 
-# Index (required for explorer API)
-txindex=1
-
+# =============
 # RPC
-rpcuser=${RPC_USER}
+# =============
+rpcuser=opensyriarpc
 rpcpassword=${RPC_PASS}
 rpcbind=127.0.0.1
 rpcallowip=127.0.0.1
 rpcport=9632
 
-# Logging
+# =============
+# INDEXING
+# =============
+txindex=1
+
+# =============
+# LOGGING
+# =============
 debug=net
 logips=1
 logtimestamps=1
 shrinkdebugfile=1
 
-# Performance
-dbcache=1000  # MB - adjust based on available RAM
-par=2         # Parallel script verification threads
+# =============
+# PERFORMANCE
+# =============
+dbcache=512
+par=2
 
-# Seed node specific
-seednode=seed2.opensyria.net:9633
-seednode=seed3.opensyria.net:9633
-# Add more seeds as they come online
+# =============
+# SEEDS
+# =============
+# Will be populated as more nodes come online
+# seednode=seed2.opensyria.net:9633
 EOF
 
-# Save credentials for later
-echo "RPC_USER=${RPC_USER}" > ~/.opensyria/.rpc_credentials
-echo "RPC_PASS=${RPC_PASS}" >> ~/.opensyria/.rpc_credentials
+# Save credentials for reference
+echo "RPC Password: ${RPC_PASS}" > ~/.opensyria/.rpc_credentials
 chmod 600 ~/.opensyria/.rpc_credentials
+
+# Display password (save this!)
+echo "=========================================="
+echo "SAVE THIS RPC PASSWORD:"
+echo "${RPC_PASS}"
+echo "=========================================="
 ```
 
-### 4.10 Create Systemd Service
+### 6.5 Create Systemd Service
 
 ```bash
-sudo tee /etc/systemd/system/opensyriad.service << EOF
+# Exit to ubuntu user for sudo
+exit
+
+# Create service file
+sudo tee /etc/systemd/system/opensyriad.service << 'EOF'
 [Unit]
-Description=OpenSyria daemon
+Description=OpenSyria Daemon
 Documentation=https://opensyria.net/
 After=network-online.target
 Wants=network-online.target
@@ -411,20 +444,19 @@ Type=forking
 User=opensyria
 Group=opensyria
 
-ExecStart=/opt/opensyria/source/build/bin/opensyriad -daemon -conf=/home/opensyria/.opensyria/opensyria.conf -datadir=/home/opensyria/.opensyria
-ExecStop=/opt/opensyria/source/build/bin/opensyria-cli stop
+ExecStart=/usr/local/bin/opensyriad -daemon -conf=/home/opensyria/.opensyria/opensyria.conf -datadir=/home/opensyria/.opensyria
+ExecStop=/usr/local/bin/opensyria-cli -conf=/home/opensyria/.opensyria/opensyria.conf stop
 
 Restart=on-failure
 RestartSec=30
 TimeoutStartSec=infinity
 TimeoutStopSec=600
 
-# Hardening
+# Security hardening
 PrivateTmp=true
 ProtectSystem=full
 NoNewPrivileges=true
 PrivateDevices=true
-MemoryDenyWriteExecute=true
 
 [Install]
 WantedBy=multi-user.target
@@ -439,183 +471,117 @@ sudo systemctl start opensyriad
 sudo systemctl status opensyriad
 ```
 
-### 4.11 Verify Node Operation
+### 6.6 Verify Node Operation
 
 ```bash
-# Check if daemon is running
-/opt/opensyria/source/build/bin/opensyria-cli getblockchaininfo
-
-# Check peer connections
-/opt/opensyria/source/build/bin/opensyria-cli getpeerinfo
-
-# Check network info
-/opt/opensyria/source/build/bin/opensyria-cli getnetworkinfo
-```
-
----
-
-## 5. Phase 3: Hetzner Budget Nodes
-
-### 5.1 Create Hetzner Account
-
-1. Go to https://console.hetzner.cloud
-2. Create account
-3. Add payment method
-4. Create new project: `opensyria`
-
-### 5.2 Create Seed Node 3
-
-1. Click **Add Server**
-2. Configure:
-   ```
-   Location: Falkenstein (fsn1) or Nuremberg (nbg1)
-   Image: Ubuntu 22.04
-   Type: CX22 (2 vCPU, 4GB RAM, 40GB SSD) - €3.29/mo
-   
-   SSH Key: Add your public key
-   
-   Name: opensyria-seed-3
-   ```
-3. Click **Create & Buy**
-4. Note the IP address
-
-### 5.3 Create Block Explorer Server
-
-1. Click **Add Server**
-2. Configure:
-   ```
-   Location: Same as Seed Node 3
-   Image: Ubuntu 22.04
-   Type: CX22 (2 vCPU, 4GB RAM, 40GB SSD) - €3.29/mo
-   
-   SSH Key: Add your public key
-   
-   Name: opensyria-explorer
-   ```
-3. Click **Create & Buy**
-4. Note the IP address
-
-### 5.4 Configure Hetzner Firewall
-
-1. Go to **Firewalls** → **Create Firewall**
-2. Name: `opensyria-fw`
-3. Inbound Rules:
-
-| Protocol | Port | Source | Description |
-|----------|------|--------|-------------|
-| TCP | 22 | Any | SSH |
-| TCP | 9633 | Any | P2P |
-| TCP | 80 | Any | HTTP |
-| TCP | 443 | Any | HTTPS |
-
-4. Apply to both servers
-
-### 5.5 Setup Seed Node 3
-
-SSH in and run the same setup as Oracle nodes (Section 4.7 - 4.11), with these adjustments:
-
-```bash
-# opensyria.conf for seed3
-cat > ~/.opensyria/opensyria.conf << EOF
-# OpenSyria Seed Node 3 Configuration
-
-server=1
-daemon=1
-listen=1
-port=9633
-bind=0.0.0.0
-
-maxconnections=125  # Lower due to less RAM
-txindex=1
-
-rpcuser=opensyriarpc
-rpcpassword=$(openssl rand -hex 32)
-rpcbind=127.0.0.1
-rpcallowip=127.0.0.1
-
-dbcache=512  # Lower due to less RAM
-par=2
-
-seednode=seed.opensyria.net:9633
-seednode=seed2.opensyria.net:9633
-EOF
-```
-
----
-
-## 6. Phase 4: DNS Seeder Configuration
-
-### 6.1 Build DNS Seeder (On Seed Node 1)
-
-```bash
-# SSH into seed1 (Oracle Singapore)
-ssh ubuntu@<SEED1_IP>
+# Switch to opensyria user
 sudo su - opensyria
 
-# Clone bitcoin-seeder
-cd /opt/opensyria
-git clone https://github.com/sipa/bitcoin-seeder.git
-cd bitcoin-seeder
+# Check blockchain info
+opensyria-cli getblockchaininfo
 
-# Modify for OpenSyria
-# Edit main.cpp to change:
-#   - pchMessageStart to OpenSyria's magic bytes
-#   - nDefaultPort to 9633
-#   - strDNSHost
+# Check network info
+opensyria-cli getnetworkinfo
+
+# Check peer connections (will be empty initially)
+opensyria-cli getpeerinfo
+
+# Check if listening
+opensyria-cli getnetworkinfo | grep -A5 "localaddresses"
 ```
 
-### 6.2 Create OpenSyria Seeder Patch
+---
+
+## 7. Phase 5: Configure DNS (Cloudflare)
+
+### 7.1 Get Your Server IP
 
 ```bash
-cat > opensyria-seeder.patch << 'EOF'
---- a/main.cpp
-+++ b/main.cpp
-@@ -15,9 +15,9 @@ using namespace std;
- 
- class CAddrDbStats {
- public:
--  int nBanned;
--  int nAvail;
--  int nTracked;
-+  int nBanned = 0;
-+  int nAvail = 0;
-+  int nTracked = 0;
- };
- 
--static const unsigned char pchMessageStart[4] = {0xf9, 0xbe, 0xb4, 0xd9};
-+static const unsigned char pchMessageStart[4] = {0x53, 0x59, 0x4c, 0x4d}; // SYLM
--static const int nDefaultPort = 8333;
-+static const int nDefaultPort = 9633;
- 
- class CDnsSeedOpts {
- public:
--  string host = "seed.bitcoin.sipa.be";
--  string ns = "vps.bitcoin.sipa.be";
--  string mbox = "sipa.bitcoin.sipa.be";
-+  string host = "seed.opensyria.net";
-+  string ns = "ns1.opensyria.net";
-+  string mbox = "admin.opensyria.net";
-EOF
+# On server
+curl ifconfig.me
+```
 
-# Apply patch (manual edits may be needed)
-# Then build
+### 7.2 Add DNS Records in Cloudflare
+
+Go to Cloudflare Dashboard → `opensyria.net` → **DNS**
+
+Add these records:
+
+| Type | Name | Content | Proxy | TTL |
+|------|------|---------|-------|-----|
+| A | `@` | YOUR_SERVER_IP | **Proxied** (orange) | Auto |
+| A | `www` | YOUR_SERVER_IP | **Proxied** (orange) | Auto |
+| A | `node1` | YOUR_SERVER_IP | **DNS only** (grey) | Auto |
+| A | `ns1` | YOUR_SERVER_IP | **DNS only** (grey) | Auto |
+
+> **Important:** Seed nodes must have Proxy **OFF** (grey cloud) for P2P to work!
+
+### 7.3 Add NS Record for DNS Seeder
+
+| Type | Name | Content | TTL |
+|------|------|---------|-----|
+| NS | `seed` | `ns1.opensyria.net` | Auto |
+
+This delegates `seed.opensyria.net` to your DNS seeder.
+
+### 7.4 Verify DNS
+
+```bash
+# Test from your local machine
+dig node1.opensyria.net
+dig ns1.opensyria.net
+
+# Should return your server IP
+```
+
+---
+
+## 8. Phase 6: DNS Seeder Setup
+
+### 8.1 Copy Pre-built Seeder
+
+The seeder is already in your repo at `/contrib/seeder/opensyria-seeder/`
+
+```bash
+# On server, as opensyria user
+sudo su - opensyria
+
+cd /opt/opensyria/source/contrib/seeder/opensyria-seeder
+
+# Build if not already built
 make
+
+# Verify
+./dnsseed --help
 ```
 
-### 6.3 Run DNS Seeder
+### 8.2 Test DNS Seeder
 
 ```bash
-# Create systemd service
-sudo tee /etc/systemd/system/opensyria-seeder.service << EOF
+# Test run (foreground)
+./dnsseed -h seed.opensyria.net -n ns1.opensyria.net -m admin@opensyria.net -p 5353
+
+# Press Ctrl+C to stop after testing
+```
+
+### 8.3 Create Seeder Service
+
+```bash
+# Exit to ubuntu user
+exit
+
+# Create service
+sudo tee /etc/systemd/system/opensyria-seeder.service << 'EOF'
 [Unit]
 Description=OpenSyria DNS Seeder
 After=network.target opensyriad.service
+Wants=opensyriad.service
 
 [Service]
 Type=simple
-User=opensyria
-WorkingDirectory=/opt/opensyria/bitcoin-seeder
-ExecStart=/opt/opensyria/bitcoin-seeder/dnsseed -h seed.opensyria.net -n ns1.opensyria.net -m admin.opensyria.net
+User=root
+WorkingDirectory=/opt/opensyria/source/contrib/seeder/opensyria-seeder
+ExecStart=/opt/opensyria/source/contrib/seeder/opensyria-seeder/dnsseed -h seed.opensyria.net -n ns1.opensyria.net -m admin@opensyria.net
 Restart=always
 RestartSec=30
 
@@ -623,116 +589,85 @@ RestartSec=30
 WantedBy=multi-user.target
 EOF
 
+# Enable and start
 sudo systemctl daemon-reload
 sudo systemctl enable opensyria-seeder
 sudo systemctl start opensyria-seeder
+
+# Check status
+sudo systemctl status opensyria-seeder
 ```
 
-### 6.4 Configure Cloudflare DNS for Seeder
+> **Note:** DNS seeder runs as root to bind to port 53.
 
-In Cloudflare DNS settings, update:
+### 8.4 Verify DNS Seeder
 
-| Type | Name | Content | Proxy | TTL |
-|------|------|---------|-------|-----|
-| A | ns1 | \<SEED1_IP\> | OFF | Auto |
-| NS | seed | ns1.opensyria.net | - | Auto |
+```bash
+# From your local machine
+dig seed.opensyria.net
 
-This delegates `seed.opensyria.net` to your seeder.
+# Should eventually return node IPs once peers connect
+```
 
 ---
 
-## 7. Phase 5: Block Explorer Deployment
+## 9. Phase 7: Block Explorer
 
-### 7.1 Setup Explorer Server
-
-```bash
-# SSH into explorer server (Hetzner)
-ssh root@<EXPLORER_IP>
-
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-
-# Install Docker Compose
-sudo apt install -y docker-compose-plugin
-
-# Create explorer directory
-mkdir -p /opt/explorer
-cd /opt/explorer
-```
-
-### 7.2 Option A: BTC RPC Explorer (Lightweight)
+### 9.1 Option A: Simple RPC Explorer (Lightweight)
 
 ```bash
-# Create docker-compose.yml
-cat > docker-compose.yml << 'EOF'
-version: '3'
-services:
-  explorer:
-    image: btcpayserver/btc-rpc-explorer:latest
-    container_name: opensyria-explorer
-    restart: always
-    ports:
-      - "3002:3002"
-    environment:
-      BTCEXP_HOST: "0.0.0.0"
-      BTCEXP_PORT: "3002"
-      BTCEXP_BITCOIND_HOST: "host.docker.internal"
-      BTCEXP_BITCOIND_PORT: "9632"
-      BTCEXP_BITCOIND_USER: "opensyriarpc"
-      BTCEXP_BITCOIND_PASS: "<RPC_PASSWORD>"
-      BTCEXP_BITCOIND_COOKIE: ""
-      BTCEXP_SITE_TITLE: "OpenSyria Explorer"
-      BTCEXP_SITE_DESC: "OpenSyria Blockchain Explorer"
-      BTCEXP_NO_RATES: "true"
-      BTCEXP_PRIVACY_MODE: "false"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+# Install Node.js
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Install btc-rpc-explorer
+sudo npm install -g btc-rpc-explorer
+
+# Create config
+mkdir -p ~/.config/btc-rpc-explorer
+cat > ~/.config/btc-rpc-explorer/.env << EOF
+BTCEXP_HOST=127.0.0.1
+BTCEXP_PORT=3002
+BTCEXP_BITCOIND_HOST=127.0.0.1
+BTCEXP_BITCOIND_PORT=9632
+BTCEXP_BITCOIND_USER=opensyriarpc
+BTCEXP_BITCOIND_PASS=YOUR_RPC_PASSWORD
+BTCEXP_SITE_TITLE=OpenSyria Explorer
+BTCEXP_NO_RATES=true
 EOF
 
-# Start explorer
-docker compose up -d
-```
+# Create service
+sudo tee /etc/systemd/system/opensyria-explorer.service << 'EOF'
+[Unit]
+Description=OpenSyria Block Explorer
+After=opensyriad.service
 
-### 7.3 Option B: Mempool.space (Full-Featured)
+[Service]
+Type=simple
+User=opensyria
+ExecStart=/usr/bin/btc-rpc-explorer
+Restart=always
 
-```bash
-# Clone mempool
-git clone https://github.com/mempool/mempool.git
-cd mempool/docker
-
-# Configure for OpenSyria
-cp docker-compose.yml docker-compose.yml.bak
-
-# Edit configuration (create .env file)
-cat > .env << EOF
-MEMPOOL_BACKEND=electrs
-CORE_RPC_HOST=<SEED_NODE_IP>
-CORE_RPC_PORT=9632
-CORE_RPC_USERNAME=opensyriarpc
-CORE_RPC_PASSWORD=<RPC_PASSWORD>
-DATABASE_HOST=mariadb
-DATABASE_USER=mempool
-DATABASE_PASSWORD=$(openssl rand -hex 16)
-DATABASE_NAME=mempool
+[Install]
+WantedBy=multi-user.target
 EOF
 
-# Start mempool stack
-docker compose up -d
+sudo systemctl daemon-reload
+sudo systemctl enable opensyria-explorer
+sudo systemctl start opensyria-explorer
 ```
 
-### 7.4 Setup Nginx Reverse Proxy
+### 9.2 Setup Nginx Reverse Proxy
 
 ```bash
 # Install Nginx
 sudo apt install -y nginx certbot python3-certbot-nginx
 
-# Create Nginx config
+# Create config
 sudo tee /etc/nginx/sites-available/explorer << 'EOF'
 server {
     listen 80;
-    server_name explore.opensyria.net;
+    server_name explorer.opensyria.net opensyria.net www.opensyria.net;
 
     location / {
         proxy_pass http://127.0.0.1:3002;
@@ -745,551 +680,220 @@ server {
 EOF
 
 # Enable site
-sudo ln -s /etc/nginx/sites-available/explorer /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/explorer /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
-
-# Get SSL certificate (after DNS is pointed)
-sudo certbot --nginx -d explore.opensyria.net
 ```
 
----
+### 9.3 Add Explorer DNS Record
 
-## 8. Phase 6: Monitoring Setup
-
-### 8.1 Grafana Cloud (Free Tier)
-
-1. Go to https://grafana.com/products/cloud/
-2. Create free account (50GB free)
-3. Note your Grafana Cloud credentials
-
-### 8.2 Install Prometheus Node Exporter (All Nodes)
-
-```bash
-# Download and install
-wget https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-arm64.tar.gz
-tar xvfz node_exporter-*.tar.gz
-sudo mv node_exporter-*/node_exporter /usr/local/bin/
-
-# Create systemd service
-sudo tee /etc/systemd/system/node_exporter.service << EOF
-[Unit]
-Description=Node Exporter
-After=network.target
-
-[Service]
-Type=simple
-User=root
-ExecStart=/usr/local/bin/node_exporter
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable node_exporter
-sudo systemctl start node_exporter
-```
-
-### 8.3 Install Grafana Agent (All Nodes)
-
-```bash
-# Download Grafana Agent
-wget https://github.com/grafana/agent/releases/download/v0.40.0/grafana-agent-linux-arm64.zip
-unzip grafana-agent-*.zip
-sudo mv grafana-agent-linux-arm64 /usr/local/bin/grafana-agent
-
-# Create config
-sudo mkdir -p /etc/grafana-agent
-sudo tee /etc/grafana-agent/agent.yaml << EOF
-server:
-  log_level: info
-
-metrics:
-  global:
-    scrape_interval: 60s
-    remote_write:
-      - url: https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom/push
-        basic_auth:
-          username: <GRAFANA_CLOUD_USER>
-          password: <GRAFANA_CLOUD_API_KEY>
-
-  configs:
-    - name: opensyria
-      scrape_configs:
-        - job_name: 'node'
-          static_configs:
-            - targets: ['localhost:9100']
-              labels:
-                instance: 'seed1.opensyria.net'
-                network: 'mainnet'
-EOF
-
-# Create service and start
-sudo systemctl enable grafana-agent
-sudo systemctl start grafana-agent
-```
-
-### 8.4 Create Monitoring Dashboard
-
-Import the Bitcoin Core Grafana dashboard and modify for OpenSyria metrics.
-
----
-
-## 9. Phase 7: Final Integration
-
-### 9.1 Update Cloudflare DNS Records
-
-Now that all servers are deployed, update DNS:
+In Cloudflare, add:
 
 | Type | Name | Content | Proxy |
 |------|------|---------|-------|
-| A | @ | \<EXPLORER_IP\> | ON |
-| A | www | \<EXPLORER_IP\> | ON |
-| A | seed | (NS record) | OFF |
-| A | seed2 | \<SEED2_IP\> | OFF |
-| A | seed3 | \<SEED3_IP\> | OFF |
-| A | explore | \<EXPLORER_IP\> | ON |
-| A | ns1 | \<SEED1_IP\> | OFF |
-| NS | seed | ns1.opensyria.net | - |
+| A | `explorer` | YOUR_SERVER_IP | **Proxied** (orange) |
 
-### 9.2 Update OpenSyria Source Code
+### 9.4 Enable HTTPS (After DNS propagates)
 
-After deploying infrastructure, update `chainparams.cpp` with real seeds:
+```bash
+# Get SSL certificate
+sudo certbot --nginx -d opensyria.net -d www.opensyria.net -d explorer.opensyria.net
+
+# Auto-renewal is configured automatically
+```
+
+---
+
+## 10. Phase 8: Monitoring
+
+### 10.1 Basic Monitoring Script
+
+```bash
+# Create monitoring script
+sudo tee /opt/opensyria/monitor.sh << 'EOF'
+#!/bin/bash
+echo "=== OpenSyria Node Status ==="
+echo "Date: $(date)"
+echo ""
+
+echo "=== Blockchain Info ==="
+opensyria-cli getblockchaininfo | grep -E "chain|blocks|headers|verificationprogress"
+echo ""
+
+echo "=== Network Info ==="
+opensyria-cli getnetworkinfo | grep -E "connections|version"
+echo ""
+
+echo "=== System Resources ==="
+echo "Disk: $(df -h / | tail -1 | awk '{print $5 " used"}')"
+echo "Memory: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
+echo "Load: $(uptime | awk -F'load average:' '{print $2}')"
+echo ""
+
+echo "=== Services ==="
+systemctl is-active opensyriad && echo "opensyriad: running" || echo "opensyriad: STOPPED"
+systemctl is-active opensyria-seeder && echo "seeder: running" || echo "seeder: STOPPED"
+EOF
+
+chmod +x /opt/opensyria/monitor.sh
+
+# Run it
+/opt/opensyria/monitor.sh
+```
+
+### 10.2 CloudWatch Monitoring (AWS)
+
+1. EC2 → Select instance → **Monitoring** tab
+2. Click **Manage detailed monitoring** → Enable
+3. Create alarms for:
+   - CPU > 80%
+   - Disk > 80%
+   - Status check failed
+
+---
+
+## 11. Scaling & Multi-Region
+
+### 11.1 Add Second Seed Node
+
+1. Launch new EC2 instance in different region (e.g., `eu-central-1`)
+2. Repeat Phase 3-6
+3. Add DNS records:
+   - `node2.opensyria.net` → new IP
+   - `seed2.opensyria.net` → new IP
+
+### 11.2 Update chainparams.cpp
+
+After multiple nodes are running:
 
 ```cpp
 // In src/kernel/chainparams.cpp
 vSeeds.emplace_back("seed.opensyria.net");
 vSeeds.emplace_back("seed2.opensyria.net");
-vSeeds.emplace_back("seed3.opensyria.net");
+
+// Fixed seeds (backup)
+// Run: contrib/seeds/generate-seeds.py
 ```
 
-Also populate `contrib/seeds/nodes_main.txt`:
+### 11.3 AWS Multi-Region Architecture
 
 ```
-<SEED1_IP>:9633
-<SEED2_IP>:9633
-<SEED3_IP>:9633
-```
-
-### 9.3 Verification Checklist
-
-```bash
-# Test DNS seeder
-dig seed.opensyria.net
-
-# Test node connectivity
-nc -zv seed.opensyria.net 9633
-nc -zv seed2.opensyria.net 9633
-nc -zv seed3.opensyria.net 9633
-
-# Test explorer
-curl -I https://explore.opensyria.net
-
-# Test RPC (locally on node)
-opensyria-cli getblockchaininfo
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   me-south-1    │    │  eu-central-1   │    │  ap-south-1     │
+│   (Bahrain)     │    │  (Frankfurt)    │    │  (Mumbai)       │
+│                 │    │                 │    │                 │
+│  seed1 + seeder │    │     seed2       │    │     seed3       │
+│     $15/mo      │    │     $15/mo      │    │     $15/mo      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                     │                     │
+         └─────────────────────┼─────────────────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    │  Route 53 / Cloudflare │
+                    │  Latency-based DNS     │
+                    └─────────────────────────┘
 ```
 
 ---
 
-## 10. AWS Enterprise Upgrade Path
+## 12. Maintenance
 
-When OpenSyria grows and requires enterprise-grade infrastructure, follow this migration plan.
-
-### 10.1 When to Migrate to AWS
-
-**Trigger Conditions:**
-- Daily active users > 10,000
-- Node count > 100
-- Transaction volume > 10,000/day
-- Enterprise/government partnerships requiring SLAs
-- Geographic expansion to 5+ regions
-- Need for compliance certifications (SOC2, ISO27001)
-
-### 10.2 AWS Architecture (Target State)
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              AWS GLOBAL                                      │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         ROUTE 53 (DNS)                               │   │
-│  │  • Latency-based routing                                            │   │
-│  │  • Health checks                                                     │   │
-│  │  • Failover                                                          │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                    │                                        │
-│         ┌──────────────────────────┼──────────────────────────┐            │
-│         │                          │                          │            │
-│         ▼                          ▼                          ▼            │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐      │
-│  │   US-EAST-1     │     │   EU-WEST-1     │     │  AP-SOUTHEAST-1 │      │
-│  │   (Virginia)    │     │   (Ireland)     │     │   (Singapore)   │      │
-│  │                 │     │                 │     │                 │      │
-│  │  ┌───────────┐  │     │  ┌───────────┐  │     │  ┌───────────┐  │      │
-│  │  │    ALB    │  │     │  │    ALB    │  │     │  │    ALB    │  │      │
-│  │  └─────┬─────┘  │     │  └─────┬─────┘  │     │  └─────┬─────┘  │      │
-│  │        │        │     │        │        │     │        │        │      │
-│  │  ┌─────┴─────┐  │     │  ┌─────┴─────┐  │     │  ┌─────┴─────┐  │      │
-│  │  │  ECS/EKS  │  │     │  │  ECS/EKS  │  │     │  │  ECS/EKS  │  │      │
-│  │  │ Fargate   │  │     │  │ Fargate   │  │     │  │ Fargate   │  │      │
-│  │  └─────┬─────┘  │     │  └─────┬─────┘  │     │  └─────┬─────┘  │      │
-│  │        │        │     │        │        │     │        │        │      │
-│  │  ┌─────┴─────┐  │     │  ┌─────┴─────┐  │     │  ┌─────┴─────┐  │      │
-│  │  │ EC2 Nodes │  │     │  │ EC2 Nodes │  │     │  │ EC2 Nodes │  │      │
-│  │  │ (3x m6i)  │  │     │  │ (3x m6i)  │  │     │  │ (3x m6i)  │  │      │
-│  │  └───────────┘  │     │  └───────────┘  │     │  └───────────┘  │      │
-│  │                 │     │                 │     │                 │      │
-│  │  ┌───────────┐  │     │  ┌───────────┐  │     │  ┌───────────┐  │      │
-│  │  │  Aurora   │  │     │  │  Aurora   │  │     │  │  Aurora   │  │      │
-│  │  │  (Read)   │  │     │  │ (Primary) │  │     │  │  (Read)   │  │      │
-│  │  └───────────┘  │     │  └───────────┘  │     │  └───────────┘  │      │
-│  └─────────────────┘     └─────────────────┘     └─────────────────┘      │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                      SHARED SERVICES                                 │   │
-│  │  • S3 (Backups, chain data snapshots)                               │   │
-│  │  • CloudWatch (Logging, metrics, alarms)                            │   │
-│  │  • Secrets Manager (RPC credentials)                                │   │
-│  │  • WAF (API protection)                                              │   │
-│  │  • Shield Advanced (DDoS protection)                                │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 10.3 AWS Migration Steps
-
-#### Step 1: Set Up AWS Organization (Week 1)
+### 12.1 Regular Tasks
 
 ```bash
-# Create AWS accounts structure
-opensyria-org/
-├── opensyria-prod/      # Production workloads
-├── opensyria-staging/   # Staging environment
-├── opensyria-security/  # Security & logging
-└── opensyria-shared/    # Shared services (S3, ECR)
-```
+# Daily: Check node status
+/opt/opensyria/monitor.sh
 
-#### Step 2: Infrastructure as Code (Week 1-2)
-
-Create Terraform/CloudFormation templates:
-
-```hcl
-# terraform/main.tf
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-module "vpc" {
-  source = "./modules/vpc"
-  
-  name = "opensyria-vpc"
-  cidr = "10.0.0.0/16"
-  
-  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-  
-  enable_nat_gateway = true
-  single_nat_gateway = false
-  
-  tags = {
-    Project = "OpenSyria"
-    Environment = "Production"
-  }
-}
-
-module "ecs_cluster" {
-  source = "./modules/ecs"
-  
-  cluster_name = "opensyria-cluster"
-  vpc_id       = module.vpc.vpc_id
-  subnet_ids   = module.vpc.private_subnets
-}
-
-module "opensyria_nodes" {
-  source = "./modules/ec2-nodes"
-  
-  instance_count = 3
-  instance_type  = "m6i.large"
-  
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
-  
-  root_volume_size = 500  # GB for full node
-}
-```
-
-#### Step 3: Container Registry Setup (Week 2)
-
-```bash
-# Create ECR repository
-aws ecr create-repository \
-    --repository-name opensyria/node \
-    --image-scanning-configuration scanOnPush=true
-
-# Build and push Docker image
-docker build -t opensyria-node .
-docker tag opensyria-node:latest <account>.dkr.ecr.us-east-1.amazonaws.com/opensyria/node:latest
-docker push <account>.dkr.ecr.us-east-1.amazonaws.com/opensyria/node:latest
-```
-
-#### Step 4: ECS Task Definition (Week 2)
-
-```json
-{
-  "family": "opensyria-node",
-  "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "2048",
-  "memory": "8192",
-  "containerDefinitions": [
-    {
-      "name": "opensyriad",
-      "image": "<account>.dkr.ecr.us-east-1.amazonaws.com/opensyria/node:latest",
-      "essential": true,
-      "portMappings": [
-        {"containerPort": 9633, "protocol": "tcp"},
-        {"containerPort": 9632, "protocol": "tcp"}
-      ],
-      "mountPoints": [
-        {
-          "sourceVolume": "opensyria-data",
-          "containerPath": "/home/opensyria/.opensyria"
-        }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/opensyria-node",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      },
-      "secrets": [
-        {
-          "name": "RPC_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:<account>:secret:opensyria/rpc"
-        }
-      ]
-    }
-  ],
-  "volumes": [
-    {
-      "name": "opensyria-data",
-      "efsVolumeConfiguration": {
-        "fileSystemId": "fs-xxxxx",
-        "transitEncryption": "ENABLED"
-      }
-    }
-  ]
-}
-```
-
-#### Step 5: Route 53 DNS Migration (Week 3)
-
-```bash
-# Create hosted zone
-aws route53 create-hosted-zone \
-    --name opensyria.net \
-    --caller-reference $(date +%s)
-
-# Create health checks
-aws route53 create-health-check \
-    --caller-reference $(date +%s) \
-    --health-check-config '{
-        "IPAddress": "<NODE_IP>",
-        "Port": 9633,
-        "Type": "TCP",
-        "RequestInterval": 30,
-        "FailureThreshold": 3
-    }'
-
-# Create latency-based routing records
-aws route53 change-resource-record-sets \
-    --hosted-zone-id Z1234567890 \
-    --change-batch '{
-        "Changes": [{
-            "Action": "CREATE",
-            "ResourceRecordSet": {
-                "Name": "seed.opensyria.net",
-                "Type": "A",
-                "SetIdentifier": "us-east-1",
-                "Region": "us-east-1",
-                "TTL": 60,
-                "ResourceRecords": [{"Value": "<US_NODE_IP>"}],
-                "HealthCheckId": "<HEALTH_CHECK_ID>"
-            }
-        }]
-    }'
-```
-
-#### Step 6: Monitoring & Alerting (Week 3)
-
-```bash
-# Create CloudWatch dashboard
-aws cloudwatch put-dashboard \
-    --dashboard-name OpenSyria-Network \
-    --dashboard-body file://dashboard.json
-
-# Create alarms
-aws cloudwatch put-metric-alarm \
-    --alarm-name "OpenSyria-HighCPU" \
-    --alarm-description "Alert when CPU exceeds 80%" \
-    --metric-name CPUUtilization \
-    --namespace AWS/EC2 \
-    --statistic Average \
-    --period 300 \
-    --threshold 80 \
-    --comparison-operator GreaterThanThreshold \
-    --evaluation-periods 2 \
-    --alarm-actions arn:aws:sns:us-east-1:<account>:opensyria-alerts
-```
-
-### 10.4 AWS Cost Estimation (Monthly)
-
-| Service | Configuration | Est. Cost |
-|---------|--------------|-----------|
-| EC2 (9 nodes) | 3x m6i.large per region × 3 regions | $550 |
-| EBS Storage | 500GB gp3 × 9 | $225 |
-| NAT Gateway | 3 regions | $100 |
-| ALB | 3 regions | $60 |
-| Route 53 | Hosted zone + health checks | $20 |
-| CloudWatch | Logs + metrics | $50 |
-| S3 | Backups + snapshots | $30 |
-| Data Transfer | ~2TB/month | $180 |
-| WAF | Basic protection | $25 |
-| Secrets Manager | 10 secrets | $5 |
-| **Total** | | **~$1,250/month** |
-
-**With Reserved Instances (1-year):** ~$800/month (35% savings)
-
-### 10.5 Migration Timeline
-
-```
-MIGRATION TIMELINE (8 WEEKS)
-═══════════════════════════════════════════════════════════════
-
-Week 1-2: PREPARATION
-├── Set up AWS Organization & accounts
-├── Create IAM roles & policies
-├── Deploy VPC in all regions
-└── Create Terraform modules
-
-Week 3-4: PARALLEL DEPLOYMENT
-├── Deploy EC2 nodes in AWS (alongside existing)
-├── Configure ECS clusters
-├── Set up Aurora for explorer
-└── Migrate container images to ECR
-
-Week 5-6: TESTING
-├── Sync AWS nodes with network
-├── Test failover scenarios
-├── Verify latency & performance
-└── Security audit
-
-Week 7: DNS MIGRATION
-├── Add AWS nodes to DNS rotation
-├── Configure health checks
-├── Gradually shift traffic (10% → 50% → 100%)
-└── Monitor for issues
-
-Week 8: CLEANUP
-├── Decommission Oracle/Hetzner nodes
-├── Final verification
-├── Documentation update
-└── Post-migration review
-```
-
----
-
-## 11. Maintenance Procedures
-
-### 11.1 Regular Maintenance Tasks
-
-```bash
-# Weekly: Update node software
-cd /opt/opensyria/source
-git pull origin main
-cmake --build build -j$(nproc)
-sudo systemctl restart opensyriad
-
-# Monthly: System updates
+# Weekly: Update system
 sudo apt update && sudo apt upgrade -y
-sudo reboot
 
-# Monthly: Check disk usage
-df -h
-# Prune if needed:
-opensyria-cli pruneblockchain 1000
+# Weekly: Check logs
+journalctl -u opensyriad --since "1 week ago" | tail -100
 
-# Quarterly: Rotate RPC credentials
+# Monthly: Rotate RPC password
 NEW_PASS=$(openssl rand -hex 32)
 sed -i "s/rpcpassword=.*/rpcpassword=${NEW_PASS}/" ~/.opensyria/opensyria.conf
 sudo systemctl restart opensyriad
 ```
 
-### 11.2 Backup Procedures
+### 12.2 Update OpenSyria
 
 ```bash
-# Daily: Backup wallet (if enabled)
-opensyria-cli backupwallet /opt/opensyria/backups/wallet-$(date +%Y%m%d).dat
-
-# Weekly: Backup chainstate (optional, large)
-tar -czf /opt/opensyria/backups/chainstate-$(date +%Y%m%d).tar.gz ~/.opensyria/chainstate/
-
-# Upload to remote storage
-aws s3 sync /opt/opensyria/backups/ s3://opensyria-backups/node1/
-# OR
-rclone sync /opt/opensyria/backups/ gdrive:opensyria-backups/
+cd /opt/opensyria/source
+git pull origin main
+cmake --build build -j$(nproc)
+sudo cmake --install build --prefix /usr/local
+sudo systemctl restart opensyriad
 ```
 
-### 11.3 Emergency Procedures
+### 12.3 Backup
 
 ```bash
-# Node won't start - check logs
-journalctl -u opensyriad -f
+# Backup wallet (if any)
+opensyria-cli backupwallet ~/wallet-backup-$(date +%Y%m%d).dat
 
-# Chain fork detected - resync
-opensyria-cli stop
-rm -rf ~/.opensyria/chainstate ~/.opensyria/blocks
-systemctl start opensyriad
-
-# Network partition - force reconnect
-opensyria-cli addnode seed.opensyria.net onetry
-opensyria-cli addnode seed2.opensyria.net onetry
+# Copy to S3
+aws s3 cp ~/wallet-backup-*.dat s3://your-bucket/backups/
 ```
 
 ---
 
 ## Quick Reference
 
-### Service URLs
-- **Main Site:** https://opensyria.net
-- **Block Explorer:** https://explore.opensyria.net
-- **Network Stats:** https://stats.opensyria.net
-- **API Docs:** https://api.opensyria.net/docs
+### Service Commands
+
+```bash
+# Node
+sudo systemctl start|stop|restart|status opensyriad
+
+# Seeder
+sudo systemctl start|stop|restart|status opensyria-seeder
+
+# Explorer
+sudo systemctl start|stop|restart|status opensyria-explorer
+```
+
+### Useful CLI Commands
+
+```bash
+# Blockchain
+opensyria-cli getblockchaininfo
+opensyria-cli getblockcount
+opensyria-cli getbestblockhash
+
+# Network
+opensyria-cli getnetworkinfo
+opensyria-cli getpeerinfo
+opensyria-cli getconnectioncount
+
+# Mining (testnet/regtest)
+opensyria-cli generatetoaddress 1 $(opensyria-cli getnewaddress)
+
+# Wallet
+opensyria-cli createwallet "main"
+opensyria-cli getnewaddress
+opensyria-cli getbalance
+```
 
 ### Port Reference
+
 | Port | Protocol | Service |
 |------|----------|---------|
 | 9633 | TCP | P2P Mainnet |
 | 9632 | TCP | RPC |
 | 19633 | TCP | P2P Testnet |
 | 53 | UDP/TCP | DNS Seeder |
+| 80/443 | TCP | Web/Explorer |
 
-### Support Contacts
-- **Technical Issues:** admin@opensyria.net
-- **Security Reports:** security@opensyria.net
-- **GitHub:** https://github.com/opensyria/OpenSyria
+### URLs (After Deployment)
+
+- **Website:** https://opensyria.net
+- **Explorer:** https://explorer.opensyria.net
+- **Seed DNS:** seed.opensyria.net
 
 ---
 
+**مشروع سوريا المفتوحة - Syria's First Blockchain** 🇸🇾
+
 *Last Updated: December 2025*
-*Version: 1.0*
