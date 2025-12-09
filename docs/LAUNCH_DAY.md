@@ -82,6 +82,45 @@ cmake --build build -j$(nproc)
 |---------|--------|------|
 | opensyriad | ✅ Active | 9633 (P2P), 9632 (RPC) |
 | opensyria-seeder | ✅ Active | 53/UDP (DNS) |
+| opensyria-miner | ✅ Active | N/A |
+
+## Network Statistics (Live as of Launch Day)
+
+| Metric | Value |
+|--------|-------|
+| **Blocks Mined** | 50,000+ |
+| **Connected Peers** | 8+ nodes worldwide |
+| **Network Hashrate** | ~350 MH/s |
+| **Chain Size** | ~18 MB |
+
+## How to Mine
+
+### Solo Mining (CPU)
+
+```bash
+# Start your node
+./build/bin/opensyriad -daemon -addnode=node1.opensyria.net
+
+# Create a wallet
+./build/bin/opensyria-cli createwallet "mining-wallet"
+
+# Get a mining address
+./build/bin/opensyria-cli -rpcwallet=mining-wallet getnewaddress "mining"
+
+# Start mining (replace ADDRESS with your address)
+./build/bin/opensyria-cli generatetoaddress 100 ADDRESS 500000000
+```
+
+### Continuous Mining
+
+```bash
+# Run in a loop
+while true; do 
+  ./build/bin/opensyria-cli generatetoaddress 10 YOUR_ADDRESS 500000000
+done
+```
+
+> **Note:** Block rewards require 100 confirmations (~3.3 hours) before they can be spent.
 
 ## What's Next
 
