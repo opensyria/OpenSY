@@ -19,7 +19,7 @@ OpenSyria Core
 | **Status** | ✅ Mainnet Active |
 | **Launch Date** | December 8, 2025 |
 | **Seed Node** | `node1.opensyria.net` |
-| **Block Explorer** | Coming soon |
+| **Block Explorer** | 🔍 [explorer.opensyria.net](https://explorer.opensyria.net) |
 
 ## Quick Start
 

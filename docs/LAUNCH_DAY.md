@@ -36,6 +36,17 @@
 | `node1.opensyria.net` | 157.175.40.131 |
 | `ns1.opensyria.net` | 157.175.40.131 |
 | `seed.opensyria.net` | NS → ns1.opensyria.net |
+| `explorer.opensyria.net` | 157.175.40.131 |
+
+### Block Explorer
+
+🔍 **https://explorer.opensyria.net**
+
+- Full Arabic (RTL) and English support
+- View blocks, transactions, addresses
+- Network statistics dashboard
+- Search by block height, hash, or transaction ID
+- SSL secured with Let's Encrypt
 
 ### First Blocks
 
