@@ -333,14 +333,153 @@ maxmempool=50
 
 ---
 
+## Testnet
+
+Run a testnet node for development and testing without risking real SYL.
+
+### Starting Testnet
+
+```bash
+# Start testnet daemon
+opensyriad -testnet -daemon
+
+# Check testnet status
+opensyria-cli -testnet getblockchaininfo
+
+# Get testnet wallet address
+opensyria-cli -testnet getnewaddress
+```
+
+### Testnet Configuration
+
+Add to your `opensyria.conf`:
+
+```ini
+# Testnet section
+[test]
+server=1
+listen=1
+port=19633
+rpcport=19632
+rpcuser=opensyria
+rpcpassword=YOUR_TESTNET_PASSWORD
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
+addnode=node1.opensyria.net:9633
+```
+
+### Testnet Ports
+
+| Port | Purpose |
+|------|---------|
+| 19633 | Testnet P2P |
+| 19632 | Testnet RPC |
+
+### Running Testnet as Service
+
+```bash
+sudo tee /etc/systemd/system/opensyriad-testnet.service << 'EOF'
+[Unit]
+Description=OpenSyria Testnet Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+ExecStart=/usr/local/bin/opensyriad -testnet -printtoconsole
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable opensyriad-testnet
+sudo systemctl start opensyriad-testnet
+```
+
+---
+
+## Backups & Maintenance
+
+### Automated Backup Script
+
+Create `/opt/opensyria/backup.sh`:
+
+```bash
+#!/bin/bash
+BACKUP_DIR=/opt/opensyria/backups
+DATE=$(date +%Y%m%d_%H%M%S)
+RETAIN_DAYS=7
+
+mkdir -p $BACKUP_DIR
+
+# Backup wallet
+[ -f ~/.opensyria/wallet.dat ] && cp ~/.opensyria/wallet.dat $BACKUP_DIR/wallet_$DATE.dat
+
+# Backup config
+cp ~/.opensyria/opensyria.conf $BACKUP_DIR/opensyria.conf_$DATE
+
+# Backup peers database
+[ -f ~/.opensyria/peers.dat ] && cp ~/.opensyria/peers.dat $BACKUP_DIR/peers_$DATE.dat
+
+# Clean old backups
+find $BACKUP_DIR -type f -mtime +$RETAIN_DAYS -delete
+
+echo "[$(date)] Backup completed"
+```
+
+Schedule daily backup:
+```bash
+chmod +x /opt/opensyria/backup.sh
+(crontab -l; echo "0 2 * * * /opt/opensyria/backup.sh >> /opt/opensyria/backups/backup.log 2>&1") | crontab -
+```
+
+### Log Rotation
+
+Create `/etc/logrotate.d/opensyria`:
+
+```
+/home/ubuntu/.opensyria/debug.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}
+```
+
+### Swap Space (for low-memory servers)
+
+```bash
+# Create 2GB swap
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# Make permanent
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# Optimize swappiness
+echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
+sudo sysctl vm.swappiness=10
+```
+
+---
+
 ## Security Best Practices
 
 1. **Keep RPC local** - Never expose RPC to internet
 2. **Use strong RPC password** - Generate with `openssl rand -hex 32`
-3. **Firewall** - Only open port 9633
+3. **Firewall** - Only open port 9633 (and 19633 for testnet)
 4. **Updates** - Keep software updated
-5. **Backups** - Regular wallet backups
+5. **Backups** - Automated daily wallet backups
 6. **Monitoring** - Set up alerts for downtime
+7. **Swap space** - Add swap on low-memory VPS
+8. **Log rotation** - Prevent disk fill from logs
 
 ---
 
