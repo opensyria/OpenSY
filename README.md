@@ -18,8 +18,11 @@ OpenSyria Core
 |--------|-------|
 | **Status** | ✅ Mainnet Active |
 | **Launch Date** | December 8, 2025 |
-| **Seed Node** | `node1.opensyria.net` |
+| **Current Block** | 56,000+ |
+| **Network Hashrate** | ~200 MH/s |
+| **Seed Node** | `seed.opensyria.net` |
 | **Block Explorer** | 🔍 [explorer.opensyria.net](https://explorer.opensyria.net) |
+| **Website** | 🌐 [opensyria.net](https://opensyria.net) |
 
 ## Quick Start
 
@@ -69,6 +72,7 @@ Bitcoin's proven security model while introducing Syria-specific customizations.
 
 OpenSyria uses SHA-256 Proof of Work (same as Bitcoin).
 
+### Solo Mining (Local)
 ```bash
 # Create a wallet
 ./build/bin/opensyria-cli createwallet "my-wallet"
@@ -79,6 +83,16 @@ OpenSyria uses SHA-256 Proof of Work (same as Bitcoin).
 # Mine blocks (replace ADDRESS with your address)
 ./build/bin/opensyria-cli generatetoaddress 10 ADDRESS 500000000
 ```
+
+### GPU Mining (Recommended)
+For serious mining, rent GPU instances on [Vast.ai](https://vast.ai):
+
+```bash
+# On your Vast.ai instance, run:
+curl -sSL https://raw.githubusercontent.com/opensyria/OpenSyria/main/mining/vast-ai/setup.sh | bash
+```
+
+See [mining/vast-ai/README.md](/mining/vast-ai/README.md) for detailed GPU mining guide.
 
 > **Note:** Block rewards require 100 confirmations (~3.3 hours) to mature.
 
@@ -93,8 +107,10 @@ OpenSyria uses SHA-256 Proof of Work (same as Bitcoin).
 ## Connect
 
 - **Website:** https://opensyria.net
+- **Explorer:** https://explorer.opensyria.net
 - **GitHub:** https://github.com/opensyria/OpenSyria
-- **Seed Node:** node1.opensyria.net:9633
+- **DNS Seed:** seed.opensyria.net:9633
+- **Primary Node:** 157.175.40.131:9633
 
 ## License
 
