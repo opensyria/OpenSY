@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t.siteName %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <% if (dir === 'rtl') { %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <% } %>
+    <style>
+        :root {
+            --syria-green: #007A3D;
+            --syria-red: #CE1126;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(0, 122, 61, 0.95) !important;
+            border-bottom: 3px solid var(--syria-red);
+        }
+        .navbar-brand { font-weight: bold; font-size: 1.4rem; }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .card-header {
+            background: rgba(0, 122, 61, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stat-card { text-align: center; padding: 1.5rem; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #4ade80; }
+        .stat-label { color: #9ca3af; font-size: 0.9rem; margin-top: 0.5rem; }
+        .table { color: #e8e8e8; }
+        .table-hover tbody tr:hover { background: rgba(0, 122, 61, 0.2); }
+        a { color: #60a5fa; text-decoration: none; }
+        a:hover { color: #93c5fd; }
+        .hash-link { font-family: monospace; font-size: 0.85rem; }
+        .flag-banner {
+            height: 6px;
+            background: linear-gradient(to right, 
+                var(--syria-green) 0%, var(--syria-green) 33%,
+                #FFFFFF 33%, #FFFFFF 66%,
+                #000000 66%, #000000 100%
+            );
+        }
+        .footer { background: rgba(0, 0, 0, 0.3); padding: 2rem 0; margin-top: 3rem; }
+        .search-form input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .search-form input::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .search-form input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--syria-green);
+            color: white;
+        }
+        .btn-syria { background: var(--syria-green); border-color: var(--syria-green); color: white; }
+        .btn-syria:hover { background: #005a2d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="flag-banner"></div>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">🇸🇾 <%= t.siteName %></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house"></i> <%= t.home %></a>
+                    </li>
+                </ul>
+                <form class="d-flex search-form me-3" action="/search" method="GET">
+                    <input class="form-control me-2" type="search" name="q" 
+                           placeholder="<%= t.searchPlaceholder %>" style="width: 300px;">
+                    <button class="btn btn-syria" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+                <a href="?lang=<%= lang === 'ar' ? 'en' : 'ar' %>" class="btn btn-outline-light btn-sm">
+                    <%= t.switchLang %>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <!-- Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value"><%= info.blocks.toLocaleString() %></div>
+                    <div class="stat-label"><i class="bi bi-box"></i> <%= t.blockHeight %></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value"><%= info.difficulty.toFixed(4) %></div>
+                    <div class="stat-label"><i class="bi bi-speedometer2"></i> <%= t.difficulty %></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value"><%= peers %></div>
+                    <div class="stat-label"><i class="bi bi-people"></i> <%= t.connections %></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card stat-card">
+                    <div class="stat-value"><%= mempool.size %></div>
+                    <div class="stat-label"><i class="bi bi-hourglass-split"></i> <%= t.mempoolTxs %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Info -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-hdd-network"></i> <%= t.networkStatus %></h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td><%= t.blockHeight %></td>
+                                <td class="text-end"><strong><%= info.blocks.toLocaleString() %></strong></td>
+                            </tr>
+                            <tr>
+                                <td><%= t.difficulty %></td>
+                                <td class="text-end"><strong><%= info.difficulty.toFixed(8) %></strong></td>
+                            </tr>
+                            <tr>
+                                <td><%= t.hashRate %></td>
+                                <td class="text-end"><strong><%= (mining.networkhashps / 1000000).toFixed(2) %> MH/s</strong></td>
+                            </tr>
+                            <tr>
+                                <td><%= t.connections %></td>
+                                <td class="text-end"><strong><%= peers %></strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> <%= coinName %></h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td>Chain</td>
+                                <td class="text-end"><strong><%= info.chain %></strong></td>
+                            </tr>
+                            <tr>
+                                <td><%= t.mempoolSize %></td>
+                                <td class="text-end"><strong><%= (mempool.bytes / 1024).toFixed(2) %> KB</strong></td>
+                            </tr>
+                            <tr>
+                                <td><%= t.mempoolTxs %></td>
+                                <td class="text-end"><strong><%= mempool.size %></strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Blocks -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-boxes"></i> <%= t.latestBlocks %></h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th><%= t.height %></th>
+                                <th><%= t.hash %></th>
+                                <th><%= t.time %></th>
+                                <th><%= t.txCount %></th>
+                                <th><%= t.size %></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% latestBlocks.forEach(function(block) { %>
+                            <tr>
+                                <td>
+                                    <a href="/block-height/<%= block.height %>">
+                                        <i class="bi bi-box"></i> <%= block.height.toLocaleString() %>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="/block/<%= block.hash %>" class="hash-link">
+                                        <%= block.hash.substring(0, 16) %>...
+                                    </a>
+                                </td>
+                                <td>
+                                    <small><%= new Date(block.time * 1000).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US') %></small>
+                                </td>
+                                <td><%= block.nTx %></td>
+                                <td><%= (block.size / 1024).toFixed(2) %> KB</td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-2">
+                <strong><%= coinName %> (<%= coinSymbol %>)</strong> - <%= t.siteTagline %>
+            </p>
+            <p class="text-muted small">
+                <%= t.poweredBy %> OpenSyria Core | <%= t.openSource %> | <%= t.freeForever %>
+            </p>
+            <p class="mb-0">سوريا حرة 🇸🇾 Free Syria</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

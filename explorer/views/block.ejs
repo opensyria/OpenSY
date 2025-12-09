@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= dir %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t.block %> #<%= block.height %> | <%= t.siteName %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <% if (dir === 'rtl') { %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <% } %>
+    <style>
+        :root { --syria-green: #007A3D; --syria-red: #CE1126; }
+        body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e8e8e8; min-height: 100vh; }
+        .navbar { background: rgba(0, 122, 61, 0.95) !important; border-bottom: 3px solid var(--syria-red); }
+        .navbar-brand { font-weight: bold; font-size: 1.4rem; }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .card-header { background: rgba(0, 122, 61, 0.3); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .table { color: #e8e8e8; }
+        .table-hover tbody tr:hover { background: rgba(0, 122, 61, 0.2); }
+        a { color: #60a5fa; text-decoration: none; }
+        a:hover { color: #93c5fd; }
+        .hash-link { font-family: monospace; font-size: 0.85rem; }
+        .flag-banner { height: 6px; background: linear-gradient(to right, var(--syria-green) 0%, var(--syria-green) 33%, #FFF 33%, #FFF 66%, #000 66%, #000 100%); }
+        .footer { background: rgba(0, 0, 0, 0.3); padding: 2rem 0; margin-top: 3rem; }
+        .btn-syria { background: var(--syria-green); border-color: var(--syria-green); color: white; }
+        .btn-syria:hover { background: #005a2d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="flag-banner"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">🇸🇾 <%= t.siteName %></a>
+            <a href="?lang=<%= lang === 'ar' ? 'en' : 'ar' %>" class="btn btn-outline-light btn-sm ms-auto"><%= t.switchLang %></a>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><%= t.home %></a></li>
+                <li class="breadcrumb-item active"><%= t.block %> #<%= block.height.toLocaleString() %></li>
+            </ol>
+        </nav>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-box"></i> <%= t.block %> #<%= block.height.toLocaleString() %></h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr><td><strong><%= t.height %></strong></td><td><%= block.height.toLocaleString() %></td></tr>
+                            <tr><td><strong><%= t.confirmations %></strong></td><td><span class="badge bg-success"><%= block.confirmations %></span></td></tr>
+                            <tr><td><strong><%= t.timestamp %></strong></td><td><%= new Date(block.time * 1000).toLocaleString(lang === 'ar' ? 'ar-SY' : 'en-US') %></td></tr>
+                            <tr><td><strong><%= t.txCount %></strong></td><td><%= block.nTx %></td></tr>
+                            <tr><td><strong><%= t.size %></strong></td><td><%= block.size.toLocaleString() %> <%= t.bytes %></td></tr>
+                            <tr><td><strong><%= t.difficulty %></strong></td><td><%= block.difficulty %></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr><td><strong><%= t.version %></strong></td><td>0x<%= block.version.toString(16) %></td></tr>
+                            <tr><td><strong><%= t.nonce %></strong></td><td><%= block.nonce %></td></tr>
+                            <tr><td><strong><%= t.bits %></strong></td><td><%= block.bits %></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <table class="table table-sm">
+                    <tr><td><strong><%= t.hash %></strong></td><td class="hash-link text-break"><%= block.hash %></td></tr>
+                    <tr><td><strong><%= t.merkleRoot %></strong></td><td class="hash-link text-break"><%= block.merkleroot %></td></tr>
+                    <% if (block.previousblockhash) { %>
+                    <tr><td><strong><%= t.prevBlock %></strong></td><td class="hash-link"><a href="/block/<%= block.previousblockhash %>"><%= block.previousblockhash %></a></td></tr>
+                    <% } %>
+                    <% if (block.nextblockhash) { %>
+                    <tr><td><strong><%= t.nextBlock %></strong></td><td class="hash-link"><a href="/block/<%= block.nextblockhash %>"><%= block.nextblockhash %></a></td></tr>
+                    <% } %>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-4">
+            <% if (block.previousblockhash) { %>
+            <a href="/block/<%= block.previousblockhash %>" class="btn btn-outline-light"><i class="bi bi-arrow-<%= dir === 'rtl' ? 'right' : 'left' %>"></i> <%= t.prevBlock %></a>
+            <% } else { %><div></div><% } %>
+            <% if (block.nextblockhash) { %>
+            <a href="/block/<%= block.nextblockhash %>" class="btn btn-outline-light"><%= t.nextBlock %> <i class="bi bi-arrow-<%= dir === 'rtl' ? 'left' : 'right' %>"></i></a>
+            <% } else { %><div></div><% } %>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-arrow-left-right"></i> <%= t.transactionsInBlock %> (<%= block.nTx %>)</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr><th>#</th><th><%= t.txid %></th><th><%= t.inputs %></th><th><%= t.outputs %></th></tr>
+                        </thead>
+                        <tbody>
+                            <% block.tx.slice(0, 50).forEach(function(tx, i) { %>
+                            <tr>
+                                <td><%= i + 1 %></td>
+                                <td><a href="/tx/<%= tx.txid %>" class="hash-link"><%= tx.txid.substring(0, 20) %>...</a></td>
+                                <td><%= tx.vin.length %></td>
+                                <td><%= tx.vout.length %></td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-2"><strong><%= coinName %> (<%= coinSymbol %>)</strong> - <%= t.siteTagline %></p>
+            <p class="mb-0">سوريا حرة 🇸🇾 Free Syria</p>
+        </div>
+    </footer>
+</body>
+</html>
