@@ -4075,14 +4075,20 @@ std::vector<unsigned char> ChainstateManager::GenerateCoinbaseCommitment(CBlock&
 bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams)
 {
     // Note: This function is used for preliminary header validation during sync.
-    // For pre-fork blocks, we use SHA256d. For post-fork, we'd need height context
-    // which isn't available here. Full validation happens in ContextualCheckBlockHeader.
-    // For now, only validate pre-fork blocks here; post-fork validation deferred.
+    // We don't have height context here, so we can't compute RandomX hashes.
+    // For pre-fork blocks: use SHA256d check
+    // For post-fork blocks: just verify nBits is valid (full RandomX validation happens later)
     return std::all_of(headers.cbegin(), headers.cend(),
             [&](const auto& header) {
-                // SHA256d check - works for pre-fork blocks
-                // Post-fork RandomX blocks will be fully validated later with height context
-                return CheckProofOfWork(header.GetHash(), header.nBits, consensusParams);
+                // First try SHA256d check (works for pre-fork blocks)
+                if (CheckProofOfWork(header.GetHash(), header.nBits, consensusParams)) {
+                    return true;
+                }
+                // If SHA256d fails, check if this could be a valid RandomX block
+                // by verifying nBits is within the RandomX powLimit range.
+                // Full RandomX hash validation happens in ContextualCheckBlockHeader.
+                auto bnTarget = DeriveTarget(header.nBits, consensusParams.powLimitRandomX);
+                return bnTarget.has_value();
             });
 }
 
