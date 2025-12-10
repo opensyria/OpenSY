@@ -57,6 +57,7 @@ Bitcoin's proven security model while introducing Syria-specific customizations.
 - **Block Reward:** 10,000 SYL (halves every ~4 years)
 - **Max Supply:** 21 Billion SYL
 - **Genesis Date:** December 8, 2024 (Syria Liberation Day)
+- **PoW Algorithm:** RandomX (CPU-friendly, ASIC-resistant) - from block 57,200
 
 ## Network Parameters
 
@@ -70,9 +71,24 @@ Bitcoin's proven security model while introducing Syria-specific customizations.
 
 ## Mining
 
-OpenSyria uses SHA-256 Proof of Work (same as Bitcoin).
+### ⚡ RandomX Hard Fork (Block 57,200)
 
-### Solo Mining (Local)
+**OpenSyria is transitioning from SHA-256d to RandomX!**
+
+| Phase | Block Range | Algorithm | Hardware |
+|-------|-------------|-----------|----------|
+| Phase 1 | 0 - 57,199 | SHA-256d | GPU/ASIC |
+| **Phase 2** | **57,200+** | **RandomX** | **CPU** |
+
+RandomX is an ASIC-resistant, CPU-optimized algorithm (used by Monero). This makes mining more accessible to everyone with a regular computer!
+
+**Why RandomX?**
+- ✅ ASIC-resistant - No specialized hardware needed
+- ✅ CPU-optimized - Your laptop can mine
+- ✅ Fair distribution - Levels the playing field
+- ✅ Energy efficient - Lower power consumption
+
+### Solo Mining (RandomX - After Block 57,200)
 ```bash
 # Create a wallet
 ./build/bin/opensyria-cli createwallet "my-wallet"
@@ -80,19 +96,24 @@ OpenSyria uses SHA-256 Proof of Work (same as Bitcoin).
 # Get a mining address
 ./build/bin/opensyria-cli getnewaddress "mining"
 
-# Mine blocks (replace ADDRESS with your address)
-./build/bin/opensyria-cli generatetoaddress 10 ADDRESS 500000000
+# Mine blocks (CPU mining)
+./build/bin/opensyria-cli generatetoaddress 10 ADDRESS
 ```
 
-### GPU Mining (Recommended)
-For serious mining, rent GPU instances on [Vast.ai](https://vast.ai):
+### CPU Mining (Recommended for RandomX)
+For optimal mining after the fork, rent high-core-count CPU instances:
+
+**Recommended Hardware:**
+- AMD EPYC (64+ cores) - Best for RandomX
+- Intel Xeon (32+ cores) - Good performance
+- Any modern CPU with 8+ cores - Entry level
 
 ```bash
-# On your Vast.ai instance, run:
-curl -sSL https://raw.githubusercontent.com/opensyria/OpenSyria/main/mining/vast-ai/setup.sh | bash
+# Build and mine
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+./build/bin/opensyria-cli generatetoaddress 100 YOUR_ADDRESS
 ```
-
-See [mining/vast-ai/README.md](/mining/vast-ai/README.md) for detailed GPU mining guide.
 
 > **Note:** Block rewards require 100 confirmations (~3.3 hours) to mature.
 
