@@ -133,6 +133,9 @@ public:
         // RandomX hard fork height - switch from SHA256d to RandomX PoW
         // This height gives miners ~79 days to prepare (57200 blocks * 2 min = ~79 days)
         consensus.nRandomXForkHeight = 57200;
+        // RandomX starts with easy difficulty to allow initial blocks to be mined quickly
+        // This will adjust naturally via difficulty retargeting
+        consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -255,6 +258,7 @@ public:
 
         // RandomX hard fork height - same as mainnet for consistency
         consensus.nRandomXForkHeight = 57200;
+        consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         pchMessageStart[0] = 0x53; // 'S'
         pchMessageStart[1] = 0x59; // 'Y'
@@ -355,6 +359,7 @@ public:
 
         // RandomX hard fork height - same as mainnet for consistency
         consensus.nRandomXForkHeight = 57200;
+        consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         pchMessageStart[0] = 0x53; // 'S'
         pchMessageStart[1] = 0x59; // 'Y'
@@ -492,6 +497,7 @@ public:
 
         // RandomX hard fork height - same as mainnet for consistency
         consensus.nRandomXForkHeight = 57200;
+        consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         // message start is defined as the first 4 bytes of the sha256d of the block script
         HashWriter h{};
@@ -561,6 +567,7 @@ public:
 
         // RandomX fork at low height for regtest testing
         consensus.nRandomXForkHeight = 200;
+        consensus.powLimitRandomX = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;

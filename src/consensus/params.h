@@ -144,11 +144,21 @@ struct Params {
      */
     int nRandomXForkHeight{57500};        //!< Block height at which RandomX activates
     int nRandomXKeyBlockInterval{64};     //!< How often the RandomX key changes (blocks)
+    uint256 powLimitRandomX;              //!< Minimum difficulty for RandomX blocks (resets at fork)
 
     /** Check if RandomX proof-of-work is active at the given height */
     bool IsRandomXActive(int height) const
     {
         return height >= nRandomXForkHeight;
+    }
+
+    /** Get the appropriate powLimit based on block height (SHA256d vs RandomX) */
+    const uint256& GetRandomXPowLimit(int height) const
+    {
+        if (IsRandomXActive(height) && !powLimitRandomX.IsNull()) {
+            return powLimitRandomX;
+        }
+        return powLimit;
     }
 
     /** Get the key block height for RandomX at a given block height.

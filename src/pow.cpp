@@ -47,7 +47,16 @@
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
-    unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
+    
+    // Use different powLimit based on whether we're in RandomX territory
+    int nextHeight = pindexLast->nHeight + 1;
+    const uint256& activePowLimit = params.GetRandomXPowLimit(nextHeight);
+    unsigned int nProofOfWorkLimit = UintToArith256(activePowLimit).GetCompact();
+
+    // At the RandomX fork height, reset to minimum difficulty for the new algorithm
+    if (nextHeight == params.nRandomXForkHeight) {
+        return nProofOfWorkLimit;
+    }
 
     // Only change once per difficulty adjustment interval
     if ((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0)
@@ -92,8 +101,9 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
     if (nActualTimespan > params.nPowTargetTimespan*4)
         nActualTimespan = params.nPowTargetTimespan*4;
 
-    // Retarget
-    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
+    // Use appropriate powLimit based on height (SHA256d vs RandomX)
+    int nextHeight = pindexLast->nHeight + 1;
+    const arith_uint256 bnPowLimit = UintToArith256(params.GetRandomXPowLimit(nextHeight));
     arith_uint256 bnNew;
 
     // Special difficulty rule for Testnet4
@@ -203,6 +213,20 @@ bool CheckProofOfWorkImpl(uint256 hash, unsigned int nBits, const Consensus::Par
     return true;
 }
 
+// Height-aware version that uses appropriate powLimit for SHA256d vs RandomX
+bool CheckProofOfWorkImpl(uint256 hash, unsigned int nBits, int height, const Consensus::Params& params)
+{
+    const uint256& activePowLimit = params.GetRandomXPowLimit(height);
+    auto bnTarget{DeriveTarget(nBits, activePowLimit)};
+    if (!bnTarget) return false;
+
+    // Check proof of work matches claimed amount
+    if (UintToArith256(hash) > bnTarget)
+        return false;
+
+    return true;
+}
+
 // =============================================================================
 // RANDOMX PROOF-OF-WORK FUNCTIONS
 // =============================================================================
@@ -265,7 +289,8 @@ bool CheckProofOfWorkAtHeight(const CBlockHeader& header, int height, const CBlo
         }
 
         uint256 randomxHash = CalculateRandomXHash(header, keyBlockHash);
-        return CheckProofOfWorkImpl(randomxHash, header.nBits, params);
+        // Use height-aware CheckProofOfWorkImpl for RandomX with its own powLimit
+        return CheckProofOfWorkImpl(randomxHash, header.nBits, height, params);
     } else {
         // SHA256d proof-of-work for legacy blocks
         return CheckProofOfWork(header.GetHash(), header.nBits, params);
