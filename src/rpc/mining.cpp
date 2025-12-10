@@ -263,7 +263,8 @@ static bool GenerateBlock(ChainstateManager& chainman, CBlock&& block, uint64_t&
                                   thread_block.nNonce, randomxHash.ToString(), current_total, hashrate);
                     }
                     
-                    if (CheckProofOfWorkImpl(randomxHash, thread_block.nBits, consensusParams)) {
+                    // Use height-aware CheckProofOfWorkImpl for RandomX powLimit
+                    if (CheckProofOfWorkImpl(randomxHash, thread_block.nBits, nHeight, consensusParams)) {
                         // Found valid proof of work!
                         bool expected = false;
                         if (found.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {

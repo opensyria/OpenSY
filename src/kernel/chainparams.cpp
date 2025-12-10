@@ -133,9 +133,9 @@ public:
         // RandomX hard fork height - switch from SHA256d to RandomX PoW
         // This height gives miners ~79 days to prepare (57200 blocks * 2 min = ~79 days)
         consensus.nRandomXForkHeight = 57200;
-        // RandomX starts with easy difficulty to allow initial blocks to be mined quickly
-        // This will adjust naturally via difficulty retargeting
-        consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
+        // RandomX starts with trivially easy difficulty for testing
+        // Production value should be more conservative (e.g. 00ffffff...)
+        consensus.powLimitRandomX = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
