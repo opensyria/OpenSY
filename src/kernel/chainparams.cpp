@@ -130,6 +130,10 @@ public:
         // This enables signature validation skipping for faster sync while maintaining security.
         consensus.defaultAssumeValid = uint256{}; // New chain - no assumed valid block yet
 
+        // RandomX hard fork height - switch from SHA256d to RandomX PoW
+        // This height gives miners ~80 days to prepare (57500 blocks * 2 min = ~80 days)
+        consensus.nRandomXForkHeight = 57500;
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -249,6 +253,9 @@ public:
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{}; // New chain - no assumed valid block yet
 
+        // RandomX hard fork height - same as mainnet for consistency
+        consensus.nRandomXForkHeight = 57500;
+
         pchMessageStart[0] = 0x53; // 'S'
         pchMessageStart[1] = 0x59; // 'Y'
         pchMessageStart[2] = 0x4c; // 'L'
@@ -345,6 +352,9 @@ public:
         // New chain starts with no minimum work requirement
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{}; // New chain - no assumed valid block yet
+
+        // RandomX hard fork height - same as mainnet for consistency
+        consensus.nRandomXForkHeight = 57500;
 
         pchMessageStart[0] = 0x53; // 'S'
         pchMessageStart[1] = 0x59; // 'Y'
@@ -479,6 +489,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].threshold = 1815; // 90%
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
+
+        // RandomX hard fork height - same as mainnet for consistency
+        consensus.nRandomXForkHeight = 57500;
 
         // message start is defined as the first 4 bytes of the sha256d of the block script
         HashWriter h{};
