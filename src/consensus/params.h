@@ -142,7 +142,7 @@ struct Params {
      * OpenSyria switches from SHA256d to RandomX proof-of-work at nRandomXForkHeight
      * to democratize mining and prevent ASIC/GPU domination.
      */
-    int nRandomXForkHeight{60000};        //!< Block height at which RandomX activates
+    int nRandomXForkHeight{57500};        //!< Block height at which RandomX activates
     int nRandomXKeyBlockInterval{64};     //!< How often the RandomX key changes (blocks)
 
     /** Check if RandomX proof-of-work is active at the given height */

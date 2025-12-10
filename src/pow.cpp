@@ -30,7 +30,7 @@
 // increasing security. See namecoin/namecoin-core for reference implementation.
 //
 // NOTE [RANDOMX HARD FORK]:
-// At block height nRandomXForkHeight (default 60000), OpenSyria switches from
+// At block height nRandomXForkHeight (default 57500), OpenSyria switches from
 // SHA256d to RandomX proof-of-work. This makes mining CPU-friendly and
 // ASIC-resistant, democratizing mining for all participants.
 
