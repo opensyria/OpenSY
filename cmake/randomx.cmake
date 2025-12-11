@@ -30,8 +30,19 @@ if(NOT TARGET randomx)
     message(FATAL_ERROR "RandomX target not found after FetchContent")
 endif()
 
-# Make RandomX headers available - add include directory to target
+# Make RandomX headers available as SYSTEM includes to suppress warnings in downstream code
 FetchContent_GetProperties(randomx)
-target_include_directories(randomx PUBLIC ${randomx_SOURCE_DIR}/src)
+# Remove any existing include directories and re-add as SYSTEM
+get_target_property(_randomx_includes randomx INTERFACE_INCLUDE_DIRECTORIES)
+if(_randomx_includes)
+    set_target_properties(randomx PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
+    target_include_directories(randomx SYSTEM INTERFACE ${_randomx_includes})
+endif()
+target_include_directories(randomx SYSTEM PUBLIC ${randomx_SOURCE_DIR}/src)
+
+# Suppress documentation warnings from RandomX (upstream issue with @param comments)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
+    target_compile_options(randomx PRIVATE -Wno-documentation)
+endif()
 
 message(STATUS "RandomX library configured successfully")

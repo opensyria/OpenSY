@@ -60,7 +60,7 @@ private:
 
 public:
     RandomXContext() = default;
-    ~RandomXContext();
+    ~RandomXContext() EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     // Non-copyable, non-movable
     RandomXContext(const RandomXContext&) = delete;
@@ -78,7 +78,7 @@ public:
      *                         Typically the block at (height - height % 64 - 64).
      * @return true if initialization succeeded, false on error.
      */
-    bool Initialize(const uint256& keyBlockHash);
+    bool Initialize(const uint256& keyBlockHash) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /**
      * Calculate the RandomX hash of input data.
@@ -87,7 +87,7 @@ public:
      * @return 256-bit RandomX hash of the input.
      * @throws std::runtime_error if context is not initialized.
      */
-    uint256 CalculateHash(const std::vector<unsigned char>& input);
+    uint256 CalculateHash(const std::vector<unsigned char>& input) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /**
      * Calculate the RandomX hash of input data (raw pointer version).
@@ -97,32 +97,32 @@ public:
      * @return 256-bit RandomX hash of the input.
      * @throws std::runtime_error if context is not initialized.
      */
-    uint256 CalculateHash(const unsigned char* data, size_t len);
+    uint256 CalculateHash(const unsigned char* data, size_t len) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /**
      * Check if the context is initialized and ready for hashing.
      *
      * @return true if Initialize() has been called successfully.
      */
-    bool IsInitialized() const;
+    bool IsInitialized() const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /**
      * Get the current key block hash.
      *
      * @return The hash used to initialize this context, or uint256() if not initialized.
      */
-    uint256 GetKeyBlockHash() const;
+    uint256 GetKeyBlockHash() const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /**
      * Get raw cache pointer for creating additional VMs.
      * The cache must remain valid for the lifetime of any VMs created from it.
      */
-    randomx_cache* GetCache() const;
+    randomx_cache* GetCache() const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /**
      * Get the flags used for this context.
      */
-    randomx_flags_int GetFlags() const;
+    randomx_flags_int GetFlags() const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 };
 
 /**
@@ -143,7 +143,7 @@ private:
 
 public:
     RandomXMiningContext() = default;
-    ~RandomXMiningContext();
+    ~RandomXMiningContext() EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     RandomXMiningContext(const RandomXMiningContext&) = delete;
     RandomXMiningContext& operator=(const RandomXMiningContext&) = delete;
@@ -154,17 +154,17 @@ public:
      * @param numThreads Number of threads to use for dataset init
      * @return true on success
      */
-    bool Initialize(const uint256& keyBlockHash, unsigned int numThreads = 1);
+    bool Initialize(const uint256& keyBlockHash, unsigned int numThreads = 1) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /**
      * Create a new VM instance for a mining thread.
      * Caller owns the returned VM and must destroy it with randomx_destroy_vm().
      * Thread-safe: multiple threads can call this concurrently.
      */
-    randomx_vm* CreateVM();
+    randomx_vm* CreateVM() EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
-    bool IsInitialized() const;
-    uint256 GetKeyBlockHash() const;
+    bool IsInitialized() const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
+    uint256 GetKeyBlockHash() const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 };
 
 /**

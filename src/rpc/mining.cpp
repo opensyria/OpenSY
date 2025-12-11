@@ -142,10 +142,12 @@ static RPCHelpMan getnetworkhashps()
 }
 
 // Global mining context (initialized once, shared dataset)
-static std::unique_ptr<RandomXMiningContext> g_mining_context;
 static Mutex g_mining_context_mutex;
+static std::unique_ptr<RandomXMiningContext> g_mining_context GUARDED_BY(g_mining_context_mutex);
 
-static bool GenerateBlock(ChainstateManager& chainman, CBlock&& block, uint64_t& max_tries, std::shared_ptr<const CBlock>& block_out, bool process_new_block)
+// NO_THREAD_SAFETY_ANALYSIS: Function acquires lock internally; cannot use annotation due to
+// being called from RPC handler lambdas which don't support lock annotations
+static bool GenerateBlock(ChainstateManager& chainman, CBlock&& block, uint64_t& max_tries, std::shared_ptr<const CBlock>& block_out, bool process_new_block) NO_THREAD_SAFETY_ANALYSIS
 {
     block_out.reset();
     block.hashMerkleRoot = BlockMerkleRoot(block);
@@ -210,7 +212,8 @@ static bool GenerateBlock(ChainstateManager& chainman, CBlock&& block, uint64_t&
             uint32_t start_nonce = t * nonce_range;
             uint32_t end_nonce = (t == numThreads - 1) ? std::numeric_limits<uint32_t>::max() : (t + 1) * nonce_range;
             
-            threads.emplace_back([&, start_nonce, end_nonce, t]() {
+            // NO_THREAD_SAFETY_ANALYSIS: Lambda captures mutex by reference, acquires inside
+            threads.emplace_back([&, start_nonce, end_nonce, t]() NO_THREAD_SAFETY_ANALYSIS {
                 // Create thread-local VM from shared dataset (lock-free after creation)
                 randomx_vm* vm = nullptr;
                 {
@@ -329,7 +332,8 @@ static bool GenerateBlock(ChainstateManager& chainman, CBlock&& block, uint64_t&
     return true;
 }
 
-static UniValue generateBlocks(ChainstateManager& chainman, Mining& miner, const CScript& coinbase_output_script, int nGenerate, uint64_t nMaxTries)
+// NO_THREAD_SAFETY_ANALYSIS: Called from RPC handlers which cannot have lock annotations
+static UniValue generateBlocks(ChainstateManager& chainman, Mining& miner, const CScript& coinbase_output_script, int nGenerate, uint64_t nMaxTries) NO_THREAD_SAFETY_ANALYSIS
 {
     UniValue blockHashes(UniValue::VARR);
     while (nGenerate > 0 && !chainman.m_interrupt) {

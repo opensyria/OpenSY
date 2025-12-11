@@ -153,14 +153,15 @@ target_raw_data_sources(test_opensyria NAMESPACE test::data
 
 add_windows_application_manifest(test_opensyria)
 
+# Get secp256k1 include paths without linking (it's already linked transitively via opensyria_common)
+target_include_directories(test_opensyria PRIVATE $<TARGET_PROPERTY:secp256k1,INTERFACE_INCLUDE_DIRECTORIES>)
+
 target_link_libraries(test_opensyria
   core_interface
   test_util
   opensyria_cli
   opensyria_node
-  opensyria_consensus
   minisketch
-  secp256k1
   Boost::headers
   libevent::extra
 )

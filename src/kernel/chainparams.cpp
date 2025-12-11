@@ -118,11 +118,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
 
         // Minimum chain work - protects against low-hashrate sybil attacks
-        // Set to 0 for initial launch - will be updated after founder bootstrap mining
-        consensus.nMinimumChainWork = uint256{};
+        // Updated at block 1000 during founder bootstrap mining (Dec 11, 2025)
+        consensus.nMinimumChainWork = uint256{"0000000000000000000000000000000000000000000000000000000004e804e8"};
         // AssumeValid - enables faster sync by skipping signature validation for known-good blocks
-        // Empty for initial launch - will be updated after founder bootstrap mining
-        consensus.defaultAssumeValid = uint256{};
+        // Block 1000 - verified during founder bootstrap mining
+        consensus.defaultAssumeValid = uint256{"0251fcc9e698bdabce13bdaa4ff17ebea4d28c6e393f2863dfd9527281d25afd"};
 
         // RandomX from block 1 - fair launch with CPU-friendly mining
         // Genesis (block 0) uses SHA256 for bootstrap, all subsequent blocks use RandomX
