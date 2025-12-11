@@ -37,17 +37,15 @@ BOOST_AUTO_TEST_CASE(fork_not_active_before_height)
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
     
-    // One block before fork
+    // One block before fork (genesis at height 0)
     int heightBeforeFork = params.nRandomXForkHeight - 1;
     BOOST_CHECK_MESSAGE(
         !params.IsRandomXActive(heightBeforeFork),
         "RandomX should not be active at height " << heightBeforeFork
     );
     
-    // Many blocks before fork
+    // Genesis should use SHA256 (RandomX starts at block 1)
     BOOST_CHECK(!params.IsRandomXActive(0));
-    BOOST_CHECK(!params.IsRandomXActive(1000));
-    BOOST_CHECK(!params.IsRandomXActive(params.nRandomXForkHeight - 100));
 }
 
 BOOST_AUTO_TEST_CASE(fork_active_at_height)
@@ -121,10 +119,9 @@ BOOST_AUTO_TEST_CASE(key_block_height_edge_cases)
     // At height 127, key should be at 0 (127/64*64 - 64 = 64 - 64 = 0)
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(127), 0);
     
-    // At fork height (60000), verify key block calculation
+    // At fork height (1), key block should be at 0 (genesis)
     int forkHeight = params.nRandomXForkHeight;
-    int expectedKey = (forkHeight / 64) * 64 - 64;
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(forkHeight), expectedKey);
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(forkHeight), 0);
     
     // Large height test
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(1000000), 
@@ -416,11 +413,11 @@ BOOST_AUTO_TEST_CASE(calculate_randomx_hash_different_keys)
 
 BOOST_AUTO_TEST_CASE(fork_height_default_value)
 {
-    // Test: Verify default fork height is 60000
+    // Test: Verify default fork height is 1 (RandomX from block 1)
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
     
-    BOOST_CHECK_EQUAL(params.nRandomXForkHeight, 57200);
+    BOOST_CHECK_EQUAL(params.nRandomXForkHeight, 1);
 }
 
 BOOST_AUTO_TEST_CASE(key_interval_default_value)
@@ -457,19 +454,15 @@ BOOST_AUTO_TEST_CASE(key_block_at_fork_boundary)
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
     
-    // Fork height is 57200
-    // 57200 / 64 = 893, 893 * 64 = 57152, 57152 - 64 = 57088
+    // Fork height is 1
+    // For height 1: 1 / 64 = 0, 0 * 64 = 0, 0 - 64 = -64, clamped to 0
     int forkHeight = params.nRandomXForkHeight;
-    int expectedKeyHeight = (forkHeight / 64) * 64 - 64;
     
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(forkHeight), expectedKeyHeight);
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(forkHeight), 0);
     
     // First block after fork
     int firstPostFork = forkHeight + 1;
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(firstPostFork), expectedKeyHeight);
-    
-    // Verify calculation matches expected key height
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(firstPostFork), expectedKeyHeight);
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(firstPostFork), 0);
 }
 
 BOOST_AUTO_TEST_CASE(key_block_interval_boundaries)
@@ -539,8 +532,8 @@ BOOST_AUTO_TEST_CASE(check_pow_at_height_pre_fork_sha256d)
     header.nBits = 0x207fffff;  // Very easy target for testing
     header.nNonce = 0;
     
-    // At height 1000 (before fork), should use SHA256d
-    int preForkHeight = 1000;
+    // At height 0 (genesis, before fork), should use SHA256d
+    int preForkHeight = 0;
     BOOST_CHECK(!params.IsRandomXActive(preForkHeight));
     
     // Without a valid chain index, we pass nullptr

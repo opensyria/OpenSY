@@ -29,9 +29,9 @@
 // This would allow Bitcoin miners to mine OpenSyria "for free", dramatically
 // increasing security. See namecoin/namecoin-core for reference implementation.
 //
-// NOTE [RANDOMX HARD FORK]:
-// At block height nRandomXForkHeight (default 57500), OpenSyria switches from
-// SHA256d to RandomX proof-of-work. This makes mining CPU-friendly and
+// NOTE [RANDOMX PROOF-OF-WORK]:
+// OpenSyria uses RandomX proof-of-work from block 1 onwards. Genesis (block 0)
+// uses SHA256d for bootstrap simplicity. RandomX is CPU-friendly and
 // ASIC-resistant, democratizing mining for all participants.
 
 #include <pow.h>

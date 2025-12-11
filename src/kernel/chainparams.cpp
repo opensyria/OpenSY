@@ -118,15 +118,16 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
 
         // Minimum chain work - protects against low-hashrate sybil attacks
-        // Updated at block 206335 (Dec 2025)
-        consensus.nMinimumChainWork = uint256{"000000000000000000000000000000000000000000000000000027ca67cee7b0"};
+        // Set to 0 for initial launch - will be updated after founder bootstrap mining
+        consensus.nMinimumChainWork = uint256{};
         // AssumeValid - enables faster sync by skipping signature validation for known-good blocks
-        // Block 206335 hash (Dec 2025) - founder bootstrap checkpoint
-        consensus.defaultAssumeValid = uint256{"9f56cffc1a6c85bf7e77a7eb75aa6d5db0c9d43d9b6ba6bce36613228dabe4c7"};
+        // Empty for initial launch - will be updated after founder bootstrap mining
+        consensus.defaultAssumeValid = uint256{};
 
-        // RandomX hard fork height - switch from SHA256d to RandomX PoW
-        // This height gives miners ~79 days to prepare (57200 blocks * 2 min = ~79 days)
-        consensus.nRandomXForkHeight = 57200;
+        // RandomX from block 1 - fair launch with CPU-friendly mining
+        // Genesis (block 0) uses SHA256 for bootstrap, all subsequent blocks use RandomX
+        // No ASIC advantage from block 1 onwards, truly decentralized mining
+        consensus.nRandomXForkHeight = 1;
         // RandomX starts with trivially easy difficulty for testing
         // Production value should be more conservative (e.g. 00ffffff...)
         consensus.powLimitRandomX = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
