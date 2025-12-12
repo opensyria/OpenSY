@@ -95,15 +95,6 @@ cmake --build build -j$(nproc)
 | opensyria-seeder | ✅ Active | 53/UDP (DNS) |
 | opensyria-miner | ✅ Active | N/A |
 
-## Network Statistics (Live as of Launch Day)
-
-| Metric | Value |
-|--------|-------|
-| **Blocks Mined** | 50,000+ |
-| **Connected Peers** | 8+ nodes worldwide |
-| **Network Hashrate** | ~350 MH/s |
-| **Chain Size** | ~18 MB |
-
 ## How to Mine
 
 ### Solo Mining (CPU)

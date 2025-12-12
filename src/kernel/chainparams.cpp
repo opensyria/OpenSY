@@ -1,7 +1,11 @@
-// Copyright (c) 2010 Qirsh Nakamoto
-// Copyright (c) 2009-present The OpenSyria Core developers
+// Copyright (c) 2010 Satoshi Nakamoto
+// Copyright (c) 2009-present The Bitcoin Core developers
+// Copyright (c) 2025-present The OpenSyria Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+//
+// OpenSyria: Forked from Bitcoin Core. "Qirsh" is the smallest unit of SYL,
+// equivalent to Bitcoin's "satoshi" (1 SYL = 100,000,000 qirsh).
 
 #include <kernel/chainparams.h>
 
@@ -247,8 +251,8 @@ public:
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{}; // New chain - no assumed valid block yet
 
-        // RandomX hard fork height - same as mainnet for consistency
-        consensus.nRandomXForkHeight = 57200;
+        // RandomX from block 1 - matches mainnet for consistent testing
+        consensus.nRandomXForkHeight = 1;
         consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         pchMessageStart[0] = 0x53; // 'S'
@@ -348,8 +352,8 @@ public:
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{}; // New chain - no assumed valid block yet
 
-        // RandomX hard fork height - same as mainnet for consistency
-        consensus.nRandomXForkHeight = 57200;
+        // RandomX from block 1 - matches mainnet for consistent testing
+        consensus.nRandomXForkHeight = 1;
         consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         pchMessageStart[0] = 0x53; // 'S'
@@ -486,8 +490,8 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].threshold = 1815; // 90%
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
 
-        // RandomX hard fork height - same as mainnet for consistency
-        consensus.nRandomXForkHeight = 57200;
+        // RandomX from block 1 - matches mainnet for consistent testing
+        consensus.nRandomXForkHeight = 1;
         consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         // message start is defined as the first 4 bytes of the sha256d of the block script

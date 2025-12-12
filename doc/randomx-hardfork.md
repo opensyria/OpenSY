@@ -1,17 +1,17 @@
-# OpenSyria RandomX Hard Fork - Technical Design Document
+# OpenSyria RandomX - Technical Design Document
 
-**Version:** 1.0  
-**Date:** December 9, 2025  
-**Status:** Draft  
+**Version:** 1.1  
+**Date:** December 11, 2025  
+**Status:** Implemented (Active from Block 1)  
 **Author:** OpenSyria Core Team
 
 ---
 
 ## Executive Summary
 
-This document describes the technical implementation of switching OpenSyria's 
-Proof-of-Work algorithm from SHA256d to RandomX at a specified hard fork height.
-This change makes OpenSyria CPU-mineable and ASIC-resistant, democratizing 
+This document describes the technical implementation of OpenSyria's RandomX
+Proof-of-Work algorithm. OpenSyria launched with RandomX active from block 1,
+making it CPU-mineable and ASIC-resistant from day one. This democratizes 
 mining access for Syrian users.
 
 ---
@@ -524,29 +524,24 @@ if __name__ == '__main__':
 ### Announcement Template
 
 ```markdown
-# OpenSyria Hard Fork Announcement: RandomX Algorithm
+# OpenSyria: RandomX CPU Mining from Day One
 
-## What's Changing?
-At block 60,000 (~December 12, 2025), OpenSyria will switch from SHA256d 
-to RandomX for mining.
+## What's Different?
+OpenSyria launched with RandomX proof-of-work active from block 1.
+Only the genesis block (block 0) uses SHA256d for bootstrap purposes.
 
-## Why?
+## Why RandomX?
 - Makes mining accessible to everyone with a CPU
 - No expensive GPU/ASIC hardware needed
 - Aligns with OpenSyria's mission of accessibility
 
-## What You Need to Do
-1. Download OpenSyria v31.0.0 before block 60,000
-2. Restart your node with the new version
-3. That's it!
-
 ## For Miners
-- GPU mining will stop working at block 60,000
-- CPU mining will work with any modern processor
+- CPU mining works with any modern processor
 - Use `generatetoaddress` command to mine
+- No special hardware required
 
 ## Download
-- GitHub: https://github.com/opensyria/OpenSyria/releases/tag/v31.0.0
+- GitHub: https://github.com/opensyria/OpenSyria/releases
 ```
 
 ---

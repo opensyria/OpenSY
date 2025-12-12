@@ -1,7 +1,6 @@
 # OpenSyria Mining on Vast.ai - Quick Start Guide
 
 > **Last Updated:** December 9, 2025
-> **Network Hashrate:** ~200 MH/s
 > **Block Reward:** 500 SYL
 
 ## Step 1: Sign Up for Vast.ai
@@ -113,8 +112,6 @@ opensyria-cli -rpcwallet=founders-wallet getbalance
 ## Competition Analysis
 
 Current competitor: `syl1qckjw8ardqpt6zcw9aylckxfw62swzq7gkjm794`
-- Network hashrate: ~200 MH/s
-- They're winning ~100% of blocks
 
 ### To Beat Them:
 | Your Setup | Est. Hashrate | Win Rate |

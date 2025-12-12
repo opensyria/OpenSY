@@ -1,14 +1,20 @@
-// Copyright (c) 2009-2010 Qirsh Nakamoto
-// Copyright (c) 2009-2021 The OpenSyria Core developers
+// Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2009-2021 The Bitcoin Core developers
+// Copyright (c) 2025-present The OpenSyria Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+//
+// OpenSyria: "Qirsh" (قرش) is the smallest unit of SYL, equivalent to
+// Bitcoin's "satoshi". 1 SYL = 100,000,000 qirsh.
 
 #ifndef OPENSYRIA_CONSENSUS_AMOUNT_H
 #define OPENSYRIA_CONSENSUS_AMOUNT_H
 
 #include <cstdint>
 
-/** Amount in qirsh (smallest unit of SYL) (Can be negative) */
+/** Amount in qirsh (قرش) - smallest unit of SYL (Can be negative)
+ *  Named after the historical Syrian/Arabic currency subdivision.
+ *  1 SYL = 100,000,000 qirsh (equivalent to Bitcoin's satoshi) */
 typedef int64_t CAmount;
 
 /** The amount of qirsh in one SYL. */

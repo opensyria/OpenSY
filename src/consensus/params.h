@@ -1,5 +1,6 @@
-// Copyright (c) 2009-2010 Qirsh Nakamoto
-// Copyright (c) 2009-2022 The OpenSyria Core developers
+// Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2025-present The OpenSyria Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -143,7 +144,7 @@ struct Params {
      * to democratize mining and prevent ASIC/GPU domination.
      */
     int nRandomXForkHeight{57500};        //!< Block height at which RandomX activates
-    int nRandomXKeyBlockInterval{64};     //!< How often the RandomX key changes (blocks)
+    int nRandomXKeyBlockInterval{32};     //!< How often the RandomX key changes (blocks) - 32 for tighter security
     uint256 powLimitRandomX;              //!< Minimum difficulty for RandomX blocks (resets at fork)
 
     /** Check if RandomX proof-of-work is active at the given height */
