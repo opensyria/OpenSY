@@ -163,7 +163,7 @@ struct Params {
     }
 
     /** Get the key block height for RandomX at a given block height.
-     *  The key is derived from a block 64 blocks before the current key interval.
+     *  The key is derived from a block nRandomXKeyBlockInterval blocks before the current key interval.
      *  @param height The block height to calculate key block for
      *  @return Height of the block whose hash is used as RandomX key
      */

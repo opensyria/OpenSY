@@ -19,7 +19,7 @@
 //
 // RANDOMX CONSIDERATIONS:
 // - Validation is slower than SHA256d (~100x) but acceptable for 2-min blocks
-// - Key rotation every 64 blocks prevents pre-computation attacks
+// - Key rotation every 32 blocks (mainnet) prevents pre-computation attacks
 // - Light mode (256KB) for validation, full mode (2GB) for mining
 //
 // OPERATIONAL RECOMMENDATIONS:
@@ -34,6 +34,7 @@
 #include <crypto/randomx_context.h>
 #include <primitives/block.h>
 #include <streams.h>
+#include <sync.h>
 #include <uint256.h>
 #include <util/check.h>
 
@@ -250,8 +251,15 @@ uint256 GetRandomXKeyBlockHash(int height, const CBlockIndex* pindex, const Cons
     return keyBlock->GetBlockHash();
 }
 
+// Mutex for thread-safe access to global RandomX context
+static Mutex g_randomx_hash_mutex;
+
 uint256 CalculateRandomXHash(const CBlockHeader& header, const uint256& keyBlockHash)
 {
+    // Thread-safe access to global context
+    // This lock ensures atomic check-and-initialize operations
+    LOCK(g_randomx_hash_mutex);
+
     // Ensure global context exists
     if (!g_randomx_context) {
         g_randomx_context = std::make_unique<RandomXContext>();

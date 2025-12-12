@@ -84,21 +84,21 @@ BOOST_AUTO_TEST_CASE(key_block_height_calculation)
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
     
-    // Key block interval is 64 by default
+    // Key block interval is 32 for mainnet (tighter security)
     int interval = params.nRandomXKeyBlockInterval;
-    BOOST_CHECK_EQUAL(interval, 64);
+    BOOST_CHECK_EQUAL(interval, 32);
     
-    // At height 128, key block should be at 64 (128/64*64 - 64 = 64)
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(128), 64);
+    // At height 64, key block should be at 32 (64/32*32 - 32 = 32)
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(64), 32);
     
-    // At height 192, key block should be at 128
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(192), 128);
+    // At height 96, key block should be at 64
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(96), 64);
     
-    // At height 64, key block should be at 0
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(64), 0);
+    // At height 32, key block should be at 0
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(32), 0);
     
-    // At height 65, key block should still be at 0 (65/64*64 - 64 = 64 - 64 = 0)
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(65), 0);
+    // At height 33, key block should still be at 0 (33/32*32 - 32 = 32 - 32 = 0)
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(33), 0);
 }
 
 BOOST_AUTO_TEST_CASE(key_block_height_edge_cases)
@@ -106,6 +106,7 @@ BOOST_AUTO_TEST_CASE(key_block_height_edge_cases)
     // Test: Edge cases for key block height calculation
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
+    int interval = params.nRandomXKeyBlockInterval; // 32 for mainnet
     
     // At height 0, key should be at 0 (clamped from negative)
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(0), 0);
@@ -113,19 +114,22 @@ BOOST_AUTO_TEST_CASE(key_block_height_edge_cases)
     // At height 1, key should be at 0
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(1), 0);
     
-    // At height 63, key should be at 0 (63/64*64 - 64 = 0 - 64 = -64, clamped to 0)
+    // At height 31, key should be at 0 (31/32*32 - 32 = 0 - 32 = -32, clamped to 0)
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(31), 0);
+    
+    // At height 63, key should be at 0 (63/32*32 - 32 = 32 - 32 = 0)
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(63), 0);
     
-    // At height 127, key should be at 0 (127/64*64 - 64 = 64 - 64 = 0)
-    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(127), 0);
+    // At height 64, key should be at 32 (64/32*32 - 32 = 64 - 32 = 32)
+    BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(64), 32);
     
     // At fork height (1), key block should be at 0 (genesis)
     int forkHeight = params.nRandomXForkHeight;
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(forkHeight), 0);
     
-    // Large height test
+    // Large height test - uses actual interval
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(1000000), 
-        (1000000 / 64) * 64 - 64);
+        (1000000 / interval) * interval - interval);
 }
 
 // =============================================================================
@@ -422,11 +426,11 @@ BOOST_AUTO_TEST_CASE(fork_height_default_value)
 
 BOOST_AUTO_TEST_CASE(key_interval_default_value)
 {
-    // Test: Verify default key interval is 64
+    // Test: Verify default key interval is 32
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
     
-    BOOST_CHECK_EQUAL(params.nRandomXKeyBlockInterval, 64);
+    BOOST_CHECK_EQUAL(params.nRandomXKeyBlockInterval, 32);
 }
 
 // =============================================================================
@@ -455,7 +459,7 @@ BOOST_AUTO_TEST_CASE(key_block_at_fork_boundary)
     const auto& params = chainParams->GetConsensus();
     
     // Fork height is 1
-    // For height 1: 1 / 64 = 0, 0 * 64 = 0, 0 - 64 = -64, clamped to 0
+    // For height 1: 1 / 32 = 0, 0 * 32 = 0, 0 - 32 = -32, clamped to 0
     int forkHeight = params.nRandomXForkHeight;
     
     BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(forkHeight), 0);
@@ -467,23 +471,23 @@ BOOST_AUTO_TEST_CASE(key_block_at_fork_boundary)
 
 BOOST_AUTO_TEST_CASE(key_block_interval_boundaries)
 {
-    // Test: Key block changes at interval boundaries
+    // Test: Key block changes at interval boundaries (interval=32 for mainnet)
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
     
-    // At heights 64-127, key should be at 0
-    for (int h = 64; h < 128; ++h) {
+    // At heights 32-63, key should be at 0
+    for (int h = 32; h < 64; ++h) {
         BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(h), 0);
     }
     
-    // At heights 128-191, key should be at 64
-    for (int h = 128; h < 192; ++h) {
-        BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(h), 64);
+    // At heights 64-95, key should be at 32
+    for (int h = 64; h < 96; ++h) {
+        BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(h), 32);
     }
     
-    // At heights 192-255, key should be at 128
-    for (int h = 192; h < 256; ++h) {
-        BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(h), 128);
+    // At heights 96-127, key should be at 64
+    for (int h = 96; h < 128; ++h) {
+        BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(h), 64);
     }
 }
 
@@ -765,11 +769,12 @@ BOOST_AUTO_TEST_CASE(key_block_height_mathematical_properties)
     // Test: Mathematical properties of key block height calculation
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     const auto& params = chainParams->GetConsensus();
+    int interval = params.nRandomXKeyBlockInterval; // 32 for mainnet
     
     // Property 1: Key height is always less than current height
     for (int h = 1; h <= 10000; h += 100) {
         int keyHeight = params.GetRandomXKeyBlockHeight(h);
-        BOOST_CHECK_MESSAGE(keyHeight < h || h < 64,
+        BOOST_CHECK_MESSAGE(keyHeight < h || h < interval,
             "Key height " << keyHeight << " should be < current height " << h);
     }
     
@@ -779,15 +784,15 @@ BOOST_AUTO_TEST_CASE(key_block_height_mathematical_properties)
         BOOST_CHECK_GE(keyHeight, 0);
     }
     
-    // Property 3: Key height is always a multiple of 64 (except when clamped to 0)
-    for (int h = 128; h <= 10000; h += 100) {
+    // Property 3: Key height is always a multiple of interval (except when clamped to 0)
+    for (int h = interval * 2; h <= 10000; h += 100) {
         int keyHeight = params.GetRandomXKeyBlockHeight(h);
-        BOOST_CHECK_EQUAL(keyHeight % 64, 0);
+        BOOST_CHECK_EQUAL(keyHeight % interval, 0);
     }
     
     // Property 4: Key stays constant within an interval
-    for (int h = 128; h < 192; ++h) {
-        BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(h), 64);
+    for (int h = interval * 2; h < interval * 3; ++h) {
+        BOOST_CHECK_EQUAL(params.GetRandomXKeyBlockHeight(h), interval);
     }
 }
 

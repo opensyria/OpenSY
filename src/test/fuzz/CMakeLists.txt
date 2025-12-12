@@ -96,6 +96,7 @@ add_executable(fuzz
   protocol.cpp
   psbt.cpp
   random.cpp
+  randomx.cpp
   rbf.cpp
   rolling_bloom_filter.cpp
   rpc.cpp
