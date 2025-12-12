@@ -166,11 +166,25 @@ struct Params {
      *  The key is derived from a block nRandomXKeyBlockInterval blocks before the current key interval.
      *  @param height The block height to calculate key block for
      *  @return Height of the block whose hash is used as RandomX key
+     *
+     *  SECURITY NOTE: For heights in the first two key intervals (0 to 2*interval-1),
+     *  this returns heights that may result in using genesis block as key. This is
+     *  acceptable for bootstrap but means early blocks share the same RandomX key.
+     *  Key rotation begins properly once height >= 2*nRandomXKeyBlockInterval.
      */
     int GetRandomXKeyBlockHeight(int height) const
     {
         // Key changes every nRandomXKeyBlockInterval blocks
         // Key for height H is block at: (H / interval) * interval - interval
+        //
+        // Examples with interval=32:
+        //   height 0-31:  keyHeight = 0 - 32 = -32 -> clamped to 0 (genesis)
+        //   height 32-63: keyHeight = 32 - 32 = 0 (genesis)
+        //   height 64-95: keyHeight = 64 - 32 = 32
+        //   height 96-127: keyHeight = 96 - 32 = 64
+        //
+        // This means blocks 1-63 all use genesis as their key block.
+        // This is a known bootstrap trade-off documented for auditors.
         int keyHeight = (height / nRandomXKeyBlockInterval) * nRandomXKeyBlockInterval - nRandomXKeyBlockInterval;
         return keyHeight >= 0 ? keyHeight : 0;
     }

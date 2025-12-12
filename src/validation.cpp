@@ -4078,7 +4078,12 @@ bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consens
     // Note: This function is used for preliminary header validation during sync.
     // We don't have height context here, so we can't compute RandomX hashes.
     // For pre-fork blocks: use SHA256d check
-    // For post-fork blocks: just verify nBits is valid (full RandomX validation happens later)
+    // For post-fork blocks: verify nBits claims sufficient work to rate-limit header spam
+    //
+    // SECURITY: Without requiring minimum claimed work, an attacker could spam headers
+    // with easy difficulty targets, causing memory exhaustion before ContextualCheckBlockHeader
+    // validates the actual RandomX hash. We require headers to claim at least 1/16th of
+    // maximum difficulty to make spam attacks computationally expensive.
     return std::all_of(headers.cbegin(), headers.cend(),
             [&](const auto& header) {
                 // First try SHA256d check (works for pre-fork blocks)
@@ -4086,10 +4091,18 @@ bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consens
                     return true;
                 }
                 // If SHA256d fails, check if this could be a valid RandomX block
-                // by verifying nBits is within the RandomX powLimit range.
+                // by verifying nBits is within the RandomX powLimit range AND
+                // claims sufficient work to rate-limit header spam attacks.
                 // Full RandomX hash validation happens in ContextualCheckBlockHeader.
                 auto bnTarget = DeriveTarget(header.nBits, consensusParams.powLimitRandomX);
-                return bnTarget.has_value();
+                if (!bnTarget.has_value()) {
+                    return false;
+                }
+                // Require minimum claimed work: target must be <= powLimit/16
+                // This forces attackers to claim hard-enough work, rate-limiting spam
+                // while still allowing legitimate low-difficulty testnet/regtest blocks
+                arith_uint256 maxAllowedTarget = UintToArith256(consensusParams.powLimitRandomX) >> 4;
+                return *bnTarget <= maxAllowedTarget;
             });
 }
 

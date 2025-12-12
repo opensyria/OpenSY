@@ -38,6 +38,8 @@
 #include <uint256.h>
 #include <util/check.h>
 
+#include <mutex>
+
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
@@ -251,21 +253,19 @@ uint256 GetRandomXKeyBlockHash(int height, const CBlockIndex* pindex, const Cons
     return keyBlock->GetBlockHash();
 }
 
-// Mutex for thread-safe access to global RandomX context
-static Mutex g_randomx_hash_mutex;
+// Note: g_randomx_context is internally thread-safe via its own mutex (m_mutex).
+// We use std::call_once for one-time initialization to avoid redundant locking.
+static std::once_flag g_randomx_context_init_flag;
 
 uint256 CalculateRandomXHash(const CBlockHeader& header, const uint256& keyBlockHash)
 {
-    // Thread-safe access to global context
-    // This lock ensures atomic check-and-initialize operations
-    LOCK(g_randomx_hash_mutex);
-
-    // Ensure global context exists
-    if (!g_randomx_context) {
+    // One-time initialization of global context (thread-safe)
+    std::call_once(g_randomx_context_init_flag, []() {
         g_randomx_context = std::make_unique<RandomXContext>();
-    }
+    });
 
     // Initialize or update context if key changed
+    // Note: RandomXContext::Initialize() and GetKeyBlockHash() are internally thread-safe
     if (g_randomx_context->GetKeyBlockHash() != keyBlockHash) {
         if (!g_randomx_context->Initialize(keyBlockHash)) {
             // Initialization failed - return max hash (will always fail PoW check)
@@ -278,6 +278,7 @@ uint256 CalculateRandomXHash(const CBlockHeader& header, const uint256& keyBlock
     ss << header;
 
     // Calculate and return RandomX hash
+    // Note: RandomXContext::CalculateHash() is internally thread-safe
     return g_randomx_context->CalculateHash(
         reinterpret_cast<const unsigned char*>(ss.data()), ss.size());
 }
@@ -303,15 +304,22 @@ bool CheckProofOfWorkAtHeight(const CBlockHeader& header, int height, const CBlo
 
 bool CheckProofOfWorkForBlockIndex(const CBlockHeader& header, int height, const Consensus::Params& params)
 {
-    // This is a simplified PoW check for block index loading.
-    // During index loading, we can't traverse the pprev chain to compute RandomX hashes
-    // because blocks are loaded in arbitrary order and pprev pointers may not be set yet.
+    // SECURITY ASSUMPTION: This is a simplified PoW check for block index loading.
+    // During index loading, blocks are loaded in arbitrary order and pprev pointers
+    // may not be fully set, so we cannot traverse the chain to compute RandomX hashes.
     //
-    // For RandomX blocks: we only verify that nBits is within the valid range for the powLimit.
-    // The actual RandomX hash verification happens during chain activation when the full chain
-    // is available.
+    // For RandomX blocks: we ONLY verify that nBits is within the valid range.
+    // This means a malicious blocks.dat could contain invalid RandomX hashes that
+    // would pass this check. HOWEVER, this is acceptable because:
+    //   1. Blocks on disk were already validated when first accepted
+    //   2. Full RandomX validation occurs during ConnectBlock/ActivateBestChain
+    //   3. An attacker with write access to blocks.dat has bigger problems
     //
-    // For SHA256d blocks: we can do the full check since it doesn't require chain traversal.
+    // For SHA256d blocks: full validation is performed (no chain traversal needed).
+    //
+    // IMPORTANT: Do not rely on this function alone for consensus security.
+    // Full RandomX hash verification MUST happen in ContextualCheckBlockHeader
+    // or CheckProofOfWorkAtHeight before a block affects chain state.
 
     if (params.IsRandomXActive(height)) {
         // For RandomX blocks during index load: just verify nBits is valid
