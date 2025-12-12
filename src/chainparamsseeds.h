@@ -4,16 +4,17 @@
  * List of fixed seed nodes for the OpenSyria network
  * Generated: December 8, 2025 - Network Launch Day! 🇸🇾
  *
- * Each line contains a BIP155 serialized (networkID, addr, port) tuple.
- * Format: 0x01 (IPv4), 4 bytes IP, 2 bytes port (big-endian)
+ * Each entry is BIP155 serialized: networkID (1 byte) + COMPACTSIZE(addr_len) + addr + port (2 bytes BE)
+ * For IPv4: 0x01 + 0x04 + 4 bytes IP + 2 bytes port
  */
 
 // Mainnet seeds - First OpenSyria seed node!
 // 157.175.40.131:9633 (node1.opensyria.net, AWS Bahrain)
 static const uint8_t chainparams_seed_main[] = {
-    0x01,                         // IPv4 network ID
+    0x01,                         // BIP155 network ID for IPv4
+    0x04,                         // COMPACTSIZE: address length = 4 bytes
     0x9d, 0xaf, 0x28, 0x83,       // 157.175.40.131
-    0x25, 0xa1                    // Port 9633 (0x25a1)
+    0x25, 0xa1                    // Port 9633 (big-endian: 0x25a1)
 };
 constexpr size_t chainparams_seed_main_size = 1;
 
