@@ -5,6 +5,7 @@
 #include <bench/bench.h>
 #include <bench/data/block413567.raw.h>
 #include <chain.h>
+#include <consensus/params.h>
 #include <core_io.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
@@ -48,9 +49,9 @@ struct TestBlockAndIndex {
 static void BlockToJson(benchmark::Bench& bench, TxVerbosity verbosity)
 {
     TestBlockAndIndex data;
-    const uint256 pow_limit{data.testing_setup->m_node.chainman->GetParams().GetConsensus().powLimit};
+    const Consensus::Params& consensusParams = data.testing_setup->m_node.chainman->GetParams().GetConsensus();
     bench.run([&] {
-        auto univalue = blockToJSON(data.testing_setup->m_node.chainman->m_blockman, data.block, data.blockindex, data.blockindex, verbosity, pow_limit);
+        auto univalue = blockToJSON(data.testing_setup->m_node.chainman->m_blockman, data.block, data.blockindex, data.blockindex, verbosity, consensusParams);
         ankerl::nanobench::doNotOptimizeAway(univalue);
     });
 }
@@ -77,8 +78,8 @@ BENCHMARK(BlockToJsonVerbosity3, benchmark::PriorityLevel::HIGH);
 static void BlockToJsonVerboseWrite(benchmark::Bench& bench)
 {
     TestBlockAndIndex data;
-    const uint256 pow_limit{data.testing_setup->m_node.chainman->GetParams().GetConsensus().powLimit};
-    auto univalue = blockToJSON(data.testing_setup->m_node.chainman->m_blockman, data.block, data.blockindex, data.blockindex, TxVerbosity::SHOW_DETAILS_AND_PREVOUT, pow_limit);
+    const Consensus::Params& consensusParams = data.testing_setup->m_node.chainman->GetParams().GetConsensus();
+    auto univalue = blockToJSON(data.testing_setup->m_node.chainman->m_blockman, data.block, data.blockindex, data.blockindex, TxVerbosity::SHOW_DETAILS_AND_PREVOUT, consensusParams);
     bench.run([&] {
         auto str = univalue.write();
         ankerl::nanobench::doNotOptimizeAway(str);
