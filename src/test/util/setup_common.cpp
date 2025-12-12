@@ -420,7 +420,23 @@ CBlock TestChain100Setup::CreateBlock(
     }
     RegenerateCommitments(block, *Assert(m_node.chainman));
 
-    while (!CheckProofOfWork(block.GetHash(), block.nBits, m_node.chainman->GetConsensus())) ++block.nNonce;
+    // Get the current tip to determine the new block height
+    const CBlockIndex* pindexPrev = WITH_LOCK(cs_main, return chainstate.m_chain.Tip());
+    int newHeight = pindexPrev ? pindexPrev->nHeight + 1 : 0;
+    const Consensus::Params& params = m_node.chainman->GetConsensus();
+
+    // Mine the block using the appropriate PoW algorithm
+    if (params.IsRandomXActive(newHeight)) {
+        // RandomX PoW - requires proper hash computation with key block
+        while (!CheckProofOfWorkAtHeight(block, newHeight, pindexPrev, params)) {
+            ++block.nNonce;
+        }
+    } else {
+        // SHA256d PoW for pre-fork blocks
+        while (!CheckProofOfWork(block.GetHash(), block.nBits, params)) {
+            ++block.nNonce;
+        }
+    }
 
     return block;
 }
