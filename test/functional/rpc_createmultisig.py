@@ -30,7 +30,11 @@ class RpcCreateMultiSigTest(OpenSyriaTestFramework):
         self.num_nodes = 3
 
     def skip_test_if_missing_module(self):
-        self.skip_if_platform_not_linux()  # BIP67 test data has Bitcoin testnet addresses that need updating for OpenSyria
+        # TODO: Regenerate BIP67 test vectors with OpenSyria addresses
+        # The test_sortedmulti_descriptors_bip67() function has hardcoded Bitcoin
+        # testnet addresses that need to be regenerated for OpenSyria's address format.
+        # To fix: Run the test on Linux, capture the correct addresses, update test data.
+        self.skip_if_platform_not_linux()  # BIP67 test data has Bitcoin testnet addresses
 
     def create_keys(self, num_keys):
         self.pub = []

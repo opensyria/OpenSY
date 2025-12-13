@@ -27,7 +27,13 @@ class CoinbaseMaturityForkTest(OpenSyriaTestFramework):
         self.extra_args = [["-randomxforkheight=5"]]
 
     def skip_test_if_missing_module(self):
-        self.skip_if_no_wallet()        # Skip due to extensive RandomX mining requirements (100+ blocks at ~7s each)
+        self.skip_if_no_wallet()
+        # TODO: Enable this test when faster RandomX mining is available
+        # Options to fix:
+        # 1. Use solve_randomx() with the C++ grind-randomx command (~1s/block)
+        # 2. Pre-mine a test chain with blocks across fork boundary
+        # 3. Reduce fork height to 5 and mine fewer total blocks
+        # Currently skipped: 100+ RandomX blocks at ~7s each = ~12 minutes
         self.skip_if_randomx_pow()
     def run_test(self):
         self.log.info("Testing coinbase maturity across fork boundary...")

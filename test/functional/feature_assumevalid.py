@@ -73,6 +73,12 @@ class AssumeValidTest(OpenSyriaTestFramework):
         self.rpc_timeout = 300  # Increased for 10k+ blocks
 
     def skip_test_if_missing_module(self):
+        # TODO: Convert this test to use solve_randomx() instead of solve()
+        # This requires:
+        # 1. Pass self.binary_paths.util_argv() to solve_randomx()
+        # 2. Calculate key_block_hash for each block being mined
+        # 3. Test currently mines 10,200+ blocks which would take hours with RandomX
+        #    Consider reducing to run below fork height, or using pre-mined chain
         self.skip_if_randomx_pow()  # Test uses Python block.solve() which is incompatible with RandomX
 
     def setup_network(self):

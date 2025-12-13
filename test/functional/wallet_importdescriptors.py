@@ -45,7 +45,14 @@ class ImportDescriptorsTest(OpenSyriaTestFramework):
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
-        self.skip_if_platform_not_linux()  # Test has hardcoded Bitcoin testnet addresses that need regeneration for OpenSyria
+        # TODO: Regenerate test addresses for OpenSyria
+        # This test has hardcoded Bitcoin testnet addresses in the descriptor strings.
+        # These need to be regenerated using OpenSyria's address encoding:
+        # - P2PKH: version 95 (prefix 'f') for testnet/regtest
+        # - P2SH: version 96 (prefix 'f') for testnet/regtest
+        # - Bech32: 'tsyl' for testnet, 'rsyl' for regtest
+        # To fix: Run on Linux, capture correct addresses, update test.
+        self.skip_if_platform_not_linux()  # Hardcoded Bitcoin testnet addresses
 
     def test_importdesc(self, req, success, error_code=None, error_message=None, warnings=None, wallet=None):
         """Run importdescriptors and assert success"""

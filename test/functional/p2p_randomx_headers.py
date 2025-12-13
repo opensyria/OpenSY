@@ -41,8 +41,13 @@ class RandomXHeaderSpamTest(OpenSyriaTestFramework):
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
-        # Skip: Mining 70+ RandomX blocks takes too long and causes P2P timeouts
-        # TODO: Reduce target height or use pre-mined chain for testing key rotation
+        # TODO: Enable this test for RandomX header validation
+        # Options to fix:
+        # 1. Reduce key rotation test from 70 blocks to ~40 (stays below 64 boundary)
+        # 2. Use solve_randomx() instead of generatetoaddress for manual block creation
+        # 3. Increase P2P timeout or use async mining
+        # 4. Pre-mine a chain with key rotation for header sync testing
+        # Currently skipped: Mining 70+ RandomX blocks causes P2P connection timeout
         self.skip_if_randomx_pow()
 
     def run_test(self):

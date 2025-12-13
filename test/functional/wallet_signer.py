@@ -55,7 +55,13 @@ class WalletSignerTest(OpenSyriaTestFramework):
         os.remove(os.path.join(node.cwd, "mock_result"))
 
     def skip_test_if_missing_module(self):
-        self.skip_if_platform_not_linux()  # Mock signer script uses hardcoded Bitcoin testnet addresses
+        # TODO: Update mock signer script with OpenSyria addresses
+        # The mock signer at test/functional/mocks/signer.py returns hardcoded
+        # Bitcoin testnet addresses. These need updating:
+        # - Line ~98: address2 should be OpenSyria P2SH-SegWit format
+        # - Update any other hardcoded addresses in the mock responses
+        # To fix: Update mocks/signer.py with OpenSyria address format.
+        self.skip_if_platform_not_linux()  # Mock signer uses Bitcoin addresses
 
     def run_test(self):
         self.test_valid_signer()

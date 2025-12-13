@@ -24,7 +24,12 @@ class ToolUtils(OpenSyriaTestFramework):
     def skip_test_if_missing_module(self):
         self.skip_if_no_opensyria_tx()
         self.skip_if_no_opensyria_util()
-        self.skip_if_platform_not_linux()  # Test data has Bitcoin addresses that need updating for OpenSyria
+        # TODO: Update test data JSON files with OpenSyria addresses
+        # Files in test/functional/data/util/ contain Bitcoin addresses.
+        # Some were updated (tt-delin1-out.json, tt-delout1-out.json, tt-locktime317000-out.json)
+        # but opensyria-util-test.json may still have Bitcoin-specific test vectors.
+        # To fix: Run tests on Linux, identify failures, regenerate test vectors.
+        self.skip_if_platform_not_linux()  # Test data has Bitcoin addresses
 
     def run_test(self):
         self.testcase_dir = Path(self.config["environment"]["SRCDIR"]) / "test" / "functional" / "data" / "util"
