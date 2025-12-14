@@ -13,7 +13,7 @@ hostile hosts.
 
 Please report bugs using the issue tracker at github:
 
-  https://github.com/opensy/opensy/issues
+  https://github.com/opensyria/opensy/issues
 
 How to Upgrade
 --------------

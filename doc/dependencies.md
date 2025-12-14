@@ -10,8 +10,8 @@ OpenSY requires one of the following compilers.
 
 | Dependency | Minimum required |
 | --- | --- |
-| [Clang](https://clang.llvm.org) | [17.0](https://github.com/opensy/opensy/pull/33555) |
-| [GCC](https://gcc.gnu.org) | [12.1](https://github.com/opensy/opensy/pull/33842) |
+| [Clang](https://clang.llvm.org) | [17.0](https://github.com/opensyria/opensy/pull/33555) |
+| [GCC](https://gcc.gnu.org) | [12.1](https://github.com/opensyria/opensy/pull/33842) |
 
 ## Required
 
@@ -19,15 +19,15 @@ OpenSY requires one of the following compilers.
 
 | Dependency | Releases | Minimum required |
 | --- | --- | --- |
-| [Boost](../depends/packages/boost.mk) | [link](https://www.boost.org/users/download/) | [1.73.0](https://github.com/opensy/opensy/pull/29066) |
-| CMake | [link](https://cmake.org/) | [3.22](https://github.com/opensy/opensy/pull/30454) |
-| [libevent](../depends/packages/libevent.mk) | [link](https://github.com/libevent/libevent/releases) | [2.1.8](https://github.com/opensy/opensy/pull/24681) |
+| [Boost](../depends/packages/boost.mk) | [link](https://www.boost.org/users/download/) | [1.73.0](https://github.com/opensyria/opensy/pull/29066) |
+| CMake | [link](https://cmake.org/) | [3.22](https://github.com/opensyria/opensy/pull/30454) |
+| [libevent](../depends/packages/libevent.mk) | [link](https://github.com/libevent/libevent/releases) | [2.1.8](https://github.com/opensyria/opensy/pull/24681) |
 
 ### Runtime
 
 | Dependency | Releases | Minimum required |
 | --- | --- | --- |
-| glibc | [link](https://www.gnu.org/software/libc/) | [2.31](https://github.com/opensy/opensy/pull/29987)
+| glibc | [link](https://www.gnu.org/software/libc/) | [2.31](https://github.com/opensyria/opensy/pull/29987)
 
 ## Optional
 
@@ -35,11 +35,11 @@ OpenSY requires one of the following compilers.
 
 | Dependency | Releases | Minimum required |
 | --- | --- | --- |
-| [Cap'n Proto](../depends/packages/capnp.mk) | [link](https://capnproto.org) | [0.7.1](https://github.com/opensy/opensy/pull/28907) |
-| Python (scripts, tests) | [link](https://www.python.org) | [3.10](https://github.com/opensy/opensy/pull/30527) |
-| [Qt](../depends/packages/qt.mk) (gui) | [link](https://download.qt.io/archive/qt/) | [6.2](https://github.com/opensy/opensy/pull/30997) |
+| [Cap'n Proto](../depends/packages/capnp.mk) | [link](https://capnproto.org) | [0.7.1](https://github.com/opensyria/opensy/pull/28907) |
+| Python (scripts, tests) | [link](https://www.python.org) | [3.10](https://github.com/opensyria/opensy/pull/30527) |
+| [Qt](../depends/packages/qt.mk) (gui) | [link](https://download.qt.io/archive/qt/) | [6.2](https://github.com/opensyria/opensy/pull/30997) |
 | [qrencode](../depends/packages/qrencode.mk) (gui) | [link](https://fukuchi.org/works/qrencode/) | N/A |
-| [SQLite](../depends/packages/sqlite.mk) (wallet) | [link](https://sqlite.org) | [3.7.17](https://github.com/opensy/opensy/pull/19077) |
+| [SQLite](../depends/packages/sqlite.mk) (wallet) | [link](https://sqlite.org) | [3.7.17](https://github.com/opensyria/opensy/pull/19077) |
 | [systemtap](../depends/packages/systemtap.mk) ([tracing](tracing.md)) | [link](https://sourceware.org/systemtap/) | N/A |
 | [ZeroMQ](../depends/packages/zeromq.mk) (notifications) | [link](https://github.com/zeromq/libzmq/releases) | 4.0.0 |
 

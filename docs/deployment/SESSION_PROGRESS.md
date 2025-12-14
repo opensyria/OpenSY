@@ -86,7 +86,7 @@ ssh -i ~/Downloads/opensy-seed-1.pem ubuntu@<PUBLIC-IP>
 sudo apt update && sudo apt install -y git build-essential cmake pkg-config \
   libboost-all-dev libevent-dev libsqlite3-dev
 
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY
 cmake -B build -DBUILD_DAEMON=ON -DBUILD_CLI=ON
 cmake --build build -j$(nproc)

@@ -57,7 +57,7 @@ apt-get update && apt-get install -y git build-essential cmake libboost-all-dev 
 
 # 2. Clone and build OpenSY
 cd /root
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY
 cmake -B build -DBUILD_DAEMON=ON -DBUILD_CLI=ON -DBUILD_TESTS=OFF -DBUILD_GUI=OFF
 cmake --build build -j$(nproc)

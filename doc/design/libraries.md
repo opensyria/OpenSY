@@ -109,4 +109,4 @@ class opensy-qt,opensyd,opensy-cli,opensy-wallet bold
 
 ## Work in progress
 
-- Validation code is moving from *libopensy_node* to *libopensy_kernel* as part of [The libopensykernel Project #27587](https://github.com/opensy/opensy/issues/27587)
+- Validation code is moving from *libopensy_node* to *libopensy_kernel* as part of [The libopensykernel Project #27587](https://github.com/opensyria/opensy/issues/27587)

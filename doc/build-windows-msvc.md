@@ -25,7 +25,7 @@ Download and install [Git for Windows](https://git-scm.com/downloads/win). Once 
 
 Clone the OpenSY repository to a directory. All build scripts and commands will run from this directory.
 ```
-git clone https://github.com/opensy/opensy.git
+git clone https://github.com/opensyria/opensy.git
 ```
 
 

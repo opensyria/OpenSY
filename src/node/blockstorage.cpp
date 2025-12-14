@@ -1161,7 +1161,7 @@ static auto InitBlocksdirXorKey(const BlockManager::Options& opts)
         // Create initial or missing xor key file
         AutoFile xor_key_file{fsbridge::fopen(xor_key_path,
 #ifdef __MINGW64__
-            "wb" // Temporary workaround for https://github.com/OpenSY/OpenSY/issues/30210
+            "wb" // Temporary workaround for https://github.com/opensyria/OpenSY/issues/30210
 #else
             "wbx"
 #endif

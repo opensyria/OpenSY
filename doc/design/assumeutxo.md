@@ -5,8 +5,8 @@ For notes on the usage of Assumeutxo, please refer to [the usage doc](/doc/assum
 ## General background
 
 - [assumeutxo proposal](https://github.com/jamesob/assumeutxo-docs/tree/2019-04-proposal/proposal)
-- [Github issue](https://github.com/opensy/opensy/issues/15605)
-- [draft PR](https://github.com/opensy/opensy/pull/15606)
+- [Github issue](https://github.com/opensyria/opensy/issues/15605)
+- [draft PR](https://github.com/opensyria/opensy/pull/15606)
 
 ## Design notes
 

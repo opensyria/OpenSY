@@ -95,7 +95,7 @@ module.exports = {
     title: 'Quick Start',
     subtitle: 'Get your node running in minutes',
     steps: [
-      { title: 'Clone', code: 'git clone https://github.com/opensy/OpenSY.git' },
+      { title: 'Clone', code: 'git clone https://github.com/opensyria/OpenSY.git' },
       { title: 'Build', code: 'cd OpenSY && cmake -B build && cmake --build build -j$(nproc)' },
       { title: 'Run', code: './build/bin/opensyd -daemon -addnode=node1.opensy.net' },
       { title: 'Check', code: './build/bin/opensy-cli getblockchaininfo' }
@@ -146,9 +146,9 @@ module.exports = {
     title: 'Documentation',
     subtitle: 'Everything you need to know about OpenSY',
     guides: [
-      { title: 'Wallet Backup & Restore', description: 'Learn how to safely backup and restore your wallet.', link: 'https://github.com/opensy/OpenSY/blob/main/docs/WALLET_RESTORE_GUIDE.md' },
-      { title: 'Node Operator Guide', description: 'Complete guide to running a full node.', link: 'https://github.com/opensy/OpenSY/blob/main/docs/NODE_OPERATOR_GUIDE.md' },
-      { title: 'Mining Guide', description: 'Start mining OpenSY with your hardware.', link: 'https://github.com/opensy/OpenSY#mining' }
+      { title: 'Wallet Backup & Restore', description: 'Learn how to safely backup and restore your wallet.', link: 'https://github.com/opensyria/OpenSY/blob/main/docs/WALLET_RESTORE_GUIDE.md' },
+      { title: 'Node Operator Guide', description: 'Complete guide to running a full node.', link: 'https://github.com/opensyria/OpenSY/blob/main/docs/NODE_OPERATOR_GUIDE.md' },
+      { title: 'Mining Guide', description: 'Start mining OpenSY with your hardware.', link: 'https://github.com/opensyria/OpenSY#mining' }
     ]
   },
   
@@ -157,7 +157,7 @@ module.exports = {
     title: 'Join the Community',
     subtitle: 'Connect with OpenSY supporters worldwide',
     channels: [
-      { name: 'GitHub', description: 'Contribute to development', icon: '💻', link: 'https://github.com/opensy/OpenSY' },
+      { name: 'GitHub', description: 'Contribute to development', icon: '💻', link: 'https://github.com/opensyria/OpenSY' },
       { name: 'Twitter/X', description: 'Follow for updates', icon: '🐦', link: '#' },
       { name: 'Telegram', description: 'Chat with the community', icon: '💬', link: '#' },
       { name: 'Discord', description: 'Developer discussions', icon: '🎮', link: '#' }

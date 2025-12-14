@@ -7,7 +7,7 @@ performance improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -22,7 +22,7 @@ updates will be released anymore. Without security updates, using an opensy
 wallet on a XP machine is irresponsible at least.
 
 In addition to that, with 0.12.x there have been varied reports of OpenSY
-randomly crashing on Windows XP. It is [not clear](https://github.com/opensy/opensy/issues/7681#issuecomment-217439891)
+randomly crashing on Windows XP. It is [not clear](https://github.com/opensyria/opensy/issues/7681#issuecomment-217439891)
 what the source of these crashes is, but it is likely that upstream
 libraries such as Qt are no longer being tested on XP.
 

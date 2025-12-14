@@ -12,7 +12,7 @@ apt-get update && apt-get install -y git build-essential cmake libboost-all-dev 
 
 # Clone repo
 cd /root
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY
 
 # Build (this takes ~10-15 minutes)

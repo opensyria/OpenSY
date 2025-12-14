@@ -28,7 +28,7 @@ OPENSY_USER="opensy"
 OPENSY_HOME="/home/${OPENSY_USER}"
 OPENSY_DATA="${OPENSY_HOME}/.opensy"
 OPENSY_SRC="/opt/opensy"
-OPENSY_REPO="https://github.com/opensy/OpenSY.git"
+OPENSY_REPO="https://github.com/opensyria/OpenSY.git"
 OPENSY_BRANCH="main"
 
 # Default ports

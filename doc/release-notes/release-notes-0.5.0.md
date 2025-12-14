@@ -7,7 +7,7 @@ This release include German, Spanish, Spanish-Castilian, Norwegian and Dutch tra
 https://www.transifex.net/projects/p/opensy/
 
 Please report bugs using the issue tracker at github:
-https://github.com/opensy/opensy/issues
+https://github.com/opensyria/opensy/issues
 
 For Ubuntu users, there is a new ppa maintained by Matt Corallo which you can add to your system so that it will automatically keep opensy up-to-date.  Just type "sudo apt-add-repository ppa:opensy/opensy" in your terminal, then install the opensy-qt package.
 

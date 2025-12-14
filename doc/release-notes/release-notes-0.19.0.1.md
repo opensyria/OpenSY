@@ -7,7 +7,7 @@ improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -50,7 +50,7 @@ Notable changes
 New user documentation
 ----------------------
 
-- [Reduce memory](https://github.com/opensy/opensy/blob/master/doc/reduce-memory.md)
+- [Reduce memory](https://github.com/opensyria/opensy/blob/master/doc/reduce-memory.md)
   suggests configuration tweaks for running OpenSY on systems with
   limited memory. (#16339)
 

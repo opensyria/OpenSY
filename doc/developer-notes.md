@@ -415,7 +415,7 @@ other input.
 
 Valgrind is a programming tool for memory debugging, memory leak detection, and
 profiling. The repo contains a Valgrind suppressions file
-([`valgrind.supp`](https://github.com/opensy/opensy/blob/master/contrib/valgrind.supp))
+([`valgrind.supp`](https://github.com/opensyria/opensy/blob/master/contrib/valgrind.supp))
 which includes known Valgrind warnings in our dependencies that cannot be fixed
 in-tree. Example use:
 
@@ -1231,13 +1231,13 @@ introduce accidental changes.
 
 Some good examples of scripted-diff:
 
-- [scripted-diff: Rename InitInterfaces to NodeContext](https://github.com/opensy/opensy/commit/301bd41a2e6765b185bd55f4c541f9e27aeea29d)
+- [scripted-diff: Rename InitInterfaces to NodeContext](https://github.com/opensyria/opensy/commit/301bd41a2e6765b185bd55f4c541f9e27aeea29d)
 uses an elegant script to replace occurrences of multiple terms in all source files.
 
-- [scripted-diff: Remove g_connman, g_banman globals](https://github.com/opensy/opensy/commit/8922d7f6b751a3e6b3b9f6fb7961c442877fb65a)
+- [scripted-diff: Remove g_connman, g_banman globals](https://github.com/opensyria/opensy/commit/8922d7f6b751a3e6b3b9f6fb7961c442877fb65a)
 replaces specific terms in a list of specific source files.
 
-- [scripted-diff: Replace fprintf with tfm::format](https://github.com/opensy/opensy/commit/fac03ec43a15ad547161e37e53ea82482cc508f9)
+- [scripted-diff: Replace fprintf with tfm::format](https://github.com/opensyria/opensy/commit/fac03ec43a15ad547161e37e53ea82482cc508f9)
 does a global replacement but excludes certain directories.
 
 To find all previous uses of scripted diffs in the repository, do:
@@ -1363,7 +1363,7 @@ A few guidelines for introducing and reviewing new RPC interfaces:
 
 A few guidelines for modifying existing RPC interfaces:
 
-- It's preferable to avoid changing an RPC in a backward-incompatible manner, but in that case, add an associated `-deprecatedrpc=` option to retain previous RPC behavior during the deprecation period. Backward-incompatible changes include: data type changes (e.g. from `{"warnings":""}` to `{"warnings":[]}`, changing a value from a string to a number, etc.), logical meaning changes of a value, key name changes (e.g. `{"warning":""}` to `{"warnings":""}`), or removing a key from an object. Adding a key to an object is generally considered backward-compatible. Include a release note that refers the user to the RPC help for details of feature deprecation and re-enabling previous behavior. [Example RPC help](https://github.com/opensy/opensy/blob/94f0adcc/src/rpc/blockchain.cpp#L1316-L1323).
+- It's preferable to avoid changing an RPC in a backward-incompatible manner, but in that case, add an associated `-deprecatedrpc=` option to retain previous RPC behavior during the deprecation period. Backward-incompatible changes include: data type changes (e.g. from `{"warnings":""}` to `{"warnings":[]}`, changing a value from a string to a number, etc.), logical meaning changes of a value, key name changes (e.g. `{"warning":""}` to `{"warnings":""}`), or removing a key from an object. Adding a key to an object is generally considered backward-compatible. Include a release note that refers the user to the RPC help for details of feature deprecation and re-enabling previous behavior. [Example RPC help](https://github.com/opensyria/opensy/blob/94f0adcc/src/rpc/blockchain.cpp#L1316-L1323).
 
   - *Rationale*: Changes in RPC JSON structure can break downstream application compatibility. Implementation of `deprecatedrpc` provides a grace period for downstream applications to migrate. Release notes provide notification to downstream users.
 
@@ -1476,4 +1476,4 @@ communication:
 
   Note: This last convention isn't generally followed outside of
   [`src/interfaces/`](../src/interfaces/), though it did come up for discussion
-  before in [#14635](https://github.com/opensy/opensy/pull/14635).
+  before in [#14635](https://github.com/opensyria/opensy/pull/14635).

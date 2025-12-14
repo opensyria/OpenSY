@@ -5,7 +5,7 @@
 To quickly get started fuzzing OpenSY using [libFuzzer](https://llvm.org/docs/LibFuzzer.html):
 
 ```sh
-$ git clone https://github.com/opensy/opensy
+$ git clone https://github.com/opensyria/opensy
 $ cd opensy/
 $ cmake --preset=libfuzzer
 $ cmake --build build_fuzz
@@ -30,7 +30,7 @@ more information.
 
 ## Fuzzing harnesses and output
 
-[`process_message`](https://github.com/opensy/opensy/blob/master/src/test/fuzz/process_message.cpp) is a fuzzing harness for the [`ProcessMessage(...)` function (`net_processing`)](https://github.com/opensy/opensy/blob/master/src/net_processing.cpp). The available fuzzing harnesses are found in [`src/test/fuzz/`](https://github.com/opensy/opensy/tree/master/src/test/fuzz).
+[`process_message`](https://github.com/opensyria/opensy/blob/master/src/test/fuzz/process_message.cpp) is a fuzzing harness for the [`ProcessMessage(...)` function (`net_processing`)](https://github.com/opensyria/opensy/blob/master/src/net_processing.cpp). The available fuzzing harnesses are found in [`src/test/fuzz/`](https://github.com/opensyria/opensy/tree/master/src/test/fuzz).
 
 The fuzzer will output `NEW` every time it has created a test input that covers new areas of the code under test. For more information on how to interpret the fuzzer output, see the [libFuzzer documentation](https://llvm.org/docs/LibFuzzer.html).
 
@@ -200,7 +200,7 @@ fuzz binary without support for any specific fuzzing engine.
 To quickly get started fuzzing OpenSY using [afl++](https://github.com/AFLplusplus/AFLplusplus):
 
 ```sh
-$ git clone https://github.com/opensy/opensy
+$ git clone https://github.com/opensyria/opensy
 $ cd opensy/
 $ git clone https://github.com/AFLplusplus/AFLplusplus
 $ make -C AFLplusplus/ source-only
@@ -227,7 +227,7 @@ Read the [afl++ documentation](https://github.com/AFLplusplus/AFLplusplus) for m
 To quickly get started fuzzing OpenSY using [Honggfuzz](https://github.com/google/honggfuzz):
 
 ```sh
-$ git clone https://github.com/opensy/opensy
+$ git clone https://github.com/opensyria/opensy
 $ cd opensy/
 $ git clone https://github.com/google/honggfuzz
 $ cd honggfuzz/

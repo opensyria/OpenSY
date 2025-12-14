@@ -26,7 +26,7 @@ WORKDIR /home/opensy
 
 # Download and extract OpenSY binaries (will be built from source)
 # For now, we'll clone and build
-RUN git clone https://github.com/opensy/OpenSY.git /home/opensy/OpenSY
+RUN git clone https://github.com/opensyria/OpenSY.git /home/opensy/OpenSY
 
 WORKDIR /home/opensy/OpenSY
 

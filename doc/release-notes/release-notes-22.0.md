@@ -10,7 +10,7 @@ improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -46,7 +46,7 @@ P2P and network changes
 -----------------------
 - Added support for running OpenSY as an
   [I2P (Invisible Internet Project)](https://en.wikipedia.org/wiki/I2P) service
-  and connect to such services. See [i2p.md](https://github.com/opensy/opensy/blob/22.x/doc/i2p.md) for details. (#20685)
+  and connect to such services. See [i2p.md](https://github.com/opensyria/opensy/blob/22.x/doc/i2p.md) for details. (#20685)
 - This release removes support for Tor version 2 hidden services in favor of Tor
   v3 only, as the Tor network [dropped support for Tor
   v2](https://blog.torproject.org/v2-deprecation-timeline) with the release of
@@ -60,13 +60,13 @@ P2P and network changes
 New and Updated RPCs
 --------------------
 
-- Due to [BIP 350](https://github.com/opensy/bips/blob/master/bip-0350.mediawiki)
+- Due to [BIP 350](https://github.com/opensyria/bips/blob/master/bip-0350.mediawiki)
   being implemented, behavior for all RPCs that accept addresses is changed when
   a native witness version 1 (or higher) is passed. These now require a Bech32m
   encoding instead of a Bech32 one, and Bech32m encoding will be used for such
   addresses in RPC output as well. No version 1 addresses should be created
   for mainnet until consensus rules are adopted that give them meaning
-  (as will happen through [BIP 341](https://github.com/opensy/bips/blob/master/bip-0341.mediawiki)).
+  (as will happen through [BIP 341](https://github.com/opensyria/bips/blob/master/bip-0341.mediawiki)).
   Once that happens, Bech32m is expected to be used for them, so this shouldn't
   affect any production systems, but may be observed on other networks where such
   addresses already have meaning (like signet). (#20861)
@@ -170,7 +170,7 @@ Tools and Utilities
 Wallet
 ------
 
-- External signers such as hardware wallets can now be used through the new RPC methods `enumeratesigners` and `displayaddress`. Support is also added to the `send` RPC call. This feature is experimental. See [external-signer.md](https://github.com/opensy/opensy/blob/22.x/doc/external-signer.md) for details. (#16546)
+- External signers such as hardware wallets can now be used through the new RPC methods `enumeratesigners` and `displayaddress`. Support is also added to the `send` RPC call. This feature is experimental. See [external-signer.md](https://github.com/opensyria/opensy/blob/22.x/doc/external-signer.md) for details. (#16546)
 
 - A new `listdescriptors` RPC is available to inspect the contents of descriptor-enabled wallets.
   The RPC returns public versions of all imported descriptors, including their timestamp and flags.
@@ -187,7 +187,7 @@ Wallet
 - We now support up to 20 keys in `multi()` and `sortedmulti()` descriptors
   under `wsh()`. (#20867)
 
-- Taproot descriptors can be imported into the wallet only after activation has occurred on the network (e.g. mainnet, testnet, signet) in use. See [descriptors.md](https://github.com/opensy/opensy/blob/22.x/doc/descriptors.md) for supported descriptors.
+- Taproot descriptors can be imported into the wallet only after activation has occurred on the network (e.g. mainnet, testnet, signet) in use. See [descriptors.md](https://github.com/opensyria/opensy/blob/22.x/doc/descriptors.md) for supported descriptors.
 
 GUI changes
 -----------

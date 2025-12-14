@@ -2216,7 +2216,7 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
 
     // Ignore blocks that contain transactions which are 'overwritten' by later transactions,
     // unless those are already completely spent.
-    // See https://github.com/OpenSY/OpenSY/issues/22596 for additional information.
+    // See https://github.com/opensyria/OpenSY/issues/22596 for additional information.
     // Note: the blocks specified here are different than the ones used in ConnectBlock because DisconnectBlock
     // unwinds the blocks in reverse. As a result, the inconsistency is not discovered until the earlier
     // blocks with the duplicate coinbase transactions are disconnected.
@@ -4207,7 +4207,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "time-too-old", "block's timestamp is too early");
 
     // Testnet4 and regtest only: Check timestamp against prev for difficulty-adjustment
-    // blocks to prevent timewarp attacks (see https://github.com/OpenSY/OpenSY/pull/15482).
+    // blocks to prevent timewarp attacks (see https://github.com/opensyria/OpenSY/pull/15482).
     if (consensusParams.enforce_BIP94) {
         // Check timestamp for the first block of each difficulty adjustment
         // interval, except the genesis block.

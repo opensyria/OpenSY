@@ -10,7 +10,7 @@ improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -44,7 +44,7 @@ P2P and network changes
 -----------------------
 
 - Experimental support for the v2 transport protocol defined in
-  [BIP324](https://github.com/opensy/bips/blob/master/bip-0324.mediawiki) was added.
+  [BIP324](https://github.com/opensyria/bips/blob/master/bip-0324.mediawiki) was added.
   It is off by default, but when enabled using `-v2transport` it will be negotiated
   on a per-connection basis with other peers that support it too. The existing
   v1 transport protocol remains fully supported.
@@ -103,7 +103,7 @@ New RPCs
   are always checked by hash.
 
   You can find more information on this process in the `assumeutxo` design
-  document (<https://github.com/opensy/opensy/blob/master/doc/design/assumeutxo.md>).
+  document (<https://github.com/opensyria/opensy/blob/master/doc/design/assumeutxo.md>).
 
   `getchainstates` has been added to aid in monitoring the assumeutxo sync process.
 

@@ -186,7 +186,7 @@ sequenceDiagram
 
 Further improvements are possible such as:
 
-- Separating indexes from `opensy-node`, and running indexing code in separate processes (see [indexes: Stop using node internal types #24230](https://github.com/opensy/opensy/pull/24230)).
+- Separating indexes from `opensy-node`, and running indexing code in separate processes (see [indexes: Stop using node internal types #24230](https://github.com/opensyria/opensy/pull/24230)).
 - Enabling wallet processes to listen for JSON-RPC requests on their own ports instead of needing the node process to listen and forward requests to them.
 - Automatically generating `.capnp` files from C++ interface definitions (see [Interface Definition Maintenance](#interface-definition-maintenance)).
 - Simplifying and stabilizing interfaces (see [Interface Stability](#interface-stability)).
@@ -240,4 +240,4 @@ This modularization represents an advancement in OpenSY's architecture, offering
 
 ## Acknowledgements
 
-This design doc was written by @ryanofsky, who is grateful to all the reviewers who gave feedback and tested [multiprocess PRs](https://github.com/opensy/opensy/pull/28722), and everyone else who's helped with this project. Particular thanks to @ariard who deeply reviewed IPC code and improved the design of the IPC library and initialization process. @jnewbery who championed the early refactoring PRs and helped guide them through development and review. @sjors who has reviewed and repeatedly tested multiprocess code, reporting many issues and helping debug them. @hebasto, @fanquake, and @maflcko who made significant improvements to the build system and fixed countless build issues. @vasild and @jamesob who were brave contributors to the libmultiprocess library. And Chaincode Labs for making this work possible. Also thanks to ChatGPT, who actually wrote most of this document (not @ryanofsky).
+This design doc was written by @ryanofsky, who is grateful to all the reviewers who gave feedback and tested [multiprocess PRs](https://github.com/opensyria/opensy/pull/28722), and everyone else who's helped with this project. Particular thanks to @ariard who deeply reviewed IPC code and improved the design of the IPC library and initialization process. @jnewbery who championed the early refactoring PRs and helped guide them through development and review. @sjors who has reviewed and repeatedly tested multiprocess code, reporting many issues and helping debug them. @hebasto, @fanquake, and @maflcko who made significant improvements to the build system and fixed countless build issues. @vasild and @jamesob who were brave contributors to the libmultiprocess library. And Chaincode Labs for making this work possible. Also thanks to ChatGPT, who actually wrote most of this document (not @ryanofsky).

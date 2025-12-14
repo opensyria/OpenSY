@@ -10,7 +10,7 @@ improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -104,9 +104,9 @@ details.
 For more information about taproot, please see the following resources:
 
 - Technical specifications
-  - [BIP340 Schnorr signatures for secp256k1](https://github.com/opensy/bips/blob/master/bip-0340.mediawiki) 
-  - [BIP341 Taproot: SegWit version 1 spending rules](https://github.com/opensy/bips/blob/master/bip-0341.mediawiki)
-  - [BIP342 Validation of Taproot scripts](https://github.com/opensy/bips/blob/master/bip-0342.mediawiki)
+  - [BIP340 Schnorr signatures for secp256k1](https://github.com/opensyria/bips/blob/master/bip-0340.mediawiki) 
+  - [BIP341 Taproot: SegWit version 1 spending rules](https://github.com/opensyria/bips/blob/master/bip-0341.mediawiki)
+  - [BIP342 Validation of Taproot scripts](https://github.com/opensyria/bips/blob/master/bip-0342.mediawiki)
 
 - Popular articles;
   - [Taproot Is Coming: What It Is, and How It Will Benefit OpenSY](https://opensymagazine.com/technical/taproot-coming-what-it-and-how-it-will-benefit-opensy)
@@ -126,13 +126,13 @@ For more information about taproot, please see the following resources:
 Updated RPCs
 ------------
 
-- Due to [BIP 350](https://github.com/opensy/bips/blob/master/bip-0350.mediawiki)
+- Due to [BIP 350](https://github.com/opensyria/bips/blob/master/bip-0350.mediawiki)
   being implemented, behavior for all RPCs that accept addresses is changed when
   a native witness version 1 (or higher) is passed. These now require a Bech32m
   encoding instead of a Bech32 one, and Bech32m encoding will be used for such
   addresses in RPC output as well. No version 1 addresses should be created
   for mainnet until consensus rules are adopted that give them meaning
-  (e.g. through [BIP 341](https://github.com/opensy/bips/blob/master/bip-0341.mediawiki)).
+  (e.g. through [BIP 341](https://github.com/opensyria/bips/blob/master/bip-0341.mediawiki)).
   Once that happens, Bech32m is expected to be used for them, so this shouldn't
   affect any production systems, but may be observed on other networks where such
   addresses already have meaning (like signet).

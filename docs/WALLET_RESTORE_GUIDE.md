@@ -105,7 +105,7 @@ opensy-cli -rpcwallet=restored-wallet rescanblockchain
 
 ```bash
 # 1. Install OpenSY on new computer
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY && cmake -B build && cmake --build build
 
 # 2. Start node and sync
@@ -208,8 +208,8 @@ opensy-cli -rpcwallet=YOUR_WALLET rescanblockchain
 
 ## 📞 Need Help?
 
-- GitHub Issues: https://github.com/opensy/OpenSY/issues
-- Documentation: https://github.com/opensy/OpenSY/tree/main/docs
+- GitHub Issues: https://github.com/opensyria/OpenSY/issues
+- Documentation: https://github.com/opensyria/OpenSY/tree/main/docs
 
 ---
 

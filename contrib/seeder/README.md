@@ -15,11 +15,11 @@ The DNS seeder crawls the OpenSY network for active nodes and serves their IP ad
 ## Building the Seeder
 
 The OpenSY seeder is a fork of bitcoin-seeder, available at:
-https://github.com/opensy/opensy-seeder
+https://github.com/opensyria/opensy-seeder
 
 ```bash
 # Clone and build
-git clone https://github.com/opensy/opensy-seeder.git
+git clone https://github.com/opensyria/opensy-seeder.git
 cd opensy-seeder
 make
 

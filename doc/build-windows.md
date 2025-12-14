@@ -38,7 +38,7 @@ If you want to build the Windows installer using the `deploy` build target, you 
 
 Acquire the source in the usual way:
 
-    git clone https://github.com/opensy/opensy.git
+    git clone https://github.com/opensyria/opensy.git
     cd opensy
 
 Note that for WSL the OpenSY source path MUST be somewhere in the default mount file system, for

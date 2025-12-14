@@ -326,7 +326,7 @@ sudo su - opensy
 
 # Clone repository
 cd /opt/opensy
-git clone https://github.com/opensy/OpenSY.git source
+git clone https://github.com/opensyria/OpenSY.git source
 cd source
 
 # Build (daemon and CLI only, no GUI)

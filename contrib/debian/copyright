@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: OpenSY
 Upstream-Contact: OpenSY Developers
  irc://#opensy-dev@libera.chat
-Source: https://github.com/opensy/opensy
+Source: https://github.com/opensyria/opensy
 
 Files: *
 Copyright: 2009-2025, OpenSY Developers

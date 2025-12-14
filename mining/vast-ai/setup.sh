@@ -28,7 +28,7 @@ cd /root
 if [ -d "OpenSY" ]; then
     cd OpenSY && git pull -q
 else
-    git clone -q https://github.com/opensy/OpenSY.git
+    git clone -q https://github.com/opensyria/OpenSY.git
     cd OpenSY
 fi
 echo "✓ Repository cloned"

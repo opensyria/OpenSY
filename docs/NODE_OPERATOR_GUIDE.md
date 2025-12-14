@@ -8,7 +8,7 @@ A complete guide to running an OpenSY full node.
 
 ```bash
 # Clone and build
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j$(nproc)
@@ -54,7 +54,7 @@ sudo apt install -y build-essential cmake pkg-config \
   libboost-dev libevent-dev libsqlite3-dev libssl-dev
 
 # Clone and build
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j$(nproc)
@@ -70,7 +70,7 @@ sudo cmake --install build
 brew install cmake boost libevent sqlite openssl
 
 # Clone and build
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j$(sysctl -n hw.ncpu)
@@ -499,8 +499,8 @@ sudo sysctl vm.swappiness=10
 
 ## Getting Help
 
-- **GitHub Issues:** https://github.com/opensy/OpenSY/issues
-- **Documentation:** https://github.com/opensy/OpenSY/tree/main/docs
+- **GitHub Issues:** https://github.com/opensyria/OpenSY/issues
+- **Documentation:** https://github.com/opensyria/OpenSY/tree/main/docs
 
 ---
 

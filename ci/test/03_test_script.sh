@@ -49,7 +49,7 @@ if [ "$RUN_TIDY" != "true" ]; then
   # The statistic bytes_written is only used for logging, which is disabled in
   # CI, so as a temporary minimal fix to work around UB and CI failures, leave
   # bytes_written unmodified.
-  # See https://github.com/opensy/opensy/pull/28359#issuecomment-1698694748
+  # See https://github.com/opensyria/opensy/pull/28359#issuecomment-1698694748
   # Tee patch to stdout to make it clear CI is testing modified code.
   tee >(patch -p1) <<'EOF'
 --- a/src/leveldb/db/db_impl.cc
@@ -81,7 +81,7 @@ elif [ "$RUN_UNIT_TESTS" = "true" ]; then
   export DIR_UNIT_TEST_DATA=${DIR_QA_ASSETS}/unit_test_data/
   if [ ! -d "$DIR_UNIT_TEST_DATA" ]; then
     mkdir -p "$DIR_UNIT_TEST_DATA"
-    ${CI_RETRY_EXE} curl --location --fail https://github.com/opensy/qa-assets/raw/main/unit_test_data/script_assets_test.json -o "${DIR_UNIT_TEST_DATA}/script_assets_test.json"
+    ${CI_RETRY_EXE} curl --location --fail https://github.com/opensyria/qa-assets/raw/main/unit_test_data/script_assets_test.json -o "${DIR_UNIT_TEST_DATA}/script_assets_test.json"
   fi
 fi
 

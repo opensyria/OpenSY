@@ -21,7 +21,7 @@ Release Process
 
 * On both the master branch and the new release branch:
   - update `CLIENT_VERSION_MAJOR` in [`CMakeLists.txt`](../CMakeLists.txt)
-* On the new release branch in [`CMakeLists.txt`](../CMakeLists.txt)(see [this commit](https://github.com/opensy/opensy/commit/742f7dd)):
+* On the new release branch in [`CMakeLists.txt`](../CMakeLists.txt)(see [this commit](https://github.com/opensyria/opensy/commit/742f7dd)):
   - set `CLIENT_VERSION_MINOR` to `0`
   - set `CLIENT_VERSION_BUILD` to `0`
   - set `CLIENT_VERSION_IS_RELEASE` to `true`
@@ -29,7 +29,7 @@ Release Process
 #### Before branch-off
 
 * Update translations see [translation_process.md](/doc/translation_process.md#synchronising-translations).
-* Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/opensy/opensy/pull/27488) for an example.
+* Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/opensyria/opensy/pull/27488) for an example.
 * Update the following variables in [`src/kernel/chainparams.cpp`](/src/kernel/chainparams.cpp) for mainnet, testnet, and signet:
   - `m_assumed_blockchain_size` and `m_assumed_chain_state_size` with the current size plus some overhead (see
     [this](#how-to-calculate-assumed-blockchain-and-chain-state-size) for information on how to calculate them).
@@ -37,7 +37,7 @@ Release Process
     that causes rejection of blocks in the past history.
   - `chainTxData` with statistics about the transaction count and rate. Use the output of the `getchaintxstats` RPC with an
     `nBlocks` of 4096 (28 days) and a `bestblockhash` of RPC `getbestblockhash`; see
-    [this pull request](https://github.com/opensy/opensy/pull/28591) for an example. Reviewers can verify the results by running
+    [this pull request](https://github.com/opensyria/opensy/pull/28591) for an example. Reviewers can verify the results by running
     `getchaintxstats <window_block_count> <window_final_block_hash>` with the `window_block_count` and `window_final_block_hash` from your output.
   - `defaultAssumeValid` with the output of RPC `getblockhash` using the `height` of `window_final_block_height` above
     (and update the block height comment with that height), taking into account the following:
@@ -68,7 +68,7 @@ Release Process
 - Update the versions.
 - Create the draft, named "*version* Release Notes Draft", as a [collaborative wiki](https://github.com/opensy-core/opensy-devwiki/wiki/_new).
 - Clear the release notes: `cp doc/release-notes-empty-template.md doc/release-notes.md`
-- Create a pinned meta-issue for testing the release candidate (see [this issue](https://github.com/opensy/opensy/issues/27621) for an example) and provide a link to it in the release announcements where useful.
+- Create a pinned meta-issue for testing the release candidate (see [this issue](https://github.com/opensyria/opensy/issues/27621) for an example) and provide a link to it in the release announcements where useful.
 - Translations on Transifex
     - Change the auto-update URL for the new major version's resource away from `master` and to the branch, e.g. `https://raw.githubusercontent.com/opensy/opensy/<branch>/src/qt/locale/opensy_en.xlf`. Do not forget this or it will keep tracking the translations on master instead, drifting away from the specific major release.
 - Prune inputs from the qa-assets repo (See [pruning
@@ -79,7 +79,7 @@ Release Process
 - Merge the release notes from [the wiki](https://github.com/opensy-core/opensy-devwiki/wiki/) into the branch.
 - Ensure the "Needs release note" label is removed from all relevant pull
   requests and issues:
-  https://github.com/opensy/opensy/issues?q=label%3A%22Needs+release+note%22
+  https://github.com/opensyria/opensy/issues?q=label%3A%22Needs+release+note%22
 
 #### Tagging a release (candidate)
 
@@ -101,7 +101,7 @@ Check out the source code in the following directory hierarchy.
     cd /path/to/your/toplevel/build
     git clone https://github.com/opensy-core/guix.sigs.git
     git clone https://github.com/opensy-core/opensy-detached-sigs.git
-    git clone https://github.com/opensy/opensy.git
+    git clone https://github.com/opensyria/opensy.git
 
 ### Write the release notes
 
@@ -283,9 +283,9 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 
 - Update repositories
 
-  - Delete post-EOL [release branches](https://github.com/opensy/opensy/branches/all) and create a tag `v${branch_name}-final`.
+  - Delete post-EOL [release branches](https://github.com/opensyria/opensy/branches/all) and create a tag `v${branch_name}-final`.
 
-  - Delete ["Needs backport" labels](https://github.com/opensy/opensy/labels?q=backport) for non-existing branches.
+  - Delete ["Needs backport" labels](https://github.com/opensyria/opensy/labels?q=backport) for non-existing branches.
 
   - Update packaging repo
 
@@ -293,7 +293,7 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 
       - Push the snap, see https://github.com/opensy-core/packaging/blob/main/snap/local/build.md
 
-  - Create a [new GitHub release](https://github.com/opensy/opensy/releases/new) with a link to the archived release notes
+  - Create a [new GitHub release](https://github.com/opensyria/opensy/releases/new) with a link to the archived release notes
 
 - Announce the release:
 

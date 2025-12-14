@@ -7,7 +7,7 @@ performance improvements.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 

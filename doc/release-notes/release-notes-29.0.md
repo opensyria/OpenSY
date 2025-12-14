@@ -7,7 +7,7 @@ improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -155,7 +155,7 @@ For more detailed guidance on configuring and using CMake, please refer to the o
 
 ### Tools and Utilities
 
-- A new tool [`utxo_to_sqlite.py`](https://github.com/opensy/opensy/blob/v29.0/contrib/utxo-tools/utxo_to_sqlite.py)
+- A new tool [`utxo_to_sqlite.py`](https://github.com/opensyria/opensy/blob/v29.0/contrib/utxo-tools/utxo_to_sqlite.py)
   converts a compact-serialized UTXO snapshot (as created with the
   `dumptxoutset` RPC) to a SQLite3 database. Refer to the script's `--help`
   output for more details. (#27432)

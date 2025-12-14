@@ -15,7 +15,7 @@ curl -sSL https://raw.githubusercontent.com/opensy/OpenSY/main/contrib/deploy/se
 
 1. Download the scripts:
 ```bash
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY/contrib/deploy
 ```
 
@@ -163,5 +163,5 @@ grep rpc /home/opensy/.opensy/opensy.conf
 ## Support
 
 - **Documentation**: https://opensy.net/docs
-- **GitHub Issues**: https://github.com/opensy/OpenSY/issues
+- **GitHub Issues**: https://github.com/opensyria/OpenSY/issues
 - **Email**: admin@opensy.net

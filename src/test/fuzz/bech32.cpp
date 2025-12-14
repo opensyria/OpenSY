@@ -30,7 +30,7 @@ FUZZ_TARGET(bech32_random_decode)
     }
 }
 
-// https://github.com/opensy/bips/blob/master/bip-0173.mediawiki and https://github.com/opensy/bips/blob/master/bip-0350.mediawiki
+// https://github.com/opensyria/bips/blob/master/bip-0173.mediawiki and https://github.com/opensyria/bips/blob/master/bip-0350.mediawiki
 std::string GenerateRandomHRP(FuzzedDataProvider& fdp)
 {
     std::string hrp;

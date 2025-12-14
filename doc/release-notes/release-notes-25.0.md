@@ -10,7 +10,7 @@ improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -60,7 +60,7 @@ Updated RPCs
 ------------
 
 - All JSON-RPC methods accept a new [named
-  parameter](https://github.com/opensy/opensy/blob/master/doc/JSON-RPC-interface.md#parameter-passing) called `args` that can
+  parameter](https://github.com/opensyria/opensy/blob/master/doc/JSON-RPC-interface.md#parameter-passing) called `args` that can
   contain positional parameter values. This is a convenience to allow some
   parameter values to be passed by name without having to name every value. The
   python test framework and `opensy-cli` tool both take advantage of this, so
@@ -208,7 +208,7 @@ Binary verification
   In this release and moving forward it will verify that the binaries are
   signed by a _threshold of trusted keys_. For more details and
   examples, see:
-  https://github.com/opensy/opensy/blob/master/contrib/verify-binaries/README.md
+  https://github.com/opensyria/opensy/blob/master/contrib/verify-binaries/README.md
   (#27358)
 
 Low-level changes

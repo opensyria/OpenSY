@@ -71,7 +71,7 @@ Now that all the required dependencies are installed, let's clone the OpenSY rep
 All build scripts and commands will run from this directory.
 
 ``` bash
-git clone https://github.com/opensy/opensy.git
+git clone https://github.com/opensyria/opensy.git
 ```
 
 ### 5. Install Optional Dependencies
@@ -88,7 +88,7 @@ brew install qt@6
 ```
 
 Note: Building with Qt binaries downloaded from the Qt website is not officially supported.
-See the notes in [#7714](https://github.com/opensy/opensy/issues/7714).
+See the notes in [#7714](https://github.com/opensyria/opensy/issues/7714).
 
 ###### libqrencode
 

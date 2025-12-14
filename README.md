@@ -26,7 +26,7 @@ OpenSY
 
 ```bash
 # Clone the repository
-git clone https://github.com/opensy/OpenSY.git
+git clone https://github.com/opensyria/OpenSY.git
 cd OpenSY
 
 # Build
@@ -128,7 +128,7 @@ cmake --build build -j$(nproc)
 
 - **Website:** https://opensy.net
 - **Explorer:** https://explorer.opensy.net
-- **GitHub:** https://github.com/opensy/OpenSY
+- **GitHub:** https://github.com/opensyria/OpenSY
 - **DNS Seed:** seed.opensy.net:9633
 - **Primary Node:** 157.175.40.131:9633
 

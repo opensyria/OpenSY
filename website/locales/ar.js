@@ -95,7 +95,7 @@ module.exports = {
     title: 'البدء السريع',
     subtitle: 'شغّل عقدتك في دقائق',
     steps: [
-      { title: 'استنساخ', code: 'git clone https://github.com/opensy/OpenSY.git' },
+      { title: 'استنساخ', code: 'git clone https://github.com/opensyria/OpenSY.git' },
       { title: 'بناء', code: 'cd OpenSY && cmake -B build && cmake --build build -j$(nproc)' },
       { title: 'تشغيل', code: './build/bin/opensyd -daemon -addnode=node1.opensy.net' },
       { title: 'فحص', code: './build/bin/opensy-cli getblockchaininfo' }
@@ -146,9 +146,9 @@ module.exports = {
     title: 'التوثيق',
     subtitle: 'كل ما تحتاج معرفته عن أوبن سوريا',
     guides: [
-      { title: 'نسخ واستعادة المحفظة', description: 'تعلم كيفية حفظ واستعادة محفظتك بأمان.', link: 'https://github.com/opensy/OpenSY/blob/main/docs/WALLET_RESTORE_GUIDE.md' },
-      { title: 'دليل مشغل العقدة', description: 'دليل شامل لتشغيل عقدة كاملة.', link: 'https://github.com/opensy/OpenSY/blob/main/docs/NODE_OPERATOR_GUIDE.md' },
-      { title: 'دليل التعدين', description: 'ابدأ تعدين أوبن سوريا بأجهزتك.', link: 'https://github.com/opensy/OpenSY#mining' }
+      { title: 'نسخ واستعادة المحفظة', description: 'تعلم كيفية حفظ واستعادة محفظتك بأمان.', link: 'https://github.com/opensyria/OpenSY/blob/main/docs/WALLET_RESTORE_GUIDE.md' },
+      { title: 'دليل مشغل العقدة', description: 'دليل شامل لتشغيل عقدة كاملة.', link: 'https://github.com/opensyria/OpenSY/blob/main/docs/NODE_OPERATOR_GUIDE.md' },
+      { title: 'دليل التعدين', description: 'ابدأ تعدين أوبن سوريا بأجهزتك.', link: 'https://github.com/opensyria/OpenSY#mining' }
     ]
   },
   
@@ -157,7 +157,7 @@ module.exports = {
     title: 'انضم للمجتمع',
     subtitle: 'تواصل مع داعمي أوبن سوريا حول العالم',
     channels: [
-      { name: 'جيت هب', description: 'ساهم في التطوير', icon: '💻', link: 'https://github.com/opensy/OpenSY' },
+      { name: 'جيت هب', description: 'ساهم في التطوير', icon: '💻', link: 'https://github.com/opensyria/OpenSY' },
       { name: 'تويتر/X', description: 'تابع التحديثات', icon: '🐦', link: '#' },
       { name: 'تيليجرام', description: 'تحدث مع المجتمع', icon: '💬', link: '#' },
       { name: 'ديسكورد', description: 'نقاشات المطورين', icon: '🎮', link: '#' }

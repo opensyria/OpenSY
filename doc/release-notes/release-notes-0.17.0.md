@@ -7,7 +7,7 @@ and performance improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/opensy/opensy/issues>
+  <https://github.com/opensyria/opensy/issues>
 
 To receive security and update notifications, please subscribe to:
 
@@ -187,7 +187,7 @@ Here are the changes to RPC methods:
 BIP 174 Partially Signed OpenSY Transactions support
 -----------------------------------------------------
 
-[BIP 174 PSBT](https://github.com/opensy/bips/blob/master/bip-0174.mediawiki) is an interchange format for OpenSY transactions that are not fully signed
+[BIP 174 PSBT](https://github.com/opensyria/bips/blob/master/bip-0174.mediawiki) is an interchange format for OpenSY transactions that are not fully signed
 yet, together with relevant metadata to help entities work towards signing it.
 It is intended to simplify workflows where multiple parties need to cooperate to
 produce a transaction. Examples include hardware wallets, multisig setups, and

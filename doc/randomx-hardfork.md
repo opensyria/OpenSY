@@ -541,7 +541,7 @@ Only the genesis block (block 0) uses SHA256d for bootstrap purposes.
 - No special hardware required
 
 ## Download
-- GitHub: https://github.com/opensy/OpenSY/releases
+- GitHub: https://github.com/opensyria/OpenSY/releases
 ```
 
 ---
@@ -580,7 +580,7 @@ If critical issues are discovered:
 
 - [RandomX Specification](https://github.com/tevador/RandomX/blob/master/doc/specs.md)
 - [Monero RandomX Implementation](https://github.com/monero-project/monero)
-- [OpenSY Source Code](https://github.com/opensy/OpenSY)
+- [OpenSY Source Code](https://github.com/opensyria/OpenSY)
 
 ---
 
