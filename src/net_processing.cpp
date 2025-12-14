@@ -2952,7 +2952,9 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
 
     // SECURITY FIX [H-02]: Header Spam Attack Vector - Per-Peer Rate Limiting
     // Check header rate limit before any processing to prevent memory exhaustion
-    if (!peer.CheckHeaderRateLimit(nCount)) {
+    // Peers with NoRateLimit permission bypass rate limiting (trusted test peers)
+    // Disabled in test mode via -test=disableheaderratelimit
+    if (!m_opts.disable_header_rate_limit && !pfrom.HasPermission(NetPermissionFlags::NoRateLimit) && !peer.CheckHeaderRateLimit(nCount)) {
         LogPrintf("Disconnecting peer=%d for header rate limit exceeded (%zu headers)\n",
                   pfrom.GetId(), nCount);
         Misbehaving(peer, 20, "header-rate-exceeded");

@@ -290,4 +290,190 @@ BOOST_AUTO_TEST_CASE(ChainParams_SIGNET_sanity)
     sanity_check_chainparams(*m_node.args, ChainType::SIGNET);
 }
 
+// =============================================================================
+// DeriveTarget UNIT TESTS
+// =============================================================================
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_valid_standard)
+{
+    // Test: Standard valid nBits decodes correctly
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // Use genesis nBits
+    unsigned int nBits = 0x1e00ffff;
+    auto result = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(result.has_value());
+    
+    // Verify the target matches expected value
+    arith_uint256 expected;
+    expected.SetCompact(nBits);
+    BOOST_CHECK_EQUAL(result.value(), expected);
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_valid_max_difficulty)
+{
+    // Test: Maximum difficulty (smallest target) is valid
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // Very high difficulty (small target)
+    unsigned int nBits = 0x03000001; // Target = 1 << (8*(3-3)) = 1
+    auto result = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(result.has_value());
+    BOOST_CHECK(result.value() > 0);
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_zero_target)
+{
+    // Test: Zero target should return nullopt
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // nBits that encodes to zero
+    unsigned int nBits = 0x00000000;
+    auto result = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(!result.has_value());
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_negative_target)
+{
+    // Test: Negative target (high bit set in mantissa) should return nullopt
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // nBits with negative flag (0x00800000 in mantissa)
+    unsigned int nBits = 0x1d80ffff;  // Negative flag set
+    auto result = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(!result.has_value());
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_overflow)
+{
+    // Test: Overflow condition should return nullopt
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // nBits with exponent that would cause overflow (> 256 bits)
+    unsigned int nBits = 0x22ffffff;  // Exponent 0x22 = 34, so 34*8 = 272 bits
+    auto result = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(!result.has_value());
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_exceeds_pow_limit)
+{
+    // Test: Target exceeding powLimit should return nullopt
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // Create nBits larger than powLimit
+    arith_uint256 bigTarget = UintToArith256(consensus.powLimit) * 2;
+    unsigned int nBits = bigTarget.GetCompact();
+    
+    auto result = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(!result.has_value());
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_exactly_at_pow_limit)
+{
+    // Test: Target exactly at powLimit should be valid
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    arith_uint256 limitTarget = UintToArith256(consensus.powLimit);
+    unsigned int nBits = limitTarget.GetCompact();
+    
+    auto result = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(result.has_value());
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_sha256_vs_randomx_limit)
+{
+    // Test: Different powLimits for SHA256d and RandomX
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // SHA256 powLimit
+    arith_uint256 sha256Target = UintToArith256(consensus.powLimit);
+    unsigned int sha256Bits = sha256Target.GetCompact();
+    
+    // RandomX powLimit (should be easier = larger target)
+    arith_uint256 randomxTarget = UintToArith256(consensus.powLimitRandomX);
+    unsigned int randomxBits = randomxTarget.GetCompact();
+    
+    // Both should be valid against their respective limits
+    auto sha256Result = DeriveTarget(sha256Bits, consensus.powLimit);
+    auto randomxResult = DeriveTarget(randomxBits, consensus.powLimitRandomX);
+    
+    BOOST_CHECK(sha256Result.has_value());
+    BOOST_CHECK(randomxResult.has_value());
+    
+    // SHA256 limit should be stricter (smaller target) than RandomX
+    BOOST_CHECK(sha256Target < randomxTarget);
+    
+    // SHA256 nBits against RandomX limit should be valid (since RandomX limit is higher)
+    auto crossResult = DeriveTarget(sha256Bits, consensus.powLimitRandomX);
+    BOOST_CHECK(crossResult.has_value());
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_compact_encoding_roundtrip)
+{
+    // Test: Compact encoding roundtrip preserves value for normalized values
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // Test values that are already in normalized compact form
+    // (high bit of 3-byte mantissa not set, not needing extra zero byte)
+    std::vector<unsigned int> testBits = {
+        0x1e00ffff,  // Genesis - normalized
+        0x1d00ffff,  // Common Bitcoin value - normalized
+        0x1b0404cb,  // Very high difficulty (Bitcoin mainnet historical) - normalized
+    };
+    
+    for (unsigned int nBits : testBits) {
+        auto result = DeriveTarget(nBits, consensus.powLimit);
+        if (result.has_value()) {
+            // Re-encode and compare
+            unsigned int reencoded = result.value().GetCompact();
+            BOOST_CHECK_EQUAL(reencoded, nBits);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_valid_targets_produce_same_result)
+{
+    // Test: DeriveTarget produces consistent results
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // Create a target from nBits, then verify DeriveTarget returns same value
+    unsigned int nBits = 0x1e00ffff;
+    auto result1 = DeriveTarget(nBits, consensus.powLimit);
+    auto result2 = DeriveTarget(nBits, consensus.powLimit);
+    
+    BOOST_CHECK(result1.has_value());
+    BOOST_CHECK(result2.has_value());
+    BOOST_CHECK_EQUAL(result1.value(), result2.value());
+}
+
+BOOST_AUTO_TEST_CASE(DeriveTarget_boundary_exponents)
+{
+    // Test: Boundary exponent values
+    const auto consensus = CreateChainParams(*m_node.args, ChainType::MAIN)->GetConsensus();
+    
+    // Minimum valid exponent (3 bytes)
+    unsigned int minExp = 0x03010000;  // Exponent 3, mantissa 1
+    auto minResult = DeriveTarget(minExp, consensus.powLimit);
+    BOOST_CHECK(minResult.has_value());
+    
+    // Exponent 1 (edge case)
+    unsigned int exp1 = 0x01000001;
+    auto exp1Result = DeriveTarget(exp1, consensus.powLimit);
+    // This encodes to target = 0 (mantissa right-shifted), should fail
+    BOOST_CHECK(!exp1Result.has_value());
+    
+    // Exponent 32 (256-bit boundary)
+    unsigned int exp32 = 0x20010000;  // 32 * 8 = 256 bits
+    auto exp32Result = DeriveTarget(exp32, consensus.powLimit);
+    // Should fail as it exceeds typical powLimit
+    BOOST_CHECK(!exp32Result.has_value());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

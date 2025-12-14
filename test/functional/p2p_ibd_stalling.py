@@ -4,6 +4,9 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """
 Test stalling logic during IBD
+
+NOTE: OpenSY has stricter header rate limiting (MAX_HEADERS_PER_MINUTE=2000).
+This test uses -test=disableheaderratelimit to bypass rate limiting for testing.
 """
 
 import time
@@ -48,6 +51,8 @@ class P2PIBDStallingTest(OpenSYTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
+        # Use -test=disableheaderratelimit to bypass header rate limiting for testing
+        self.extra_args = [["-test=disableheaderratelimit"]]
 
     def run_test(self):
         NUM_BLOCKS = 1025

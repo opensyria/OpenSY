@@ -89,6 +89,8 @@ public:
         //! Number of headers sent in one getheaders message result (this is
         //! a test-only option).
         uint32_t max_headers_result{MAX_HEADERS_RESULTS};
+        //! Disable header rate limiting (this is a test-only option for functional tests)
+        bool disable_header_rate_limit{false};
     };
 
     static std::unique_ptr<PeerManager> make(CConnman& connman, AddrMan& addrman,

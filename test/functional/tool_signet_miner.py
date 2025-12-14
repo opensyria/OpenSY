@@ -59,14 +59,8 @@ class SignetMinerTest(OpenSYTestFramework):
         self.skip_if_no_cli()
         self.skip_if_no_wallet()
         self.skip_if_no_opensy_util()
-        # TODO: Update contrib/signet/miner script to support RandomX
-        # The Python signet miner (contrib/signet/miner) uses SHA256d for PoW.
-        # Options to fix:
-        # 1. Modify miner script to call opensy-util grind-randomx
-        # 2. Add --randomx flag to miner script for algorithm selection
-        # 3. Keep signet on SHA256d (set -randomxforkheight very high on signet)
-        # Currently uses -randomxforkheight=10000 to stay on SHA256d
-        self.skip_if_randomx_pow()  # Python signet miner uses SHA256 which is incompatible with RandomX PoW
+        # Note: This test uses -randomxforkheight=10000 to keep signet on SHA256d PoW,
+        # allowing the Python signet miner (contrib/signet/miner) to work correctly.
 
     def setup_network(self):
         self.setup_nodes()

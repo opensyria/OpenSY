@@ -276,11 +276,13 @@ uint256 GetRandomXKeyBlockHash(int height, const CBlockIndex* pindex, const Cons
 
 uint256 CalculateRandomXHash(const CBlockHeader& header, const uint256& keyBlockHash)
 {
-    // Acquire a context from the global pool
-    auto guard = g_randomx_pool.Acquire(keyBlockHash);
+    // Acquire a context from the global pool with CONSENSUS_CRITICAL priority
+    // This ensures block validation never fails due to pool exhaustion
+    auto guard = g_randomx_pool.Acquire(keyBlockHash, AcquisitionPriority::CONSENSUS_CRITICAL);
     if (!guard.has_value()) {
-        // Pool acquisition failed (timeout) - return max hash (will always fail PoW check)
-        LogPrintf("RandomX: Failed to acquire context from pool, returning max hash\n");
+        // This should never happen with CONSENSUS_CRITICAL priority
+        // but handle it gracefully just in case
+        LogPrintf("RandomX: CRITICAL - Failed to acquire context from pool, returning max hash\n");
         return uint256{"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
     }
 

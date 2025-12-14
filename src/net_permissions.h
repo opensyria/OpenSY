@@ -40,11 +40,13 @@ enum class NetPermissionFlags : uint32_t {
     // Can request addrs without hitting a privacy-preserving cache, and send us
     // unlimited amounts of addrs.
     Addr = (1U << 7),
+    // Bypass header rate limiting - for trusted test peers
+    NoRateLimit = (1U << 8),
 
     // True if the user did not specifically set fine-grained permissions with
     // the -whitebind or -whitelist configuration options.
     Implicit = (1U << 31),
-    All = BloomFilter | ForceRelay | Relay | NoBan | Mempool | Download | Addr,
+    All = BloomFilter | ForceRelay | Relay | NoBan | Mempool | Download | Addr | NoRateLimit,
 };
 static inline constexpr NetPermissionFlags operator|(NetPermissionFlags a, NetPermissionFlags b)
 {

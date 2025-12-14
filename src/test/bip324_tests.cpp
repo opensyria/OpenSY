@@ -40,11 +40,11 @@ BOOST_AUTO_TEST_CASE(packet_test_vectors) {
     const bool in_initiating = true;
     const auto in_contents = ParseHex<std::byte>("8e");
     
-    // Expected outputs (OpenSY-specific)
-    const auto expected_send_garbage = ParseHex<std::byte>("1b4f4037feef79e9389c7f6646451d92");
-    const auto expected_recv_garbage = ParseHex<std::byte>("85004b90f2543551b40f0b78016b4f91");
-    const auto expected_session_id = ParseHex<std::byte>("fea954a1c326a6648a898908bf0c3d7a8c6e489e8937864cc880f58c0b9cf707");
-    const auto expected_ciphertext = ParseHex<std::byte>("50d5e4a59c2d517d276a562b209758325121e54c49");
+    // Expected outputs (OpenSY-specific, derived using HKDF salt: "opensy_v2_shared_secret" + mainnet magic)
+    const auto expected_send_garbage = ParseHex<std::byte>("538cdb8e49cd7db0c074d7c1c1935ed1");
+    const auto expected_recv_garbage = ParseHex<std::byte>("e4e8487cbd97c889b4cb0390d0ecaf49");
+    const auto expected_session_id = ParseHex<std::byte>("5d037736bbded8981af8bb42c07760e910f95b97cd1656d6b5117840009e3607");
+    const auto expected_ciphertext = ParseHex<std::byte>("18ecdad7b3a92a3dbba220ec75323010af6183e002");
 
     // Load keys
     CKey key;

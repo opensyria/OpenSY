@@ -383,4 +383,146 @@ BOOST_AUTO_TEST_CASE(max_height_handling)
     BOOST_CHECK(keyHeight < maxHeight);
 }
 
+// =============================================================================
+// REORG SCENARIO TESTS
+// =============================================================================
+
+BOOST_AUTO_TEST_CASE(reorg_within_sha256_era)
+{
+    // Test: Reorg entirely within SHA256 era (before fork) maintains consistent state
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto& params = chainParams->GetConsensus();
+    
+    int forkHeight = params.nRandomXForkHeight;
+    
+    // Simulate two competing chains, both ending before fork
+    int chainAHeight = forkHeight - 10;
+    int chainBHeight = forkHeight - 5;
+    
+    // Both chains should use SHA256d
+    BOOST_CHECK(!params.IsRandomXActive(chainAHeight));
+    BOOST_CHECK(!params.IsRandomXActive(chainBHeight));
+    
+    // Both chains should use same powLimit
+    BOOST_CHECK_EQUAL(params.GetRandomXPowLimit(chainAHeight), params.powLimit);
+    BOOST_CHECK_EQUAL(params.GetRandomXPowLimit(chainBHeight), params.powLimit);
+}
+
+BOOST_AUTO_TEST_CASE(reorg_within_randomx_era)
+{
+    // Test: Reorg entirely within RandomX era maintains consistent state
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto& params = chainParams->GetConsensus();
+    
+    int forkHeight = params.nRandomXForkHeight;
+    int interval = params.nRandomXKeyBlockInterval;
+    
+    // Two competing chains, both post-fork
+    int chainAHeight = forkHeight + 100;
+    int chainBHeight = forkHeight + 150;
+    
+    // Both should use RandomX
+    BOOST_CHECK(params.IsRandomXActive(chainAHeight));
+    BOOST_CHECK(params.IsRandomXActive(chainBHeight));
+    
+    // Both should use RandomX powLimit
+    BOOST_CHECK_EQUAL(params.GetRandomXPowLimit(chainAHeight), params.powLimitRandomX);
+    BOOST_CHECK_EQUAL(params.GetRandomXPowLimit(chainBHeight), params.powLimitRandomX);
+    
+    // Key block calculation should be consistent for same heights
+    int keyA = params.GetRandomXKeyBlockHeight(chainAHeight);
+    int keyB = params.GetRandomXKeyBlockHeight(chainBHeight);
+    
+    // Verify key blocks are calculated correctly
+    BOOST_CHECK(keyA == (chainAHeight / interval - 1) * interval || keyA == 0);
+    BOOST_CHECK(keyB == (chainBHeight / interval - 1) * interval || keyB == 0);
+}
+
+BOOST_AUTO_TEST_CASE(reorg_crossing_fork_boundary)
+{
+    // Test: Reorg that crosses the fork boundary from post-fork to pre-fork
+    // This is the most critical scenario
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto& params = chainParams->GetConsensus();
+    
+    int forkHeight = params.nRandomXForkHeight;
+    
+    // Current tip is post-fork
+    int currentTip = forkHeight + 10;
+    BOOST_CHECK(params.IsRandomXActive(currentTip));
+    
+    // Competing chain reorgs back to pre-fork
+    int reorgTarget = forkHeight - 5;
+    BOOST_CHECK(!params.IsRandomXActive(reorgTarget));
+    
+    // After reorg to pre-fork height, difficulty calculation should use SHA256 params
+    BOOST_CHECK_EQUAL(params.GetRandomXPowLimit(reorgTarget), params.powLimit);
+    
+    // And blocks built from there that reach fork height again need difficulty reset
+    BOOST_CHECK_EQUAL(params.GetRandomXPowLimit(forkHeight), params.powLimitRandomX);
+}
+
+BOOST_AUTO_TEST_CASE(reorg_key_block_consistency)
+{
+    // Test: After reorg, key block calculation remains deterministic
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto& params = chainParams->GetConsensus();
+    
+    int interval = params.nRandomXKeyBlockInterval;
+    
+    // Heights that should use the same key block
+    std::vector<int> sameKeyHeights = {64, 65, 80, 95};  // All in interval [64, 96)
+    
+    int expectedKey = interval;  // Should be 32 for heights 64-95
+    
+    for (int h : sameKeyHeights) {
+        if (params.IsRandomXActive(h)) {
+            int keyHeight = params.GetRandomXKeyBlockHeight(h);
+            BOOST_CHECK_EQUAL(keyHeight, expectedKey);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(reorg_difficulty_recalculation)
+{
+    // Test: Difficulty recalculation after reorg produces same result for same chain state
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto& params = chainParams->GetConsensus();
+    
+    // Build identical chain state twice
+    int chainLength = 1000;
+    std::vector<CBlockIndex> chain1(chainLength);
+    std::vector<CBlockIndex> chain2(chainLength);
+    
+    uint32_t startTime = 1733616000;
+    uint32_t nBits = UintToArith256(params.powLimitRandomX).GetCompact();
+    
+    for (int i = 0; i < chainLength; ++i) {
+        // Chain 1
+        chain1[i].pprev = (i > 0) ? &chain1[i - 1] : nullptr;
+        chain1[i].nHeight = params.nRandomXForkHeight + i;
+        chain1[i].nTime = startTime + i * params.nPowTargetSpacing;
+        chain1[i].nBits = nBits;
+        chain1[i].nChainWork = (i > 0) ? 
+            chain1[i - 1].nChainWork + GetBlockProof(chain1[i - 1]) : arith_uint256(0);
+        
+        // Chain 2 (identical)
+        chain2[i].pprev = (i > 0) ? &chain2[i - 1] : nullptr;
+        chain2[i].nHeight = params.nRandomXForkHeight + i;
+        chain2[i].nTime = startTime + i * params.nPowTargetSpacing;
+        chain2[i].nBits = nBits;
+        chain2[i].nChainWork = (i > 0) ? 
+            chain2[i - 1].nChainWork + GetBlockProof(chain2[i - 1]) : arith_uint256(0);
+    }
+    
+    // Next work required should be identical
+    CBlockHeader header;
+    header.nTime = chain1[chainLength - 1].nTime + params.nPowTargetSpacing;
+    
+    unsigned int nextWork1 = GetNextWorkRequired(&chain1[chainLength - 1], &header, params);
+    unsigned int nextWork2 = GetNextWorkRequired(&chain2[chainLength - 1], &header, params);
+    
+    BOOST_CHECK_EQUAL(nextWork1, nextWork2);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

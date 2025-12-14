@@ -23,8 +23,9 @@ class RandomXPowTest(OpenSYTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True
-        # RandomX mining is slow, need longer timeout
-        self.rpc_timeout = 120
+        # RandomX mining is significantly slower than SHA256d
+        # Increase RPC timeout for long mining operations
+        self.rpc_timeout = 600  # 10 minutes
         # Set fork height to 5 for faster testing (regtest default is 200)
         self.extra_args = [
             ["-randomxforkheight=5"],

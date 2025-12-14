@@ -159,15 +159,22 @@ public:
         assert(consensus.hashGenesisBlock == uint256{"0000000727ee231c405685355f07629b06bfcb462cfa1ed7de868a6d9590ca8d"});
         assert(genesis.hashMerkleRoot == uint256{"56f65e913353861d32d297c6bc87bbe81242b764d18b8634d75c5a0159c8859e"});
 
-        // DNS seed nodes - cleared until OpenSY seed infrastructure is established
-        // For initial network bootstrap, use -addnode or -connect to connect to known nodes
-        // TODO [CRITICAL - PRE-LAUNCH]: Set up OpenSY DNS seed infrastructure:
-        //   - seed.opensy.net (primary)
-        //   - seed2.opensy.net (secondary, different jurisdiction)
-        //   - seed-tor.opensy.net (Tor users)
-        // Without DNS seeds, the network cannot bootstrap automatically!
-        // See: https://github.com/sipa/bitcoin-seeder for reference implementation
-        vSeeds.emplace_back("seed.opensy.net");
+        // DNS seed nodes - for automatic peer discovery
+        // IMPORTANT: Only add seeds that are actually running!
+        // Non-existent seeds cause connection timeouts and slow peer discovery.
+        //
+        // To add more seeds:
+        // 1. Set up bitcoin-seeder (github.com/sipa/bitcoin-seeder) configured for OpenSY
+        // 2. Ensure 99%+ uptime before adding to this list
+        // 3. Distribute across different jurisdictions for resilience
+        //
+        // Current active seed:
+        vSeeds.emplace_back("seed.opensy.net");       // Primary seed (AWS Bahrain)
+        //
+        // TODO: Uncomment when these seeds are deployed and operational:
+        // vSeeds.emplace_back("seed2.opensy.net");   // Secondary seed - Americas
+        // vSeeds.emplace_back("seed3.opensy.net");   // Tertiary seed - Asia-Pacific
+        // vSeeds.emplace_back("dnsseed.opensy.org"); // Community-run seed
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,35); // Addresses start with 'F' (Freedom)
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,36); // Script addresses start with 'F'
@@ -496,8 +503,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].threshold = 1815; // 90%
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
 
-        // RandomX from block 1 - matches mainnet for consistent testing
-        consensus.nRandomXForkHeight = 1;
+        // RandomX from block 1 by default - matches mainnet for consistent testing
+        // Can be overridden via -randomxforkheight for SHA256d-only testing
+        consensus.nRandomXForkHeight = options.randomx_fork_height.value_or(1);
         consensus.powLimitRandomX = uint256{"00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
         // message start is defined as the first 4 bytes of the sha256d of the block script

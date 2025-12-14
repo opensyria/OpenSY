@@ -26,6 +26,7 @@
 #include <policy/ephemeral_policy.h>
 #include <pow.h>
 #include <crypto/randomx_context.h>
+#include <crypto/randomx_pool.h>
 #include <rpc/blockchain.h>
 #include <rpc/mining.h>
 #include <rpc/server.h>
@@ -1306,11 +1307,80 @@ static RPCHelpMan submitheader()
     };
 }
 
+static RPCHelpMan getrandomxpoolinfo()
+{
+    return RPCHelpMan{
+        "getrandomxpoolinfo",
+        "Returns information about the RandomX context pool used for PoW validation.\n"
+        "This is useful for monitoring pool health and detecting potential issues.\n",
+        {},
+        RPCResult{
+            RPCResult::Type::OBJ, "", "",
+            {
+                {RPCResult::Type::NUM, "total_contexts", "Total number of RandomX contexts created in the pool"},
+                {RPCResult::Type::NUM, "active_contexts", "Number of contexts currently in use"},
+                {RPCResult::Type::NUM, "available_contexts", "Number of contexts available for acquisition"},
+                {RPCResult::Type::NUM, "max_contexts", "Maximum number of contexts allowed in the pool"},
+                {RPCResult::Type::NUM, "total_acquisitions", "Total number of successful context acquisitions"},
+                {RPCResult::Type::NUM, "total_waits", "Number of times a thread had to wait for a context"},
+                {RPCResult::Type::NUM, "total_timeouts", "Number of times context acquisition timed out"},
+                {RPCResult::Type::NUM, "key_reinitializations", "Number of times a context was reinitialized for a new key"},
+                {RPCResult::Type::NUM, "consensus_critical_acquisitions", "Number of consensus-critical priority acquisitions"},
+                {RPCResult::Type::NUM, "high_priority_acquisitions", "Number of high priority acquisitions"},
+                {RPCResult::Type::NUM, "priority_preemptions", "Number of times high priority preempted normal priority"},
+                {RPCResult::Type::NUM, "pool_efficiency", "Ratio of acquisitions to (acquisitions + waits), higher is better"},
+                {RPCResult::Type::BOOL, "pool_healthy", "True if pool is operating normally (low timeouts, high efficiency)"},
+            }
+        },
+        RPCExamples{
+            HelpExampleCli("getrandomxpoolinfo", "")
+            + HelpExampleRpc("getrandomxpoolinfo", "")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        {
+            auto stats = g_randomx_pool.GetStats();
+            
+            UniValue obj(UniValue::VOBJ);
+            obj.pushKV("total_contexts", (uint64_t)stats.total_contexts);
+            obj.pushKV("active_contexts", (uint64_t)stats.active_contexts);
+            obj.pushKV("available_contexts", (uint64_t)stats.available_contexts);
+            obj.pushKV("max_contexts", (uint64_t)RandomXContextPool::MAX_CONTEXTS);
+            obj.pushKV("total_acquisitions", (uint64_t)stats.total_acquisitions);
+            obj.pushKV("total_waits", (uint64_t)stats.total_waits);
+            obj.pushKV("total_timeouts", (uint64_t)stats.total_timeouts);
+            obj.pushKV("key_reinitializations", (uint64_t)stats.key_reinitializations);
+            obj.pushKV("consensus_critical_acquisitions", (uint64_t)stats.consensus_critical_acquisitions);
+            obj.pushKV("high_priority_acquisitions", (uint64_t)stats.high_priority_acquisitions);
+            obj.pushKV("priority_preemptions", (uint64_t)stats.priority_preemptions);
+            
+            // Calculate efficiency: acquisitions / (acquisitions + waits)
+            double efficiency = 1.0;
+            if (stats.total_acquisitions + stats.total_waits > 0) {
+                efficiency = (double)stats.total_acquisitions / 
+                             (double)(stats.total_acquisitions + stats.total_waits);
+            }
+            obj.pushKV("pool_efficiency", efficiency);
+            
+            // Pool is healthy if:
+            // - No timeouts OR very low timeout rate (< 0.1%)
+            // - Efficiency is high (> 90%)
+            bool healthy = (stats.total_timeouts == 0 || 
+                           (stats.total_acquisitions > 0 && 
+                            (double)stats.total_timeouts / (double)stats.total_acquisitions < 0.001)) &&
+                          efficiency > 0.9;
+            obj.pushKV("pool_healthy", healthy);
+            
+            return obj;
+        },
+    };
+}
+
 void RegisterMiningRPCCommands(CRPCTable& t)
 {
     static const CRPCCommand commands[]{
         {"mining", &getnetworkhashps},
         {"mining", &getmininginfo},
+        {"mining", &getrandomxpoolinfo},
         {"mining", &prioritisetransaction},
         {"mining", &getprioritisedtransactions},
         {"mining", &getblocktemplate},

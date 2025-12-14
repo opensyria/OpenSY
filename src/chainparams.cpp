@@ -39,6 +39,14 @@ void ReadSigNetArgs(const ArgsManager& args, CChainParams::SigNetOptions& option
         }
         options.challenge.emplace(*val);
     }
+    // Parse RandomX fork height override for signet (allows SHA256d testing)
+    if (auto value = args.GetArg("-randomxforkheight")) {
+        const auto height = ToIntegral<int32_t>(*value);
+        if (!height || *height < 0) {
+            throw std::runtime_error(strprintf("Invalid -randomxforkheight value: %s", *value));
+        }
+        options.randomx_fork_height = *height;
+    }
 }
 
 void ReadRegTestArgs(const ArgsManager& args, CChainParams::RegTestOptions& options)

@@ -2,7 +2,11 @@
 # Copyright (c) 2019-present The OpenSY developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Test that we reject low difficulty headers to prevent our block tree from filling up with useless bloat"""
+"""Test that we reject low difficulty headers to prevent our block tree from filling up with useless bloat
+
+NOTE: OpenSY has stricter header rate limiting (MAX_HEADERS_PER_MINUTE=2000).
+This test uses -test=disableheaderratelimit to bypass rate limiting for testing.
+"""
 
 from test_framework.test_framework import OpenSYTestFramework
 
@@ -33,7 +37,14 @@ class RejectLowDifficultyHeadersTest(OpenSYTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 4
         # Node0 has no required chainwork; node1 requires 15 blocks on top of the genesis block; node2 requires 2047
-        self.extra_args = [["-minimumchainwork=0x0", "-checkblockindex=0"], ["-minimumchainwork=0x1f", "-checkblockindex=0"], ["-minimumchainwork=0x1000", "-checkblockindex=0"], ["-minimumchainwork=0x1000", "-checkblockindex=0", "-whitelist=noban@127.0.0.1"]]
+        # Use -test=disableheaderratelimit to bypass header rate limiting for testing
+        base_args = ["-checkblockindex=0", "-test=disableheaderratelimit"]
+        self.extra_args = [
+            ["-minimumchainwork=0x0"] + base_args,
+            ["-minimumchainwork=0x1f"] + base_args,
+            ["-minimumchainwork=0x1000"] + base_args,
+            ["-minimumchainwork=0x1000", "-whitelist=noban@127.0.0.1"] + base_args
+        ]
 
     def setup_network(self):
         self.setup_nodes()

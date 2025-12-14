@@ -28,6 +28,7 @@ add_executable(test_opensy
   caches_tests.cpp
   chain_tests.cpp
   chainstate_write_tests.cpp
+  check_tx_inputs_tests.cpp
   checkqueue_tests.cpp
   cluster_linearize_tests.cpp
   coins_tests.cpp
@@ -80,6 +81,7 @@ add_executable(test_opensy
   random_tests.cpp
   randomx_tests.cpp
   randomx_fork_transition_tests.cpp
+  randomx_mining_context_tests.cpp
   randomx_pool_tests.cpp
   rbf_tests.cpp
   rest_tests.cpp
