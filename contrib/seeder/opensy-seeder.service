@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/opensy-seeder
-ExecStart=/opt/opensy-seeder/dnsseed -h seed.opensy.net -n ns1.opensy.net -m admin@opensy.net -p 5353 -s 157.175.40.131
+ExecStart=/opt/opensy-seeder/dnsseed -h seed.opensyria.net -n ns1.opensyria.net -m admin@opensyria.net -p 5353 -s 157.175.40.131
 Restart=always
 RestartSec=10
 

@@ -118,7 +118,7 @@ clone_and_build_seeder() {
     sed -i 's/8333/9633/g' main.cpp
     
     # Change default DNS host
-    sed -i 's/seed\.bitcoin\.sipa\.be/seed.opensy.net/g' main.cpp
+    sed -i 's/seed\.bitcoin\.sipa\.be/seed.opensyria.net/g' main.cpp
     
     # Build
     make clean || true
@@ -139,14 +139,14 @@ configure_seeder() {
     
     # Prompt for configuration
     echo ""
-    read -p "Enter DNS hostname (e.g., seed.opensy.net): " DNS_HOST
-    DNS_HOST=${DNS_HOST:-"seed.opensy.net"}
+    read -p "Enter DNS hostname (e.g., seed.opensyria.net): " DNS_HOST
+    DNS_HOST=${DNS_HOST:-"seed.opensyria.net"}
     
-    read -p "Enter nameserver hostname (e.g., ns1.opensy.net): " NS_HOST
-    NS_HOST=${NS_HOST:-"ns1.opensy.net"}
+    read -p "Enter nameserver hostname (e.g., ns1.opensyria.net): " NS_HOST
+    NS_HOST=${NS_HOST:-"ns1.opensyria.net"}
     
-    read -p "Enter admin email (e.g., admin@opensy.net): " ADMIN_EMAIL
-    ADMIN_EMAIL=${ADMIN_EMAIL:-"admin@opensy.net"}
+    read -p "Enter admin email (e.g., admin@opensyria.net): " ADMIN_EMAIL
+    ADMIN_EMAIL=${ADMIN_EMAIL:-"admin@opensyria.net"}
     
     # Save configuration
     cat > "${SEEDER_DIR}/seeder.conf" << EOF
@@ -241,18 +241,18 @@ print_dns_instructions() {
     echo "│ Type    │ Name             │ Value             │ Proxy   │"
     echo "├─────────┼──────────────────┼───────────────────┼─────────┤"
     echo "│ A       │ ns1              │ ${PUBLIC_IP}      │ OFF     │"
-    echo "│ NS      │ seed             │ ns1.opensy.net │ -       │"
+    echo "│ NS      │ seed             │ ns1.opensyria.net │ -       │"
     echo "└─────────┴──────────────────┴───────────────────┴─────────┘"
     echo ""
     echo "How it works:"
-    echo "  1. Users query seed.opensy.net"
-    echo "  2. DNS delegates to ns1.opensy.net (this server)"
+    echo "  1. Users query seed.opensyria.net"
+    echo "  2. DNS delegates to ns1.opensyria.net (this server)"
     echo "  3. This seeder responds with active OpenSY node IPs"
     echo ""
     echo "Useful Commands:"
     echo "  - Check status:   systemctl status opensy-seeder"
     echo "  - View logs:      journalctl -u opensy-seeder -f"
-    echo "  - Test DNS:       dig seed.opensy.net @${PUBLIC_IP}"
+    echo "  - Test DNS:       dig seed.opensyria.net @${PUBLIC_IP}"
     echo ""
     echo "============================================================================="
 }

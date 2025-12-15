@@ -31,6 +31,6 @@ dbcache=450
 par=2
 
 # Seed nodes
-seednode=seed.opensy.net:9633
-seednode=seed2.opensy.net:9633
-seednode=seed3.opensy.net:9633
+seednode=seed.opensyria.net:9633
+seednode=seed2.opensyria.net:9633
+seednode=seed3.opensyria.net:9633

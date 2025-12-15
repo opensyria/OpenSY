@@ -18,7 +18,7 @@ OpenSY
 |--------|-------|
 | **Status** | ✅ Mainnet Active |
 | **Launch Date** | December 8, 2025 |
-| **Seed Node** | `seed.opensy.net` |
+| **Seed Node** | `seed.opensyria.net` |
 | **Block Explorer** | 🔍 [explorer.opensy.net](https://explorer.opensy.net) |
 | **Website** | 🌐 [opensy.net](https://opensy.net) |
 
@@ -129,7 +129,7 @@ cmake --build build -j$(nproc)
 - **Website:** https://opensy.net
 - **Explorer:** https://explorer.opensy.net
 - **GitHub:** https://github.com/opensyria/OpenSY
-- **DNS Seed:** seed.opensy.net:9633
+- **DNS Seed:** seed.opensyria.net:9633
 - **Primary Node:** 157.175.40.131:9633
 
 ## License

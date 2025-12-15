@@ -302,9 +302,9 @@ par=2
 # Seed Nodes
 # ------------------------------------------------------------------------------
 # Connect to official seed nodes
-seednode=seed.opensy.net:9633
-seednode=seed2.opensy.net:9633
-seednode=seed3.opensy.net:9633
+seednode=seed.opensyria.net:9633
+seednode=seed2.opensyria.net:9633
+seednode=seed3.opensyria.net:9633
 
 # Add manual seed node IPs if DNS seeds are not yet active
 # addnode=<IP>:9633

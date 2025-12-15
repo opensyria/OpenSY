@@ -20,4 +20,4 @@
 # AWS Bahrain (me-south-1) - Primary Seed Node
 157.175.40.131:9633
 
-# DNS Seed: seed.opensy.net (resolves via ns1.opensy.net)
+# DNS Seed: seed.opensyria.net (resolves via ns1.opensyria.net)
