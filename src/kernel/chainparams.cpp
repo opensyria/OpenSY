@@ -126,11 +126,14 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
 
         // Minimum chain work - protects against low-hashrate sybil attacks
-        // Updated at block 3049 (Dec 12, 2025) - log2_work=27.690457
-        consensus.nMinimumChainWork = uint256{"000000000000000000000000000000000000000000000000000000000ce90d29"};
+        // RESET FOR RE-GENESIS: Start fresh with no minimum chain work requirement
+        // TODO [POST-GENESIS]: Update this as chain grows (after ~1000 blocks)
+        //       Use: opensy-cli getblockchaininfo | grep chainwork
+        consensus.nMinimumChainWork = uint256{};  // Empty = accept genesis
         // AssumeValid - enables faster sync by skipping signature validation for known-good blocks
-        // Block 3049 - verified Dec 12, 2025
-        consensus.defaultAssumeValid = uint256{"e860ae5a4f8e657fe4e6eca0bb24a10da65772e68d2fed266fb8370177cffa5d"};
+        // RESET FOR RE-GENESIS: Disabled until chain is established
+        // TODO [POST-GENESIS]: Update this to a recent, well-verified block hash
+        consensus.defaultAssumeValid = uint256{};  // Empty = verify all signatures
 
         // RandomX from block 1 - fair launch with CPU-friendly mining
         // Genesis (block 0) uses SHA256 for bootstrap, all subsequent blocks use RandomX
@@ -154,27 +157,49 @@ public:
         m_assumed_blockchain_size = 1; // New chain - minimal initial size
         m_assumed_chain_state_size = 1; // New chain - minimal initial size
 
-        genesis = CreateGenesisBlock(1733616000, 171081, 0x1e00ffff, 1, 10000 * COIN); // Dec 8, 2024 - Syria Liberation
+        // Genesis Block - December 8, 2024 at 6:18 AM UTC
+        // This moment marks the liberation of Syria and the fall of the Assad regime,
+        // ending nearly 14 years of civil war. OpenSY commemorates this historic day.
+        // Timestamp 1733638680 = 2024-12-08 06:18:00 UTC
+        //
+        // TODO [RE-GENESIS REQUIRED]: Mine new genesis block with this timestamp
+        // After mining, update:
+        //   1. nNonce below with the valid nonce found
+        //   2. hashGenesisBlock assertion with actual hash
+        //   3. hashMerkleRoot assertion (compute with BlockMerkleRoot())
+        //   4. Run: ./build/bin/opensy-util grind-randomx 0 (genesis uses SHA256d)
+        genesis = CreateGenesisBlock(1733638680, 0 /* TODO: UPDATE NONCE */, 0x1e00ffff, 1, 10000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256{"0000000727ee231c405685355f07629b06bfcb462cfa1ed7de868a6d9590ca8d"});
-        assert(genesis.hashMerkleRoot == uint256{"56f65e913353861d32d297c6bc87bbe81242b764d18b8634d75c5a0159c8859e"});
+        // TODO: Update these assertions after mining new genesis
+        // assert(consensus.hashGenesisBlock == uint256{"NEW_GENESIS_HASH_HERE"});
+        // assert(genesis.hashMerkleRoot == uint256{"NEW_MERKLE_ROOT_HERE"});
 
         // DNS seed nodes - for automatic peer discovery
         // IMPORTANT: Only add seeds that are actually running!
         // Non-existent seeds cause connection timeouts and slow peer discovery.
         //
-        // To add more seeds:
+        // SETUP GUIDE for new seeds:
         // 1. Set up bitcoin-seeder (github.com/sipa/bitcoin-seeder) configured for OpenSY
-        // 2. Ensure 99%+ uptime before adding to this list
-        // 3. Distribute across different jurisdictions for resilience
+        // 2. Configure seeder with: -host=seedN.opensyria.net -ns=vps.opensyria.net
+        // 3. Ensure the seeder has 99%+ uptime before adding to this list
+        // 4. Distribute across different jurisdictions for resilience
+        // 5. Test with: nslookup seedN.opensyria.net (should return node IPs)
         //
-        // Current active seed:
-        vSeeds.emplace_back("seed.opensyria.net");       // Primary seed (AWS Bahrain)
+        // DEPLOYMENT STATUS:
+        // ✅ LIVE     - seed.opensyria.net  (AWS Bahrain me-south-1) - Primary
+        // 📋 PLANNED  - seed2.opensyria.net (Americas region) - Secondary
+        // 📋 PLANNED  - seed3.opensyria.net (Asia-Pacific region) - Tertiary  
+        // 📋 PLANNED  - dnsseed.opensyria.org (Community-operated) - Decentralization
         //
-        // TODO: Uncomment when these seeds are deployed and operational:
-        // vSeeds.emplace_back("seed2.opensyria.net");   // Secondary seed - Americas
-        // vSeeds.emplace_back("seed3.opensyria.net");   // Tertiary seed - Asia-Pacific
-        // vSeeds.emplace_back("dnsseed.opensyria.org"); // Community-run seed
+        // NOTE: Domain is opensyria.net (opensy.net was unavailable)
+        //       Product name is OpenSY, domain remains opensyria.net
+        //
+        vSeeds.emplace_back("seed.opensyria.net");       // ✅ LIVE - Primary seed (AWS Bahrain)
+        //
+        // Uncomment each seed as it becomes operational:
+        // vSeeds.emplace_back("seed2.opensyria.net");   // 📋 Secondary - Americas
+        // vSeeds.emplace_back("seed3.opensyria.net");   // 📋 Tertiary - Asia-Pacific
+        // vSeeds.emplace_back("dnsseed.opensyria.org"); // 📋 Community-run seed
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,35); // Addresses start with 'F' (Freedom)
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,36); // Script addresses start with 'F'
@@ -204,7 +229,7 @@ public:
         // Use: opensy-cli getchaintxstats to get current values
         // This improves sync time estimation for new nodes
         chainTxData = ChainTxData{
-            .nTime    = 1733616000, // Genesis timestamp - Dec 8, 2024
+            .nTime    = 1733638680, // Genesis timestamp - Dec 8, 2024 06:18 UTC (Syria Liberation)
             .tx_count = 1,
             .dTxRate  = 0.001, // Initial low rate for new chain
         };
