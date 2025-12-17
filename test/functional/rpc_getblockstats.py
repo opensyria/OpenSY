@@ -162,7 +162,7 @@ class GetblockstatsTest(OpenSYTestFramework):
                                 self.nodes[0].getblockstats, hash_or_height=1, stats=['minfee', f'aaa{inv_sel_stat}'])
         # Mainchain's genesis block shouldn't be found on regtest
         assert_raises_rpc_error(-5, 'Block not found', self.nodes[0].getblockstats,
-                                hash_or_height='0000000727ee231c405685355f07629b06bfcb462cfa1ed7de868a6d9590ca8d')
+                                hash_or_height='000000c4c94f54e5ae60a67df5c113dfbfd9ef872639e2359d15796f27920fd1')
 
         # Invalid number of args
         assert_raises_rpc_error(-1, 'getblockstats hash_or_height ( stats )', self.nodes[0].getblockstats, '00', 1, 2)

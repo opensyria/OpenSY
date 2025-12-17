@@ -20,7 +20,7 @@ echo "════════════════════════�
 echo ""
 
 # Fixed historical timestamp for Syria Liberation
-GENESIS_TIMESTAMP=1733638680  # Dec 8, 2024 06:18:00 UTC
+GENESIS_TIMESTAMP=1733631480  # Dec 8, 2024 06:18:00 Syria (04:18 UTC)
 GENESIS_DATE="December 8, 2024 at 06:18:00 UTC"
 GENESIS_MESSAGE="Dec 8 2024 - Syria Liberated from Assad / سوريا حرة"
 
@@ -74,7 +74,7 @@ echo "STEP 3: Update chainparams.cpp with Mined Values"
 echo "───────────────────────────────────────"
 echo "  Edit src/kernel/chainparams.cpp with the mined nonce and hash:"
 echo ""
-echo "    genesis = CreateGenesisBlock(1733638680, MINED_NONCE, 0x1e00ffff, 1, 10000 * COIN);"
+echo "    genesis = CreateGenesisBlock(1733631480, MINED_NONCE, 0x1e00ffff, 1, 10000 * COIN);"
 echo "    consensus.hashGenesisBlock = genesis.GetHash();"
 echo "    assert(consensus.hashGenesisBlock == uint256{\"MINED_HASH\"});"
 echo "    assert(genesis.hashMerkleRoot == uint256{\"MERKLE_ROOT\"});"

@@ -64,15 +64,15 @@ BOOST_AUTO_TEST_CASE(genesis_block_test)
         const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
         const CBlock& genesis = chainParams->GenesisBlock();
         
-        // OpenSY mainnet genesis hash
+        // OpenSY mainnet genesis hash (mined Dec 16, 2024)
         BOOST_CHECK_EQUAL(genesis.GetHash().ToString(),
-            "0000000727ee231c405685355f07629b06bfcb462cfa1ed7de868a6d9590ca8d");
+            "000000c4c94f54e5ae60a67df5c113dfbfd9ef872639e2359d15796f27920fd1");
         
         // Verify genesis block structure
         BOOST_CHECK_EQUAL(genesis.nVersion, 1);
-        BOOST_CHECK_EQUAL(genesis.nTime, 1733616000); // Dec 8, 2024
+        BOOST_CHECK_EQUAL(genesis.nTime, 1733631480); // Dec 8, 2024 06:18 Syria (04:18 UTC)
         BOOST_CHECK_EQUAL(genesis.nBits, 0x1e00ffff);
-        BOOST_CHECK_EQUAL(genesis.nNonce, 171081);
+        BOOST_CHECK_EQUAL(genesis.nNonce, 48963683);
         BOOST_CHECK(genesis.hashPrevBlock.IsNull());
         BOOST_CHECK_EQUAL(genesis.vtx.size(), 1);
         

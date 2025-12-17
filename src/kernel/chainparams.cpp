@@ -157,22 +157,17 @@ public:
         m_assumed_blockchain_size = 1; // New chain - minimal initial size
         m_assumed_chain_state_size = 1; // New chain - minimal initial size
 
-        // Genesis Block - December 8, 2024 at 6:18 AM UTC
+        // Genesis Block - December 8, 2024 at 6:18 AM Syria Time (04:18 UTC)
         // This moment marks the liberation of Syria and the fall of the Assad regime,
         // ending nearly 14 years of civil war. OpenSY commemorates this historic day.
-        // Timestamp 1733638680 = 2024-12-08 06:18:00 UTC
+        // Timestamp 1733631480 = 2024-12-08 06:18:00 Syria (04:18:00 UTC)
         //
-        // TODO [RE-GENESIS REQUIRED]: Mine new genesis block with this timestamp
-        // After mining, update:
-        //   1. nNonce below with the valid nonce found
-        //   2. hashGenesisBlock assertion with actual hash
-        //   3. hashMerkleRoot assertion (compute with BlockMerkleRoot())
-        //   4. Run: ./build/bin/opensy-util grind-randomx 0 (genesis uses SHA256d)
-        genesis = CreateGenesisBlock(1733638680, 0 /* TODO: UPDATE NONCE */, 0x1e00ffff, 1, 10000 * COIN);
+        // Genesis mined on 2024-12-16 with SHA256d PoW
+        // Nonce: 48963683, Hash: 000000c4c94f54e5ae60a67df5c113dfbfd9ef872639e2359d15796f27920fd1
+        genesis = CreateGenesisBlock(1733631480, 48963683, 0x1e00ffff, 1, 10000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        // TODO: Update these assertions after mining new genesis
-        // assert(consensus.hashGenesisBlock == uint256{"NEW_GENESIS_HASH_HERE"});
-        // assert(genesis.hashMerkleRoot == uint256{"NEW_MERKLE_ROOT_HERE"});
+        assert(consensus.hashGenesisBlock == uint256{"000000c4c94f54e5ae60a67df5c113dfbfd9ef872639e2359d15796f27920fd1"});
+        assert(genesis.hashMerkleRoot == uint256{"56f65e913353861d32d297c6bc87bbe81242b764d18b8634d75c5a0159c8859e"});
 
         // DNS seed nodes - for automatic peer discovery
         // IMPORTANT: Only add seeds that are actually running!
@@ -229,7 +224,7 @@ public:
         // Use: opensy-cli getchaintxstats to get current values
         // This improves sync time estimation for new nodes
         chainTxData = ChainTxData{
-            .nTime    = 1733638680, // Genesis timestamp - Dec 8, 2024 06:18 UTC (Syria Liberation)
+            .nTime    = 1733631480, // Genesis timestamp - Dec 8, 2024 06:18 Syria (04:18 UTC)
             .tx_count = 1,
             .dTxRate  = 0.001, // Initial low rate for new chain
         };
