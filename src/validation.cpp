@@ -4113,13 +4113,16 @@ bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consens
                 if (!bnTarget.has_value()) {
                     return false;
                 }
-                // SECURITY FIX [H-02]: Header Spam Attack Vector
-                // Require minimum claimed work: target must be <= powLimit/4096
-                // This forces attackers to claim hard-enough work, rate-limiting spam
-                // while still allowing legitimate low-difficulty testnet/regtest blocks
-                // Tightened from >>8 (1/256) to >>12 (1/4096) to reduce attack surface
-                // by 16x, making header spam attacks significantly more expensive
-                arith_uint256 maxAllowedTarget = UintToArith256(consensusParams.powLimitRandomX) >> 12;
+                // SECURITY: Header Spam Rate Limiting
+                // For RandomX blocks, we only verify that the claimed target is valid
+                // (i.e., within powLimit). Full RandomX hash validation happens later
+                // in ContextualCheckBlockHeader when we have height context.
+                //
+                // NOTE: The original H-02 fix used >> 12 which was too aggressive and
+                // rejected valid blocks at minimum difficulty. We now just verify the
+                // claimed target is <= powLimit, which is sufficient to reject obviously
+                // invalid headers while allowing legitimate low-difficulty blocks.
+                arith_uint256 maxAllowedTarget = UintToArith256(consensusParams.powLimitRandomX);
                 return *bnTarget <= maxAllowedTarget;
             });
 }
