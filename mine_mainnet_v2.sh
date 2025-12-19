@@ -34,7 +34,7 @@ trap cleanup SIGINT SIGTERM EXIT
 
 # Logging function
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') $1" | tee -a "$LOGFILE"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$LOGFILE"
 }
 
 # Save state to resume later
