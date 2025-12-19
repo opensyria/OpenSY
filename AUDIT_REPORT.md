@@ -1022,32 +1022,7 @@ the opensy.net domain was not available.
 
 ---
 
-### MAJOR-02: Data Directory Migration Path ⚠️
-
-**Severity:** Minor (Downgraded)  
-**Type:** User Experience  
-**Impact:** Users with old data directories need migration guidance
-
-**Description:**  
-New installations use `.opensy` data directory, which is correct. Users who may have 
-previously used `.openSyria` or `.opensyria` would need migration guidance.
-
-**File:** `src/common/args.cpp:743-764`
-```cpp
-// Unix-like: ~/.opensy
-return pathRet / ".opensy";
-```
-
-**Assessment:** This is **CORRECT** for the new branding.
-
-**Recommendation:**  
-1. ✅ Keep `.opensy` as the canonical directory name
-2. Include migration script in release package for users with old directories
-3. Document in release notes
-
----
-
-### MAJOR-03: DNS Seeds - Planned Multi-Region Deployment 📋
+### MAJOR-02: DNS Seeds - Planned Multi-Region Deployment 📋
 
 **Severity:** Minor (Downgraded - planned infrastructure)  
 **Type:** Network Infrastructure  
