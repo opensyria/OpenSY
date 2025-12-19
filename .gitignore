@@ -33,3 +33,4 @@ target/
 mining_v2.log
 mining_state.json
 mining.log
+nohup.out
