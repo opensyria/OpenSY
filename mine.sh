@@ -65,13 +65,20 @@ LOG_TO_FILE=true
 VERBOSE=true
 
 # Script version
-VERSION="2.1.0"
+VERSION="2.2.0"
 
 # Safety thresholds
 MIN_DISK_SPACE_GB=5             # Minimum free disk space to continue
+MIN_MEMORY_MB=500               # Minimum free memory to continue
 MIN_SYNC_PROGRESS=0.999         # Must be this synced before mining
 WAIT_FOR_SYNC=true              # Wait for full sync before mining
 AUTO_UPDATE=false               # Auto-update script from GitHub
+
+# Reliability settings
+AUTO_RESTART_ON_CRASH=true      # Restart mining if script crashes
+MAX_STALE_BLOCK_TIME=600        # Warn if no new block for 10 minutes
+NETWORK_RETRY_DELAY=60          # Seconds between network retries
+MAX_NETWORK_RETRIES=10          # Max retries before giving up
 
 #───────────────────────────────────────────────────────────────────────────────
 # PLATFORM DETECTION
@@ -181,6 +188,8 @@ SHUTDOWN_REQUESTED=false
 INSTALL_ONLY=false
 CHECK_ONLY=false
 FORCE_REBUILD=false
+SKIP_SCREEN_CHECK=false
+RUN_FOREVER=false
 
 # Script paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || pwd)"
@@ -305,8 +314,85 @@ check_disk_space() {
 }
 
 check_internet() {
-    # Quick connectivity check
-    ping -c 1 -W 3 8.8.8.8 &>/dev/null || ping -c 1 -W 3 1.1.1.1 &>/dev/null
+    # Quick connectivity check (try multiple methods)
+    ping -c 1 -W 3 8.8.8.8 &>/dev/null && return 0
+    ping -c 1 -W 3 1.1.1.1 &>/dev/null && return 0
+    curl -s --connect-timeout 3 https://google.com &>/dev/null && return 0
+    return 1
+}
+
+get_free_memory_mb() {
+    if [ "$OS" = "macos" ]; then
+        # macOS: Get free + inactive pages
+        local page_size=$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)
+        local free=$(vm_stat 2>/dev/null | awk '/Pages free/ {gsub(/\./,"",$3); print $3}')
+        local inactive=$(vm_stat 2>/dev/null | awk '/Pages inactive/ {gsub(/\./,"",$3); print $3}')
+        echo $(( (${free:-0} + ${inactive:-0}) * page_size / 1048576 ))
+    else
+        # Linux: MemAvailable or MemFree
+        local avail=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}')
+        if [ -n "$avail" ]; then
+            echo $((avail / 1024))
+        else
+            grep MemFree /proc/meminfo 2>/dev/null | awk '{print int($2/1024)}' || echo 9999
+        fi
+    fi
+}
+
+check_memory() {
+    local free=$(get_free_memory_mb)
+    if [ "$free" -lt "$MIN_MEMORY_MB" ]; then
+        log WARN "Low memory: ${free}MB free (minimum: ${MIN_MEMORY_MB}MB)"
+        return 1
+    fi
+    return 0
+}
+
+wait_for_network() {
+    local retries=0
+    while ! check_internet; do
+        retries=$((retries + 1))
+        if [ $retries -ge $MAX_NETWORK_RETRIES ]; then
+            log ERROR "Network unreachable after $MAX_NETWORK_RETRIES attempts"
+            return 1
+        fi
+        log WARN "No network connection (attempt $retries/$MAX_NETWORK_RETRIES). Waiting ${NETWORK_RETRY_DELAY}s..."
+        sleep $NETWORK_RETRY_DELAY
+    done
+    return 0
+}
+
+check_sudo_available() {
+    # Check if we can use sudo (needed for apt install etc)
+    if command_exists sudo; then
+        if sudo -n true 2>/dev/null; then
+            return 0  # Passwordless sudo available
+        fi
+    fi
+    return 1
+}
+
+recommend_screen() {
+    # Skip if flag is set
+    if [ "$SKIP_SCREEN_CHECK" = true ]; then
+        return 0
+    fi
+    
+    # Recommend screen/tmux for SSH sessions
+    if [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ]; then
+        if [ -z "${STY:-}" ] && [ -z "${TMUX:-}" ]; then
+            log WARN "You're connected via SSH without screen/tmux!"
+            log WARN "If you disconnect, mining will stop."
+            log WARN "Consider running: screen -S mining ./mine.sh"
+            log WARN "Or: tmux new -s mining './mine.sh'"
+            echo ""
+            read -t 10 -p "Continue anyway? (y/N, 10s timeout): " response || response="y"
+            if [[ ! "$response" =~ ^[Yy]$ ]]; then
+                log INFO "Exiting. Please start in screen/tmux."
+                exit 0
+            fi
+        fi
+    fi
 }
 
 #───────────────────────────────────────────────────────────────────────────────
@@ -979,6 +1065,8 @@ mining_loop() {
     
     local last_daemon_check=$(now)
     local last_stats_time=$(now)
+    local last_block_time=$(now)
+    local last_block_height=$START_HEIGHT
     
     while [ "$SHUTDOWN_REQUESTED" = false ]; do
         local current_time=$(now)
@@ -1002,6 +1090,10 @@ mining_loop() {
             
             local current_height=$(get_block_count)
             show_stats $current_height
+            
+            # Track last successful block
+            last_block_time=$(now)
+            last_block_height=$current_height
             
             sleep $MINING_DELAY
         else
@@ -1038,6 +1130,28 @@ mining_loop() {
             if ! check_disk_space; then
                 log ERROR "Disk space critically low! Pausing mining..."
                 sleep 300  # Wait 5 minutes before checking again
+            fi
+            
+            # Memory check
+            if ! check_memory; then
+                log WARN "Memory low, daemon may be swapping. Consider restarting."
+            fi
+            
+            # Stale block detection
+            local time_since_block=$((current_time - last_block_time))
+            if [ $time_since_block -gt $MAX_STALE_BLOCK_TIME ]; then
+                log WARN "No blocks mined for $(elapsed_time $time_since_block). Network difficulty may have increased."
+                # Check if blockchain is actually progressing
+                local network_height=$(get_block_count)
+                if [ "$network_height" != "$last_block_height" ]; then
+                    log WARN "Network height is $network_height but we haven't mined. Competition?"
+                fi
+            fi
+            
+            # Network connectivity check
+            if ! check_internet; then
+                log ERROR "Network connectivity lost!"
+                wait_for_network || log ERROR "Network still down, continuing anyway..."
             fi
         fi
     done
@@ -1144,6 +1258,8 @@ Options:
   --quiet, -q          Less verbose output
   --wait-sync, -w      Wait for full sync before mining
   --no-wait-sync       Start mining immediately (may orphan blocks)
+  --no-screen-check    Skip screen/tmux recommendation for SSH
+  --loop, --forever    Auto-restart if script crashes (run until killed)
   --version, -v        Show version
 
 Environment Variables:
@@ -1203,6 +1319,14 @@ parse_args() {
                 WAIT_FOR_SYNC=false
                 shift
                 ;;
+            --no-screen-check)
+                SKIP_SCREEN_CHECK=true
+                shift
+                ;;
+            --loop|--forever)
+                RUN_FOREVER=true
+                shift
+                ;;
             --*)
                 log ERROR "Unknown option: $1"
                 show_help
@@ -1250,7 +1374,16 @@ main() {
     # Check for existing instance
     check_already_running
     
+    # Recommend screen/tmux for SSH sessions
+    recommend_screen
+    
     log INFO "Platform: $OS ($ARCH) - Package Manager: $PKG_MGR"
+    
+    # Pre-flight network check
+    if ! check_internet; then
+        log WARN "No network connection detected. Will retry..."
+        wait_for_network || die "Cannot proceed without network"
+    fi
     
     # Ensure we have binaries (install if needed)
     ensure_binaries
@@ -1315,9 +1448,90 @@ main() {
         die "Insufficient disk space to start mining"
     fi
     
-    # Start mining!
-    mining_loop
+    if ! check_memory; then
+        log WARN "Low memory, but continuing. Performance may be degraded."
+    fi
+    
+    # Display final summary before mining
+    echo ""
+    log INFO "Pre-flight checks passed! Starting mining in 3 seconds..."
+    log INFO "  Address: $MINING_ADDRESS"
+    log INFO "  Wallet:  ${WALLET_NAME:-external}"
+    log INFO "  Height:  $(get_block_count)"
+    log INFO "  Peers:   $(get_connection_count)"
+    log INFO "Press Ctrl+C to stop mining gracefully."
+    sleep 3
+    
+    # Start mining (with auto-restart if --loop)
+    if [ "$RUN_FOREVER" = true ]; then
+        run_forever
+    else
+        mining_loop
+    fi
+}
+
+# Run with auto-restart wrapper if --loop is set
+run_forever() {
+    local stop_file="/tmp/opensy_stop_mining"
+    rm -f "$stop_file" 2>/dev/null
+    
+    log INFO "Running in forever mode. To stop: touch $stop_file"
+    
+    local restart_count=0
+    local last_restart=$(now)
+    
+    while [ ! -f "$stop_file" ]; do
+        restart_count=$((restart_count + 1))
+        
+        if [ $restart_count -gt 1 ]; then
+            # Exponential backoff: 10s, 20s, 40s, max 300s
+            local backoff=$((10 * (2 ** (restart_count - 2))))
+            [ $backoff -gt 300 ] && backoff=300
+            log WARN "Restarting (attempt $restart_count) in ${backoff}s..."
+            sleep $backoff
+        fi
+        
+        log INFO "Starting mining session #$restart_count..."
+        
+        # Reset flags for fresh run
+        SHUTDOWN_REQUESTED=false
+        CLEANUP_DONE=""
+        START_TIME=0
+        BLOCKS_MINED=0
+        ERROR_COUNT=0
+        TOTAL_ERRORS=0
+        
+        # Run mining
+        if mining_loop; then
+            # Graceful exit
+            log INFO "Mining stopped gracefully."
+            break
+        else
+            log ERROR "Mining crashed! Will restart..."
+        fi
+        
+        # Reset restart counter if we ran for more than 1 hour
+        local now_time=$(now)
+        if [ $((now_time - last_restart)) -gt 3600 ]; then
+            restart_count=1
+        fi
+        last_restart=$now_time
+    done
+    
+    if [ -f "$stop_file" ]; then
+        log INFO "Stop file detected, exiting forever loop."
+        rm -f "$stop_file"
+    fi
 }
 
 # Run main with all arguments
 main "$@"
+
+#═══════════════════════════════════════════════════════════════════════════════
+# AUTO-RESTART WRAPPER
+#═══════════════════════════════════════════════════════════════════════════════
+# To run with auto-restart on crash, use:
+#   ./mine.sh --loop
+# This will restart mining automatically if the script crashes.
+# To stop: touch /tmp/opensy_stop_mining
+#═══════════════════════════════════════════════════════════════════════════════
