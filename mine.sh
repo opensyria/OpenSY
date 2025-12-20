@@ -71,10 +71,10 @@ LOG_TO_FILE=true
 VERBOSE=true
 
 # Script version
-VERSION="2.3.0"
+VERSION="2.4.0"
 
 # Block economics
-BLOCK_REWARD=5000               # SYL per block (before halvings)
+BLOCK_REWARD=10000              # SYL per block (before halvings) - 10,000 initial
 BLOCK_TIME_SECONDS=120          # Target 2 minutes per block
 HALVING_INTERVAL=420000         # Blocks between halvings
 
@@ -1091,37 +1091,61 @@ show_stats() {
     fi
 }
 
-# Celebration messages when a block is mined
+# Celebration messages when a block is mined (use %d for height, %s for reward with commas)
 CELEBRATION_MESSAGES=(
-    "💰 BLOCK MINED! +%d SYL"
-    "🎉 SUCCESS! Block #%d - You earned %d SYL!"
-    "⛏️  FOUND BLOCK #%d! +%d SYL to your wallet!"
-    "🚀 BOOM! Block mined! +%d SYL"
-    "💎 Nice! Block #%d found - %d SYL earned!"
-    "🔥 MINING SUCCESS! +%d SYL"
-    "✨ Block #%d is yours! +%d SYL"
+    "💰 BLOCK MINED! +%s SYL added to your wallet!"
+    "🎉 SUCCESS! Block #%d found - %s SYL earned!"
+    "⛏️  FOUND BLOCK #%d! +%s SYL is now yours!"
+    "🚀 BOOM! You mined a block! +%s SYL"
+    "💎 NICE! Block #%d - %s SYL reward!"
+    "🔥 MINING SUCCESS! +%s SYL to the bag!"
+    "✨ Block #%d is YOURS! +%s SYL earned!"
+    "🏆 WINNER! You found block #%d - %s SYL!"
+    "💵 CHA-CHING! +%s SYL from block #%d!"
+    "🎯 BULLSEYE! Block mined - %s SYL reward!"
 )
+
+# Format number with commas (10000 -> 10,000)
+format_number() {
+    echo "$1" | sed ':a;s/\B[0-9]\{3\}\>$/,&/;ta'
+}
 
 celebrate_block() {
     local height=$1
     local reward=$2
+    local balance=$(get_balance)
+    local reward_fmt=$(format_number $reward)
+    local earnings_fmt=$(format_number $SESSION_EARNINGS)
     
     # Pick a random celebration message
     local msg_count=${#CELEBRATION_MESSAGES[@]}
     local idx=$((RANDOM % msg_count))
     local template="${CELEBRATION_MESSAGES[$idx]}"
     
-    # Format message
+    # Format message - use %s for formatted numbers, %d for height
     local msg
-    if [[ "$template" == *"#%d"* ]]; then
-        msg=$(printf "$template" "$height" "$reward")
+    if [[ "$template" == *"#%d"* ]] && [[ "$template" == *"%s"* ]]; then
+        # Has both height and reward
+        msg=$(printf "$template" "$height" "$reward_fmt")
+    elif [[ "$template" == *"%s"* ]] && [[ "$template" == *"#%d"* ]]; then
+        # Reward first, then height
+        msg=$(printf "$template" "$reward_fmt" "$height")
     else
-        msg=$(printf "$template" "$reward")
+        # Just reward
+        msg=$(printf "$template" "$reward_fmt")
     fi
     
     echo ""
+    echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
+    echo "┃                     🎊 BLOCK FOUND! 🎊                          ┃"
+    echo "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"
     log SUCCESS "$msg"
-    log SUCCESS "Session total: $BLOCKS_MINED blocks | $SESSION_EARNINGS SYL earned"
+    echo ""
+    log SUCCESS "📊 Session Stats:"
+    log SUCCESS "   Blocks Mined: $BLOCKS_MINED"
+    log SUCCESS "   SYL Earned:   $earnings_fmt SYL"
+    log SUCCESS "   💰 Balance:   $balance SYL"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 }
 
@@ -1129,8 +1153,8 @@ celebrate_block() {
 get_block_reward() {
     local height=${1:-0}
     # OpenSY halving schedule: every 420,000 blocks
-    local halvings=$((height / 420000))
-    local reward=5000  # Initial reward
+    local halvings=$((height / HALVING_INTERVAL))
+    local reward=$BLOCK_REWARD  # 10,000 SYL initial
     for ((i=0; i<halvings && i<64; i++)); do
         reward=$((reward / 2))
     done
@@ -1144,6 +1168,7 @@ mining_loop() {
     log INFO "  Address: $MINING_ADDRESS"
     log INFO "  Batch: $BATCH_SIZE block(s) per round"
     log INFO "  Wallet: ${WALLET_NAME:-external}"
+    log INFO "  Reward: $BLOCK_REWARD SYL per block"
     log INFO "═══════════════════════════════════════════════════════════════"
     echo ""
     
@@ -1151,14 +1176,19 @@ mining_loop() {
     START_HEIGHT=$(get_block_count)
     
     log INFO "Starting at block height: $START_HEIGHT"
+    log INFO "Mining in progress... (updates every attempt)"
+    echo ""
     
     local last_daemon_check=$(now)
     local last_stats_time=$(now)
     local last_block_time=$(now)
     local last_block_height=$START_HEIGHT
+    local attempt_count=0
+    local spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
     
     while [ "$SHUTDOWN_REQUESTED" = false ]; do
         local current_time=$(now)
+        attempt_count=$((attempt_count + 1))
         
         # Periodic daemon health check
         if [ $((current_time - last_daemon_check)) -gt $DAEMON_CHECK_INTERVAL ]; then
@@ -1170,9 +1200,21 @@ mining_loop() {
             last_daemon_check=$current_time
         fi
         
+        # Show mining progress spinner
+        local spinner_idx=$((attempt_count % ${#spinner_chars[@]}))
+        local elapsed=$((current_time - START_TIME))
+        local elapsed_str=$(elapsed_time $elapsed)
+        local current_height=$(get_block_count)
+        local connections=$(get_connection_count)
+        printf "\r\033[K⛏️  Mining... %s | Height: %d | Mined: %d | Earned: %d SYL | Peers: %d | Time: %s " \
+            "${spinner_chars[$spinner_idx]}" "$current_height" "$BLOCKS_MINED" "$SESSION_EARNINGS" "$connections" "$elapsed_str"
+        
         # Attempt to mine
         local error_output
         if error_output=$(mine_block); then
+            # Clear the progress line
+            printf "\r\033[K"
+            
             # Success! We mined a block!
             ERROR_COUNT=0
             BLOCKS_MINED=$((BLOCKS_MINED + BATCH_SIZE))
