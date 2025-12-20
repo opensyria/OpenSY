@@ -71,7 +71,7 @@ LOG_TO_FILE=true
 VERBOSE=true
 
 # Script version
-VERSION="2.4.1"
+VERSION="2.5.0"
 
 # Block economics
 BLOCK_REWARD=10000              # SYL per block (before halvings) - 10,000 initial
@@ -455,6 +455,12 @@ cleanup() {
 handle_signal() {
     log WARN "Received shutdown signal..."
     SHUTDOWN_REQUESTED=true
+    # Cleanup background mining process
+    cleanup_mine_files 2>/dev/null || true
+    if [ -f "$MINE_PID_FILE" ]; then
+        local pid=$(cat "$MINE_PID_FILE" 2>/dev/null)
+        [ -n "$pid" ] && kill "$pid" 2>/dev/null || true
+    fi
 }
 
 trap handle_signal SIGINT SIGTERM SIGHUP
@@ -1058,6 +1064,56 @@ validate_address() {
 # MINING FUNCTIONS
 #───────────────────────────────────────────────────────────────────────────────
 
+# Temp files for background mining
+MINE_RESULT_FILE="/tmp/opensy_mine_result_$$"
+MINE_PID_FILE="/tmp/opensy_mine_pid_$$"
+
+cleanup_mine_files() {
+    rm -f "$MINE_RESULT_FILE" "$MINE_PID_FILE" 2>/dev/null
+}
+
+mine_block_background() {
+    # Start mining in background, write result to file
+    cleanup_mine_files
+    (
+        result=$(cli_call generatetoaddress $BATCH_SIZE "$MINING_ADDRESS" 2>&1)
+        exit_code=$?
+        echo "$exit_code:$result" > "$MINE_RESULT_FILE"
+    ) &
+    echo $! > "$MINE_PID_FILE"
+}
+
+is_mining_done() {
+    # Check if mining process finished
+    if [ -f "$MINE_PID_FILE" ]; then
+        local pid=$(cat "$MINE_PID_FILE" 2>/dev/null)
+        if [ -n "$pid" ] && ! kill -0 "$pid" 2>/dev/null; then
+            return 0  # Process finished
+        fi
+    fi
+    return 1  # Still running
+}
+
+get_mining_result() {
+    # Returns: 0 for success, 1 for error
+    # Outputs error message on failure
+    if [ -f "$MINE_RESULT_FILE" ]; then
+        local content=$(cat "$MINE_RESULT_FILE" 2>/dev/null)
+        local exit_code="${content%%:*}"
+        local result="${content#*:}"
+        
+        cleanup_mine_files
+        
+        if [ "$exit_code" = "0" ] && [[ "$result" =~ ^\[.*\]$ ]]; then
+            return 0
+        else
+            echo "$result"
+            return 1
+        fi
+    fi
+    return 1
+}
+
 mine_block() {
     local result
     result=$(cli_call generatetoaddress $BATCH_SIZE "$MINING_ADDRESS" 2>&1)
@@ -1091,27 +1147,15 @@ show_stats() {
     fi
 }
 
-# Celebration messages when a block is mined (use %d for height, %s for reward with commas)
-CELEBRATION_MESSAGES=(
-    "💰 BLOCK MINED! +%s SYL added to your wallet!"
-    "🎉 SUCCESS! Block #%d found - %s SYL earned!"
-    "⛏️  FOUND BLOCK #%d! +%s SYL is now yours!"
-    "🚀 BOOM! You mined a block! +%s SYL"
-    "💎 NICE! Block #%d - %s SYL reward!"
-    "🔥 MINING SUCCESS! +%s SYL to the bag!"
-    "✨ Block #%d is YOURS! +%s SYL earned!"
-    "🏆 WINNER! You found block #%d - %s SYL!"
-    "💵 CHA-CHING! +%s SYL from block #%d!"
-    "🎯 BULLSEYE! Block mined - %s SYL reward!"
-)
-
 # Format number with commas (10000 -> 10,000) - works on both GNU and BSD
 format_number() {
     local num="$1"
     # Remove any decimals first
     num="${num%%.*}"
     # Use printf with locale if available, otherwise manual formatting
-    if printf "%'d" "$num" 2>/dev/null; then
+    local formatted
+    if formatted=$(printf "%'d" "$num" 2>/dev/null) && [[ "$formatted" == *","* || "$formatted" == "$num" ]]; then
+        echo "$formatted"
         return
     fi
     # Manual comma insertion (works on all systems)
@@ -1148,23 +1192,23 @@ celebrate_block() {
     local earnings_fmt=$(format_number $SESSION_EARNINGS)
     local balance_fmt=$(format_balance "$balance")
     
-    # Pick a random celebration message
-    local msg_count=${#CELEBRATION_MESSAGES[@]}
-    local idx=$((RANDOM % msg_count))
-    local template="${CELEBRATION_MESSAGES[$idx]}"
+    # Simple celebration messages - randomly pick one
+    local messages=(
+        "💰 BLOCK MINED! +${reward_fmt} SYL added to your wallet!"
+        "🎉 SUCCESS! Block #${height} found - ${reward_fmt} SYL earned!"
+        "⛏️  FOUND BLOCK #${height}! +${reward_fmt} SYL is now yours!"
+        "🚀 BOOM! You mined a block! +${reward_fmt} SYL"
+        "💎 NICE! Block #${height} - ${reward_fmt} SYL reward!"
+        "🔥 MINING SUCCESS! +${reward_fmt} SYL to the bag!"
+        "✨ Block #${height} is YOURS! +${reward_fmt} SYL earned!"
+        "🏆 WINNER! You found block #${height} - ${reward_fmt} SYL!"
+        "💵 CHA-CHING! +${reward_fmt} SYL from block #${height}!"
+        "🎯 BULLSEYE! Block mined - ${reward_fmt} SYL reward!"
+    )
     
-    # Format message - use %s for formatted numbers, %d for height
-    local msg
-    if [[ "$template" == *"#%d"* ]] && [[ "$template" == *"%s"* ]]; then
-        # Has both height and reward
-        msg=$(printf "$template" "$height" "$reward_fmt")
-    elif [[ "$template" == *"%s"* ]] && [[ "$template" == *"#%d"* ]]; then
-        # Reward first, then height
-        msg=$(printf "$template" "$reward_fmt" "$height")
-    else
-        # Just reward
-        msg=$(printf "$template" "$reward_fmt")
-    fi
+    local msg_count=${#messages[@]}
+    local idx=$((RANDOM % msg_count))
+    local msg="${messages[$idx]}"
     
     echo ""
     echo "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"
@@ -1207,91 +1251,106 @@ mining_loop() {
     START_HEIGHT=$(get_block_count)
     
     log INFO "Starting at block height: $START_HEIGHT"
-    log INFO "Mining in progress... (updates every attempt)"
+    log INFO "Mining in progress... (live updates)"
     echo ""
     
     local last_daemon_check=$(now)
     local last_stats_time=$(now)
     local last_block_time=$(now)
     local last_block_height=$START_HEIGHT
-    local attempt_count=0
+    local spinner_idx=0
     local spinner_chars=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+    local mining_in_progress=false
     
     while [ "$SHUTDOWN_REQUESTED" = false ]; do
         local current_time=$(now)
-        attempt_count=$((attempt_count + 1))
         
-        # Periodic daemon health check
+        # Start mining if not already running
+        if [ "$mining_in_progress" = false ]; then
+            mine_block_background
+            mining_in_progress=true
+        fi
+        
+        # Update spinner (runs every 100ms for smooth animation)
+        spinner_idx=$(( (spinner_idx + 1) % ${#spinner_chars[@]} ))
+        local elapsed=$((current_time - START_TIME))
+        local elapsed_str=$(elapsed_time $elapsed)
+        local current_height=$(get_block_count 2>/dev/null || echo "$last_block_height")
+        local connections=$(get_connection_count 2>/dev/null || echo "?")
+        local height_fmt=$(format_number "$current_height")
+        local earned_fmt=$(format_number "$SESSION_EARNINGS")
+        printf "\r\033[K⛏️  Mining... %s | Height: %s | Mined: %d | Earned: %s SYL | Peers: %s | Time: %s " \
+            "${spinner_chars[$spinner_idx]}" "$height_fmt" "$BLOCKS_MINED" "$earned_fmt" "$connections" "$elapsed_str"
+        
+        # Check if mining completed
+        if is_mining_done; then
+            local error_output
+            if error_output=$(get_mining_result); then
+                # Clear the progress line
+                printf "\r\033[K"
+                
+                # Success! We mined a block!
+                ERROR_COUNT=0
+                BLOCKS_MINED=$((BLOCKS_MINED + BATCH_SIZE))
+                
+                # Calculate earnings
+                current_height=$(get_block_count)
+                local reward=$(get_block_reward $current_height)
+                SESSION_EARNINGS=$((SESSION_EARNINGS + reward))
+                
+                # Celebration message!
+                celebrate_block $current_height $reward
+                
+                # Track last successful block
+                last_block_time=$(now)
+                last_block_height=$current_height
+            else
+                # Error
+                ERROR_COUNT=$((ERROR_COUNT + 1))
+                TOTAL_ERRORS=$((TOTAL_ERRORS + 1))
+                
+                # Only log errors periodically to avoid spam
+                if [ $ERROR_COUNT -eq 1 ] || [ $((ERROR_COUNT % 5)) -eq 0 ]; then
+                    printf "\r\033[K"
+                    log WARN "Mining error ($ERROR_COUNT/$MAX_CONSECUTIVE_ERRORS): $(echo "$error_output" | head -1)"
+                fi
+                
+                # Too many errors - check daemon
+                if [ $ERROR_COUNT -ge $MAX_CONSECUTIVE_ERRORS ]; then
+                    printf "\r\033[K"
+                    log ERROR "Too many consecutive errors, checking daemon..."
+                    
+                    if ! ensure_daemon_running; then
+                        log ERROR "Daemon unrecoverable. Waiting longer..."
+                        sleep 60
+                    fi
+                    
+                    ERROR_COUNT=0
+                fi
+            fi
+            
+            mining_in_progress=false
+            sleep $MINING_DELAY
+            continue
+        fi
+        
+        # Periodic daemon health check (every 5 minutes)
         if [ $((current_time - last_daemon_check)) -gt $DAEMON_CHECK_INTERVAL ]; then
-            if ! ensure_daemon_running; then
+            if ! is_daemon_running; then
+                printf "\r\033[K"
                 log ERROR "Cannot reach daemon, waiting..."
+                cleanup_mine_files
+                mining_in_progress=false
                 sleep $ERROR_DELAY
+                last_daemon_check=$current_time
                 continue
             fi
             last_daemon_check=$current_time
         fi
         
-        # Show mining progress spinner
-        local spinner_idx=$((attempt_count % ${#spinner_chars[@]}))
-        local elapsed=$((current_time - START_TIME))
-        local elapsed_str=$(elapsed_time $elapsed)
-        local current_height=$(get_block_count)
-        local connections=$(get_connection_count)
-        local height_fmt=$(format_number "$current_height")
-        local earned_fmt=$(format_number "$SESSION_EARNINGS")
-        printf "\r\033[K⛏️  Mining... %s | Height: %s | Mined: %d | Earned: %s SYL | Peers: %d | Time: %s " \
-            "${spinner_chars[$spinner_idx]}" "$height_fmt" "$BLOCKS_MINED" "$earned_fmt" "$connections" "$elapsed_str"
-        
-        # Attempt to mine
-        local error_output
-        if error_output=$(mine_block); then
-            # Clear the progress line
-            printf "\r\033[K"
-            
-            # Success! We mined a block!
-            ERROR_COUNT=0
-            BLOCKS_MINED=$((BLOCKS_MINED + BATCH_SIZE))
-            
-            # Calculate earnings
-            local current_height=$(get_block_count)
-            local reward=$(get_block_reward $current_height)
-            SESSION_EARNINGS=$((SESSION_EARNINGS + reward))
-            
-            # Celebration message!
-            celebrate_block $current_height $reward
-            
-            # Track last successful block
-            last_block_time=$(now)
-            last_block_height=$current_height
-            
-            sleep $MINING_DELAY
-        else
-            # Error
-            ERROR_COUNT=$((ERROR_COUNT + 1))
-            TOTAL_ERRORS=$((TOTAL_ERRORS + 1))
-            
-            # Only log errors periodically to avoid spam
-            if [ $ERROR_COUNT -eq 1 ] || [ $((ERROR_COUNT % 5)) -eq 0 ]; then
-                log WARN "Mining error ($ERROR_COUNT/$MAX_CONSECUTIVE_ERRORS): $(echo "$error_output" | head -1)"
-            fi
-            
-            # Too many errors - check daemon
-            if [ $ERROR_COUNT -ge $MAX_CONSECUTIVE_ERRORS ]; then
-                log ERROR "Too many consecutive errors, checking daemon..."
-                
-                if ! ensure_daemon_running; then
-                    log ERROR "Daemon unrecoverable. Waiting longer..."
-                    sleep 60
-                fi
-                
-                ERROR_COUNT=0
-            fi
-            
-            sleep $ERROR_DELAY
-        fi
-        
         # Periodic stats (every 5 minutes even if no blocks)
         if [ $((current_time - last_stats_time)) -gt 300 ]; then
+            printf "\r\033[K"
             show_stats $(get_block_count)
             last_stats_time=$current_time
             
@@ -1323,7 +1382,13 @@ mining_loop() {
                 wait_for_network || log ERROR "Network still down, continuing anyway..."
             fi
         fi
+        
+        # Small sleep for spinner animation (100ms)
+        sleep 0.1
     done
+    
+    # Cleanup on exit
+    cleanup_mine_files
     
     log INFO "Mining loop ended gracefully"
     return 0
