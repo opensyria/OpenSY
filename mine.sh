@@ -1028,16 +1028,25 @@ get_balance() {
         result=$(cli_call getbalances 2>/dev/null)
     fi
     
-    if [ -n "$result" ]; then
-        # Sum trusted + immature (mining rewards waiting for 100 confirmations)
-        local trusted=$(echo "$result" | grep -o '"trusted": *[0-9.]*' | grep -o '[0-9.]*' | head -1)
-        local immature=$(echo "$result" | grep -o '"immature": *[0-9.]*' | grep -o '[0-9.]*' | head -1)
-        trusted=${trusted:-0}
-        immature=${immature:-0}
-        # Use awk instead of bc (bc may not be installed)
-        awk "BEGIN {printf \"%.8f\", $trusted + $immature}" 2>/dev/null || echo "$trusted"
-    else
+    if [ -z "$result" ] || [[ "$result" == *"error"* ]]; then
         echo "N/A"
+        return
+    fi
+    
+    # Parse the mine section for immature balance
+    local mine_trusted=$(echo "$result" | grep -A5 '"mine"' | grep '"trusted"' | grep -o '[0-9.]*' | head -1)
+    local mine_immature=$(echo "$result" | grep -A5 '"mine"' | grep '"immature"' | grep -o '[0-9.]*' | head -1)
+    
+    mine_trusted=${mine_trusted:-0}
+    mine_immature=${mine_immature:-0}
+    
+    # Use awk to sum (bc may not be installed)
+    local total=$(awk "BEGIN {printf \"%.8f\", $mine_trusted + $mine_immature}" 2>/dev/null)
+    
+    if [ -n "$total" ] && [ "$total" != "0.00000000" ]; then
+        echo "$total"
+    else
+        echo "0"
     fi
 }
 
