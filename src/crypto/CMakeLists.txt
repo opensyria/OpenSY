@@ -4,6 +4,7 @@
 
 add_library(opensy_crypto STATIC EXCLUDE_FROM_ALL
   aes.cpp
+  argon2_context.cpp
   blake2b.cpp
   chacha20.cpp
   chacha20poly1305.cpp
@@ -31,6 +32,22 @@ target_link_libraries(opensy_crypto
   PUBLIC
     randomx
 )
+
+# Optional: Link libsodium for optimized Argon2id (recommended for production)
+# If libsodium is found, use it; otherwise fall back to reference implementation
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+  pkg_check_modules(LIBSODIUM QUIET libsodium)
+  if(LIBSODIUM_FOUND)
+    target_compile_definitions(opensy_crypto PRIVATE HAVE_LIBSODIUM)
+    target_include_directories(opensy_crypto PRIVATE ${LIBSODIUM_INCLUDE_DIRS})
+    target_link_directories(opensy_crypto PUBLIC ${LIBSODIUM_LIBRARY_DIRS})
+    target_link_libraries(opensy_crypto PUBLIC ${LIBSODIUM_LINK_LIBRARIES})
+    message(STATUS "Using libsodium for Argon2id PoW fallback")
+  else()
+    message(STATUS "libsodium not found - Argon2id fallback will use reference implementation")
+  endif()
+endif()
 
 if(HAVE_SSE41)
   target_compile_definitions(opensy_crypto PRIVATE ENABLE_SSE41)

@@ -610,6 +610,17 @@ public:
         }
         consensus.powLimitRandomX = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
 
+        // Argon2id emergency fallback - disabled by default (-1 = never)
+        // Use -argon2emergencyheight=<n> for testing emergency fallback
+        consensus.nArgon2EmergencyHeight = -1;
+        if (opts.argon2_emergency_height) {
+            consensus.nArgon2EmergencyHeight = *opts.argon2_emergency_height;
+        }
+        consensus.powLimitArgon2 = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
+        consensus.nArgon2MemoryCost = 1 << 16;  // 64MB for faster regtest (not 2GB!)
+        consensus.nArgon2TimeCost = 1;
+        consensus.nArgon2Parallelism = 1;
+
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;

@@ -39,6 +39,7 @@ bool CheckProofOfWorkImpl(uint256 hash, unsigned int nBits, int height, const Co
 /**
  * Check proof-of-work for a block at a specific height.
  * Uses RandomX for blocks at or after fork height, SHA256d for earlier blocks.
+ * Falls back to Argon2id if emergency fallback is activated.
  *
  * @param[in] header    Block header to validate
  * @param[in] height    Height of the block (determines which algorithm to use)
@@ -47,6 +48,16 @@ bool CheckProofOfWorkImpl(uint256 hash, unsigned int nBits, int height, const Co
  * @return true if proof-of-work is valid
  */
 bool CheckProofOfWorkAtHeight(const CBlockHeader& header, int height, const CBlockIndex* pindex, const Consensus::Params& params);
+
+/**
+ * Get the name of the PoW algorithm active at a given height.
+ * Useful for logging and debugging.
+ *
+ * @param[in] height    Block height
+ * @param[in] params    Consensus parameters
+ * @return String name of the algorithm ("SHA256d", "RandomX", or "Argon2id")
+ */
+const char* GetPowAlgorithmName(int height, const Consensus::Params& params);
 
 /**
  * Simplified proof-of-work check for block index loading.

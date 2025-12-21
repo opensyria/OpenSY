@@ -155,6 +155,7 @@ public:
         bool fastprune{false};
         bool enforce_bip94{false};
         std::optional<int> randomx_fork_height{}; //!< Override RandomX fork height for testing
+        std::optional<int> argon2_emergency_height{}; //!< Override Argon2 emergency height for testing
     };
 
     static std::unique_ptr<const CChainParams> RegTest(const RegTestOptions& options);

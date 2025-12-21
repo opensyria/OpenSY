@@ -82,6 +82,7 @@ TEST_FRAMEWORK_UNIT_TESTS = 'feature_framework_unit_tests.py'
 EXTENDED_SCRIPTS = [
     # These tests are not run by default.
     # Longest test should go first, to favor running tests in parallel
+    'feature_argon2_stress.py',
     'feature_pruning.py',
     'feature_dbcrash.py',
     'feature_index_prune.py',
@@ -282,6 +283,7 @@ BASE_SCRIPTS = [
     'mining_basic.py',
     'mining_mainnet.py',
     'feature_randomx_pow.py',
+    'feature_argon2_fallback.py',
     'feature_coinbase_maturity_fork.py',
     'p2p_randomx_headers.py',
     'feature_signet.py',

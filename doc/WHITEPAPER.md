@@ -770,5 +770,3 @@ Where code was ambiguous, the following assumptions were made:
 ---
 
 *Document Hash: [To be computed on final version]*
-
-*This whitepaper is derived entirely from source code analysis of the OpenSY repository. No external marketing materials or unverified claims were incorporated.*

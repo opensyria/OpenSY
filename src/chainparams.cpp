@@ -63,6 +63,15 @@ void ReadRegTestArgs(const ArgsManager& args, CChainParams::RegTestOptions& opti
         options.randomx_fork_height = *height;
     }
 
+    // Parse Argon2id emergency height override
+    if (auto value = args.GetArg("-argon2emergencyheight")) {
+        const auto height = ToIntegral<int32_t>(*value);
+        if (!height) {
+            throw std::runtime_error(strprintf("Invalid -argon2emergencyheight value: %s", *value));
+        }
+        options.argon2_emergency_height = *height;
+    }
+
     for (const std::string& arg : args.GetArgs("-testactivationheight")) {
         const auto found{arg.find('@')};
         if (found == std::string::npos) {

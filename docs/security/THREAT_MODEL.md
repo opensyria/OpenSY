@@ -288,8 +288,36 @@ RESPONSE: Emergency hard fork to alternative algorithm
 | Supply Chain | Hash verification | `cmake/randomx.cmake` |
 | Sybil Attack | nMinimumChainWork | Set at block 10,000 |
 | Low-work Chains | Chain work comparison | `validation.cpp` |
+| **RandomX Compromise** | **Argon2id fallback** | `argon2_context.cpp`, dormant |
 
-### 6.2 Recommended Additional Mitigations
+### 6.2 PoW Algorithm Fallback Strategy
+
+OpenSY includes a dormant emergency fallback to **Argon2id** if RandomX is compromised:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    POW ALGORITHM STRATEGY                        │
+└─────────────────────────────────────────────────────────────────┘
+
+  NORMAL OPERATION:              EMERGENCY (RandomX Compromised):
+  ┌─────────────────┐            ┌─────────────────┐
+  │    RandomX      │            │    Argon2id     │
+  │  (Primary PoW)  │   ─────►   │  (Fallback PoW) │
+  │  CPU-friendly   │  Hard Fork │  CPU-friendly   │
+  │  2GB memory     │            │  2GB memory     │
+  └─────────────────┘            └─────────────────┘
+
+  Activation: consensus.nArgon2EmergencyHeight (default: -1 = never)
+  See: docs/security/EMERGENCY_POW_FALLBACK.md
+```
+
+| Scenario | Response |
+|----------|----------|
+| RandomX cryptographic break | Emergency hard fork to Argon2id |
+| Critical CVE in RandomX | Emergency hard fork within days |
+| Theoretical weakness | Planned upgrade with lead time |
+
+### 6.3 Recommended Additional Mitigations
 
 | Threat | Mitigation | Priority | Status |
 |--------|------------|----------|--------|

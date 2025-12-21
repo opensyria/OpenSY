@@ -89,6 +89,7 @@ add_executable(test_opensy
   randomx_high_priority_tests.cpp
   randomx_medium_priority_tests.cpp
   randomx_adversarial_tests.cpp
+  argon2_fallback_tests.cpp
   rbf_tests.cpp
   rest_tests.cpp
   result_tests.cpp

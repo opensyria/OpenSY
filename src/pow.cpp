@@ -22,6 +22,15 @@
 // - Key rotation every 32 blocks (mainnet) prevents pre-computation attacks
 // - Light mode (256KB) for validation, full mode (2GB) for mining
 //
+// ARGON2ID EMERGENCY FALLBACK:
+// If RandomX is compromised (cryptographic break, critical vulnerability),
+// the network can activate Argon2id as an emergency fallback via hard fork.
+// Argon2id is the Password Hashing Competition winner with similar properties:
+// - Memory-hard (2GB default, matching RandomX)
+// - ASIC-resistant
+// - Side-channel resistant (id variant)
+// - Widely audited (1Password, Bitwarden, Signal)
+//
 // OPERATIONAL RECOMMENDATIONS:
 // 1. Monitor network hashrate for sudden changes
 // 2. Update nMinimumChainWork regularly during first year
@@ -33,6 +42,7 @@
 #include <chain.h>
 #include <crypto/randomx_context.h>
 #include <crypto/randomx_pool.h>
+#include <crypto/argon2_context.h>
 #include <primitives/block.h>
 #include <streams.h>
 #include <sync.h>
@@ -296,22 +306,58 @@ uint256 CalculateRandomXHash(const CBlockHeader& header, const uint256& keyBlock
         reinterpret_cast<const unsigned char*>(ss.data()), ss.size());
 }
 
+// =============================================================================
+// ALGORITHM NAME HELPER
+// =============================================================================
+
+const char* GetPowAlgorithmName(int height, const Consensus::Params& params)
+{
+    switch (params.GetPowAlgorithm(height)) {
+        case Consensus::Params::PowAlgorithm::ARGON2ID:
+            return "Argon2id";
+        case Consensus::Params::PowAlgorithm::RANDOMX:
+            return "RandomX";
+        case Consensus::Params::PowAlgorithm::SHA256D:
+        default:
+            return "SHA256d";
+    }
+}
+
+// =============================================================================
+// UNIFIED PROOF-OF-WORK VALIDATION
+// =============================================================================
+
 bool CheckProofOfWorkAtHeight(const CBlockHeader& header, int height, const CBlockIndex* pindex, const Consensus::Params& params)
 {
-    if (params.IsRandomXActive(height)) {
-        // RandomX proof-of-work for blocks at or after fork height
-        uint256 keyBlockHash = GetRandomXKeyBlockHash(height, pindex, params);
-        if (keyBlockHash.IsNull()) {
-            // Can't determine key block - reject
-            return false;
+    // Determine which PoW algorithm to use based on height and consensus rules
+    const auto algorithm = params.GetPowAlgorithm(height);
+
+    switch (algorithm) {
+        case Consensus::Params::PowAlgorithm::ARGON2ID: {
+            // Argon2id emergency fallback - only activated if RandomX is compromised
+            LogPrintf("PoW: Using Argon2id emergency fallback at height %d\n", height);
+
+            uint256 argon2Hash = CalculateArgon2Hash(header, params);
+            return CheckProofOfWorkImpl(argon2Hash, header.nBits, height, params);
         }
 
-        uint256 randomxHash = CalculateRandomXHash(header, keyBlockHash);
-        // Use height-aware CheckProofOfWorkImpl for RandomX with its own powLimit
-        return CheckProofOfWorkImpl(randomxHash, header.nBits, height, params);
-    } else {
-        // SHA256d proof-of-work for legacy blocks
-        return CheckProofOfWork(header.GetHash(), header.nBits, params);
+        case Consensus::Params::PowAlgorithm::RANDOMX: {
+            // RandomX proof-of-work for blocks at or after fork height
+            uint256 keyBlockHash = GetRandomXKeyBlockHash(height, pindex, params);
+            if (keyBlockHash.IsNull()) {
+                // Can't determine key block - reject
+                return false;
+            }
+
+            uint256 randomxHash = CalculateRandomXHash(header, keyBlockHash);
+            return CheckProofOfWorkImpl(randomxHash, header.nBits, height, params);
+        }
+
+        case Consensus::Params::PowAlgorithm::SHA256D:
+        default: {
+            // SHA256d proof-of-work for genesis/legacy blocks
+            return CheckProofOfWork(header.GetHash(), header.nBits, params);
+        }
     }
 }
 
@@ -321,33 +367,41 @@ bool CheckProofOfWorkForBlockIndex(const CBlockHeader& header, int height, const
     // SECURITY: CheckProofOfWorkForBlockIndex is INTENTIONALLY WEAK
     // ==========================================================================
     //
-    // This function only validates nBits range, NOT the actual RandomX hash.
+    // This function only validates nBits range, NOT the actual RandomX/Argon2 hash.
     // Full validation occurs in ContextualCheckBlockHeader/ConnectBlock.
     //
     // WHY THIS IS ACCEPTABLE:
     //   1. Blocks on disk were already validated when first accepted
-    //   2. Full RandomX validation occurs during ConnectBlock/ActivateBestChain
+    //   2. Full PoW validation occurs during ConnectBlock/ActivateBestChain
     //   3. Attackers with disk write access have already compromised the node
     //
     // IMPLEMENTATION DETAIL:
     // During index loading, blocks are loaded in arbitrary order and pprev pointers
-    // may not be fully set, so we cannot traverse the chain to compute RandomX hashes.
+    // may not be fully set, so we cannot traverse the chain to compute PoW hashes.
     //
-    // For RandomX blocks: we ONLY verify that nBits is within the valid range.
+    // For RandomX/Argon2id blocks: we ONLY verify that nBits is within the valid range.
     // For SHA256d blocks: full validation is performed (no chain traversal needed).
     //
     // IMPORTANT: Do not rely on this function alone for consensus security.
-    // Full RandomX hash verification MUST happen in ContextualCheckBlockHeader
+    // Full PoW hash verification MUST happen in ContextualCheckBlockHeader
     // or CheckProofOfWorkAtHeight before a block affects chain state.
     // ==========================================================================
 
-    if (params.IsRandomXActive(height)) {
-        // For RandomX blocks during index load: just verify nBits is valid
-        const uint256& activePowLimit = params.GetRandomXPowLimit(height);
-        auto bnTarget = DeriveTarget(header.nBits, activePowLimit);
-        return bnTarget.has_value();  // Valid if nBits parses to a valid target within powLimit
-    } else {
-        // SHA256d blocks can be fully validated
-        return CheckProofOfWork(header.GetHash(), header.nBits, params);
+    const auto algorithm = params.GetPowAlgorithm(height);
+
+    switch (algorithm) {
+        case Consensus::Params::PowAlgorithm::ARGON2ID:
+        case Consensus::Params::PowAlgorithm::RANDOMX: {
+            // For memory-hard algorithms during index load: just verify nBits is valid
+            const uint256& activePowLimit = params.GetActivePowLimit(height);
+            auto bnTarget = DeriveTarget(header.nBits, activePowLimit);
+            return bnTarget.has_value();  // Valid if nBits parses to a valid target within powLimit
+        }
+
+        case Consensus::Params::PowAlgorithm::SHA256D:
+        default: {
+            // SHA256d blocks can be fully validated
+            return CheckProofOfWork(header.GetHash(), header.nBits, params);
+        }
     }
 }

@@ -147,19 +147,82 @@ struct Params {
     int nRandomXKeyBlockInterval{32};     //!< How often the RandomX key changes (blocks) - 32 for tighter security
     uint256 powLimitRandomX;              //!< Minimum difficulty for RandomX blocks (resets at fork)
 
+    /**
+     * Emergency Fallback PoW Parameters (Argon2id)
+     *
+     * If RandomX is compromised (cryptographic break, critical vulnerability),
+     * the network can activate Argon2id as an emergency CPU-friendly fallback.
+     *
+     * ACTIVATION: Via BIP9 signaling or emergency hard fork at nArgon2EmergencyHeight.
+     * This is a dormant mechanism - only activated if RandomX becomes unsafe.
+     *
+     * Argon2id chosen because:
+     *   - Password Hashing Competition winner (2015)
+     *   - Memory-hard and ASIC-resistant
+     *   - Resistant to side-channel attacks (id variant)
+     *   - Widely audited (1Password, Bitwarden, Signal, Cloudflare)
+     *   - Simpler than RandomX = smaller attack surface
+     */
+    int nArgon2EmergencyHeight{-1};       //!< Height at which Argon2id activates (-1 = never, emergency only)
+    uint32_t nArgon2MemoryCost{1 << 21};  //!< Memory in KiB (2GB = 2097152 KiB, matches RandomX)
+    uint32_t nArgon2TimeCost{1};          //!< Number of iterations
+    uint32_t nArgon2Parallelism{1};       //!< Parallelism factor
+    uint256 powLimitArgon2;               //!< Minimum difficulty for Argon2id blocks
+
     /** Check if RandomX proof-of-work is active at the given height */
     bool IsRandomXActive(int height) const
     {
-        return height >= nRandomXForkHeight;
+        // RandomX is active after fork height, but NOT if Argon2 emergency is active
+        return height >= nRandomXForkHeight && !IsArgon2EmergencyActive(height);
+    }
+
+    /** Check if Argon2id emergency fallback is active at the given height */
+    bool IsArgon2EmergencyActive(int height) const
+    {
+        return nArgon2EmergencyHeight >= 0 && height >= nArgon2EmergencyHeight;
+    }
+
+    /**
+     * Proof-of-Work Algorithm Enumeration
+     * Used for explicit algorithm selection in validation and mining code.
+     */
+    enum class PowAlgorithm {
+        SHA256D,    //!< Genesis block only (or pre-fork if applicable)
+        RANDOMX,    //!< Primary algorithm from block 1
+        ARGON2ID    //!< Emergency fallback if RandomX compromised
+    };
+
+    /** Get the active PoW algorithm for a given block height */
+    PowAlgorithm GetPowAlgorithm(int height) const
+    {
+        if (IsArgon2EmergencyActive(height)) {
+            return PowAlgorithm::ARGON2ID;
+        }
+        if (IsRandomXActive(height)) {
+            return PowAlgorithm::RANDOMX;
+        }
+        return PowAlgorithm::SHA256D;
+    }
+
+    /** Get the appropriate powLimit based on block height and active algorithm */
+    const uint256& GetActivePowLimit(int height) const
+    {
+        switch (GetPowAlgorithm(height)) {
+        case PowAlgorithm::ARGON2ID:
+            return powLimitArgon2.IsNull() ? powLimitRandomX : powLimitArgon2;
+        case PowAlgorithm::RANDOMX:
+            return powLimitRandomX.IsNull() ? powLimit : powLimitRandomX;
+        case PowAlgorithm::SHA256D:
+        default:
+            return powLimit;
+        }
     }
 
     /** Get the appropriate powLimit based on block height (SHA256d vs RandomX) */
     const uint256& GetRandomXPowLimit(int height) const
     {
-        if (IsRandomXActive(height) && !powLimitRandomX.IsNull()) {
-            return powLimitRandomX;
-        }
-        return powLimit;
+        // Legacy function - calls GetActivePowLimit for backward compatibility
+        return GetActivePowLimit(height);
     }
 
     /** Get the key block height for RandomX at a given block height.
