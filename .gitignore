@@ -36,3 +36,7 @@ mining.log
 nohup.out
 mining_universal.log
 mine.log
+
+# Test/sanitizer output
+sanitizer_output.log
+test/config.ini
