@@ -2,7 +2,7 @@ OpenSY
 =====================================
 
 <p align="center">
-  <strong>🇸🇾 Syria's First Blockchain - Launched December 8, 2025</strong>
+  <strong>🇸🇾 Syria's First Blockchain</strong>
 </p>
 
 <p align="center">
@@ -17,7 +17,6 @@ OpenSY
 | Metric | Value |
 |--------|-------|
 | **Status** | ✅ Mainnet Active |
-| **Launch Date** | December 8, 2025 |
 | **Seed Node** | `seed.opensyria.net` |
 | **Block Explorer** | 🔍 [explorer.opensyria.net](https://explorer.opensyria.net) |
 | **Website** | 🌐 [opensyria.net](https://opensyria.net) |
