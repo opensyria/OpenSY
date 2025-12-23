@@ -210,11 +210,12 @@ build_opensy() {
     
     cd "${OPENSY_SRC}/source"
     
-    # Configure build
+    # Configure build (IPC disabled - requires Cap'n Proto which adds complexity)
     sudo -u "$OPENSY_USER" cmake -B build \
         -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_GUI=OFF \
-        -DBUILD_TESTS=OFF
+        -DBUILD_TESTS=OFF \
+        -DENABLE_IPC=OFF
     
     # Build with all available cores
     CORES=$(nproc)
