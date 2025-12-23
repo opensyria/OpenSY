@@ -281,6 +281,9 @@ rpcport=${RPC_PORT}
 # Enable transaction index (required for block explorer)
 txindex=1
 
+# Enable block filter index (required for peerblockfilters which is enabled by default)
+blockfilterindex=1
+
 # ------------------------------------------------------------------------------
 # Logging
 # ------------------------------------------------------------------------------

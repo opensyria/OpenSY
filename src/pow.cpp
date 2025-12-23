@@ -149,6 +149,16 @@ bool PermittedDifficultyTransition(const Consensus::Params& params, int64_t heig
 {
     if (params.fPowAllowMinDifficultyBlocks) return true;
 
+    // At RandomX fork height, difficulty resets to minimum - this is always permitted
+    if (height == params.nRandomXForkHeight) {
+        return true;
+    }
+
+    // At Argon2 emergency height, difficulty resets to minimum - this is always permitted
+    if (params.nArgon2EmergencyHeight >= 0 && height == params.nArgon2EmergencyHeight) {
+        return true;
+    }
+
     if (height % params.DifficultyAdjustmentInterval() == 0) {
         int64_t smallest_timespan = params.nPowTargetTimespan/4;
         int64_t largest_timespan = params.nPowTargetTimespan*4;
