@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoopMine Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>⛏️ CoopMine</h1>
+                <span class="subtitle">Cooperative Mining Cluster</span>
+            </div>
+            <div class="connection-status" id="connection-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Cluster Stats -->
+            <section class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="hashrate">--</span>
+                        <span class="stat-unit" id="hashrate-unit">H/s</span>
+                        <span class="stat-label">Total Hashrate</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="workers">--</span>
+                        <span class="stat-label">Workers Online</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✓</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="shares">--</span>
+                        <span class="stat-label">Valid Shares</span>
+                    </div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="blocks">--</span>
+                        <span class="stat-label">Blocks Found</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Workers Table -->
+            <section class="workers-section">
+                <div class="section-header">
+                    <h2>Workers</h2>
+                    <span class="worker-count" id="worker-count">0 workers</span>
+                </div>
+                <div class="table-container">
+                    <table class="workers-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Hashrate</th>
+                                <th>Shares</th>
+                                <th>Last Seen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workers-tbody">
+                            <tr class="empty-row">
+                                <td colspan="5">No workers connected</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Cluster Info -->
+            <section class="info-section">
+                <div class="info-card">
+                    <h3>Cluster Info</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Cluster ID</span>
+                            <span class="info-value" id="cluster-id">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cluster Name</span>
+                            <span class="info-value" id="cluster-name">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Uptime</span>
+                            <span class="info-value" id="uptime">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Pool Connected</span>
+                            <span class="info-value" id="pool-status">--</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>OpenSY CoopMine Dashboard &copy; 2024</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

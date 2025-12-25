@@ -157,14 +157,22 @@ randomx_vm* vm = randomx_create_vm(flags, cache, dataset);
 
 ### Seed Hash Updates
 
-RandomX seed hash changes every 2048 blocks:
+**OpenSY uses a 32-block key interval** (not 2048 like Monero). This means the RandomX dataset must be regenerated approximately every 64 minutes.
 
 ```python
+# OpenSY-specific: 32-block key interval (defined in consensus/params.h)
+KEY_BLOCK_INTERVAL = 32
+
 def get_seed_height(height):
-    """Calculate seed height for RandomX."""
-    if height < 2048:
-        return 0
-    return (height - 2048 + 1) // 2048 * 2048 + 2048
+    """Calculate seed block height for RandomX key.
+    
+    OpenSY rotates the RandomX key every 32 blocks for tighter security.
+    The key block is the block whose hash initializes the RandomX cache/dataset.
+    """
+    if height < KEY_BLOCK_INTERVAL:
+        return 0  # Use genesis for early blocks
+    # Key block is KEY_BLOCK_INTERVAL blocks behind, rounded to interval
+    return ((height // KEY_BLOCK_INTERVAL) - 1) * KEY_BLOCK_INTERVAL
 
 def needs_new_seed(old_height, new_height):
     """Check if we need to recalculate dataset."""
@@ -486,9 +494,11 @@ volumes:
 
 | Software | Platform | Notes |
 |----------|----------|-------|
-| XMRig | All | Best RandomX miner |
+| XMRig | All | Best RandomX miner, requires `algo: "rx/0"` |
 | xmr-stak-rx | All | Alternative |
 | SRBMiner-MULTI | Windows/Linux | Multi-algo |
+
+> **Note**: OpenSY uses standard RandomX (rx/0) but with a **32-block key interval** instead of Monero's 2048. Pool software must handle more frequent dataset regeneration (~every 64 minutes vs ~2.8 days).
 
 ### XMRig Configuration
 
@@ -562,6 +572,17 @@ This architecture provides a scalable, secure mining pool for OpenSY. The Random
 2. **PPLNS payout** to discourage pool hopping
 3. **Variable difficulty** to optimize share rate
 4. **Redis + PostgreSQL** for speed and reliability
+5. **32-block key interval** - Pool must regenerate dataset every ~64 minutes (OpenSY-specific)
+
+### OpenSY-Specific Parameters
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Block time | 2 minutes | Faster than Monero (2 min vs 2 min) |
+| Key interval | 32 blocks | Much faster than Monero (2048) |
+| Dataset regen | ~64 minutes | Plan for ~30-60s regeneration time |
+| Block reward | 10,000 SYL | Initial, halves over time |
+| Coinbase maturity | 100 blocks | ~3.3 hours to spend rewards |
 
 ### Next Steps
 

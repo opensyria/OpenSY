@@ -1,0 +1,66 @@
+# CoopMine Worker Configuration
+# Copy this file to worker.yaml and modify as needed
+
+# Worker identification
+worker:
+  # Unique worker identifier (auto-generated if empty)
+  id: ""
+  # Human-readable worker name
+  name: "Mining Worker"
+
+# Coordinator connection
+coordinator:
+  # Coordinator gRPC address
+  address: "localhost:50051"
+  # Reconnection settings
+  reconnect_delay: 5s
+  max_reconnect_attempts: 0  # 0 = infinite
+  # TLS configuration
+  tls:
+    enabled: true
+    # Client certificate
+    cert: "./certs/client.crt"
+    # Client private key
+    key: "./certs/client.key"
+    # CA certificate for server verification
+    ca: "./certs/ca.crt"
+
+# Mining configuration
+mining:
+  # Number of mining threads (0 = auto-detect CPU cores)
+  threads: 0
+  # Enable huge pages for RandomX (recommended, requires system config)
+  huge_pages: true
+  # RandomX flags
+  flags:
+    # Use full memory mode (2GB RAM per thread)
+    full_mem: true
+    # Enable hardware AES
+    hard_aes: true
+    # Enable JIT compilation
+    jit: true
+  # Hashrate reporting interval
+  hashrate_interval: 10s
+
+# Resource limits
+resources:
+  # Maximum memory usage in MB (0 = unlimited)
+  max_memory: 0
+  # CPU affinity (empty = no affinity)
+  cpu_affinity: []
+
+# Logging
+logging:
+  # Log level: debug, info, warn, error
+  level: "info"
+  # Log format: json, text
+  format: "text"
+  # Log file (empty = stdout)
+  file: ""
+
+# Health monitoring
+health:
+  # Enable local health endpoint
+  enabled: false
+  # Health endpoint listen address
+  listen: ":9091"

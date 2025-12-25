@@ -1,0 +1,93 @@
+# CoopMine Coordinator Configuration
+# Copy this file to coordinator.yaml and modify as needed
+
+# Cluster identification
+cluster:
+  # Unique cluster identifier
+  id: "opensy-cluster-1"
+  # Human-readable cluster name
+  name: "OpenSY Mining Cluster"
+
+# Upstream mining pool configuration
+pool:
+  # Pool address in stratum+tcp://host:port format
+  address: "stratum+tcp://pool.opensy.io:3333"
+  # Wallet address for payouts
+  wallet: "SY1..."
+  # Pool password (usually 'x' or worker name)
+  password: "x"
+  # Reconnection settings
+  reconnect_delay: 5s
+  max_reconnect_attempts: 0  # 0 = infinite
+
+# gRPC server for worker connections
+grpc:
+  # Listen address for gRPC
+  listen: ":50051"
+  # Maximum concurrent workers
+  max_workers: 100
+  # TLS configuration
+  tls:
+    enabled: true
+    # Server certificate
+    cert: "./certs/server.crt"
+    # Server private key
+    key: "./certs/server.key"
+    # CA certificate for client verification
+    ca: "./certs/ca.crt"
+    # Require client certificates
+    require_client_cert: true
+
+# Web dashboard configuration
+dashboard:
+  # Dashboard listen address
+  listen: ":8080"
+  # Static files directory
+  static_dir: "./coopmine/dashboard/static"
+  # Enable CORS for API
+  cors_enabled: true
+  # Allowed origins (empty = all)
+  cors_origins: []
+
+# Worker management
+workers:
+  # Heartbeat interval - workers must send heartbeat within this interval
+  heartbeat_interval: 30s
+  # Worker timeout - mark offline after missing heartbeats
+  timeout: 90s
+  # Minimum hashrate to accept shares (H/s)
+  min_hashrate: 0
+
+# Job distribution
+jobs:
+  # Job timeout - expire jobs after this duration
+  timeout: 5m
+  # Maximum job history to keep
+  history_size: 100
+
+# Share validation
+shares:
+  # Target difficulty for shares
+  target_difficulty: 10000
+  # Enable hash validation (requires RandomX on coordinator)
+  validate_hashes: false
+  # Maximum shares per second per worker (rate limiting)
+  max_rate: 10
+
+# Logging
+logging:
+  # Log level: debug, info, warn, error
+  level: "info"
+  # Log format: json, text
+  format: "text"
+  # Log file (empty = stdout)
+  file: ""
+
+# Metrics
+metrics:
+  # Enable Prometheus metrics
+  enabled: true
+  # Metrics endpoint
+  listen: ":9090"
+  # Metrics path
+  path: "/metrics"

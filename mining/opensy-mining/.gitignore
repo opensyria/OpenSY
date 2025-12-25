@@ -1,0 +1,71 @@
+# OpenSY Mining Infrastructure .gitignore
+
+# Build outputs
+/build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.a
+*.o
+
+# Test outputs
+*.test
+*.out
+coverage.html
+coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# Dependency directories
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes (local data)
+docker/data/
+
+# RandomX build artifacts
+common/randomx/lib/
+common/randomx/include/
+common/randomx/randomx/
+common/randomx/randomx-src/
+
+# Secrets (never commit!)
+*.pem
+*.key
+*.env.local
+.env.production
+secrets/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Database dumps
+*.sql.gz
+*.dump
+
+# Grafana provisioning (keep templates, ignore local changes)
+docker/grafana/dashboards/*.json
+!docker/grafana/dashboards/example.json
+
+# Local configuration overrides
+configs/local.yaml
+*.local.yaml

@@ -1,0 +1,140 @@
+# OpenSY Mining Pool Configuration
+# Development configuration - DO NOT USE IN PRODUCTION
+
+# ============================================================================
+# Pool Identity
+# ============================================================================
+pool:
+  name: "OpenSY Dev Pool"
+  fee: 1.0  # 1% pool fee
+  
+# ============================================================================
+# Node Connection
+# ============================================================================
+node:
+  rpc_url: "http://opensy-node:19632"
+  rpc_user: "opensy"
+  rpc_password: "devpassword"
+  timeout: 30s
+  poll_interval: 500ms  # How often to check for new blocks
+
+# ============================================================================
+# Stratum Server
+# ============================================================================
+stratum:
+  host: "0.0.0.0"
+  port: 3333
+  ssl_port: 3334  # 0 to disable
+  ssl_cert: ""    # Path to TLS certificate
+  ssl_key: ""     # Path to TLS private key
+  
+  # Connection limits
+  max_connections: 10000
+  max_connections_per_ip: 100
+  
+  # Timeouts
+  read_timeout: 30s
+  write_timeout: 30s
+  
+# ============================================================================
+# Variable Difficulty
+# ============================================================================
+vardiff:
+  enabled: true
+  target_time: 30       # Target seconds between shares
+  retarget_time: 120    # Seconds between difficulty adjustments
+  variance_percent: 30  # Allow 30% variance before retarget
+  min_diff: 1000        # Minimum share difficulty
+  max_diff: 1000000000  # Maximum share difficulty
+  start_diff: 10000     # Initial difficulty for new workers
+
+# ============================================================================
+# Share Processing
+# ============================================================================
+shares:
+  # Stale share grace period (for network latency)
+  stale_grace_seconds: 5
+  
+  # Duplicate detection
+  duplicate_check_height_range: 10
+  
+  # Ban policy
+  ban_threshold: 10        # Invalid shares before ban
+  ban_duration: 3600       # Ban duration in seconds
+  
+# ============================================================================
+# Payout Configuration
+# ============================================================================
+payout:
+  scheme: "PPLNS"          # PPLNS, PPS, or PROP
+  pplns_window: 10000      # PPLNS window size in shares
+  
+  min_payout: 100          # Minimum payout in SYL
+  payout_interval: 3600    # Check for payouts every hour
+  
+  # Hot wallet (for automated payouts)
+  # In production, use environment variable: POOL_PAYOUT_WALLET
+  wallet_name: "pool-hot-wallet"
+  
+  # Transaction settings
+  tx_fee_rate: 1.0         # sat/vB
+  max_outputs_per_tx: 100  # Maximum recipients per payout tx
+
+# ============================================================================
+# Database
+# ============================================================================
+database:
+  postgres:
+    url: "postgres://pool:pooldevpass@postgres:5432/opensy_pool?sslmode=disable"
+    max_connections: 50
+    
+  redis:
+    url: "redis://redis:6379/0"
+    pool_size: 100
+
+# ============================================================================
+# API Server
+# ============================================================================
+api:
+  host: "0.0.0.0"
+  port: 8080
+  cors_origins:
+    - "*"  # In production, restrict to your domain
+  rate_limit: 100  # Requests per minute per IP
+
+# ============================================================================
+# RandomX Settings
+# ============================================================================
+randomx:
+  # Use full dataset for fast share validation
+  full_dataset: true
+  
+  # Number of validation threads (0 = auto)
+  threads: 0
+  
+  # Key block interval (OpenSY = 32, Monero = 2048)
+  key_block_interval: 32
+
+# ============================================================================
+# Logging
+# ============================================================================
+logging:
+  level: "debug"  # debug, info, warn, error
+  format: "console"  # console or json
+  output: "stdout"  # stdout, stderr, or file path
+
+# ============================================================================
+# Metrics (Prometheus)
+# ============================================================================
+metrics:
+  enabled: true
+  host: "0.0.0.0"
+  port: 9100
+  path: "/metrics"
+
+# ============================================================================
+# Block Maturity (OpenSY-specific)
+# ============================================================================
+block:
+  maturity_confirmations: 100  # Blocks before reward can be spent
+  orphan_check_interval: 60    # Seconds between orphan checks

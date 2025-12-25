@@ -1,0 +1,87 @@
+# CoopMine Worker Dockerfile
+# Multi-stage build with RandomX support
+
+# Build stage - use Debian for RandomX compilation
+FROM golang:1.24-bookworm AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    cmake \
+    build-essential \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build RandomX library
+WORKDIR /tmp
+RUN git clone --depth 1 https://github.com/tevador/RandomX.git && \
+    cd RandomX && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build worker binary with CGO for RandomX
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
+    -tags "cgo randomx" \
+    -ldflags="-w -s -X main.Version=$(git describe --tags --always --dirty 2>/dev/null || echo dev)" \
+    -o /app/bin/coopmine-worker \
+    ./coopmine/cmd/worker
+
+# Runtime stage
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy RandomX library from builder
+COPY --from=builder /usr/local/lib/librandomx.so* /usr/local/lib/
+RUN ldconfig
+
+# Create non-root user
+RUN groupadd -g 1000 coopmine && \
+    useradd -u 1000 -g coopmine -s /bin/sh coopmine
+
+# Set working directory
+WORKDIR /app
+
+# Copy binary from builder
+COPY --from=builder /app/bin/coopmine-worker /app/
+
+# Copy default config
+COPY --from=builder /app/coopmine/config/worker.example.yaml /app/config/worker.yaml
+
+# Create directories
+RUN mkdir -p /app/certs /app/data && \
+    chown -R coopmine:coopmine /app
+
+# Switch to non-root user
+USER coopmine
+
+# Expose health check port (optional)
+EXPOSE 9091
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:9091/health || exit 1
+
+# Default command
+ENTRYPOINT ["/app/coopmine-worker"]
+CMD ["--config", "/app/config/worker.yaml"]

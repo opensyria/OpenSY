@@ -1,0 +1,35 @@
+# Prometheus configuration for OpenSY Mining Infrastructure
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  # Pool metrics
+  - job_name: 'pool'
+    static_configs:
+      - targets: ['pool:9100']
+    metrics_path: /metrics
+
+  # OpenSY node metrics (if enabled)
+  - job_name: 'opensy-node'
+    static_configs:
+      - targets: ['opensy-node:9332']
+    metrics_path: /metrics
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:9121']
+
+  # PostgreSQL metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:9187']

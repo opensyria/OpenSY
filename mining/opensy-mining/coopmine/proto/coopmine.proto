@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package coopmine;
+
+option go_package = "github.com/opensyria/opensy-mining/coopmine/proto";
+
+// CoopMine service for coordinator-worker communication
+service CoopMine {
+  // Worker registration
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Unregister(UnregisterRequest) returns (UnregisterResponse);
+  
+  // Heartbeat and status
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+  
+  // Job streaming (coordinator pushes jobs to workers)
+  rpc StreamJobs(StreamJobsRequest) returns (stream JobMessage);
+  
+  // Share submission
+  rpc SubmitShare(ShareRequest) returns (ShareResponse);
+  
+  // Stats
+  rpc GetClusterStats(ClusterStatsRequest) returns (ClusterStatsResponse);
+  rpc GetWorkerStats(WorkerStatsRequest) returns (WorkerStatsResponse);
+}
+
+// Register messages
+message RegisterRequest {
+  string worker_id = 1;
+  string worker_name = 2;
+  int32 threads = 3;
+  string version = 4;
+  string os = 5;
+  string arch = 6;
+  repeated string capabilities = 7;
+}
+
+message RegisterResponse {
+  bool success = 1;
+  string message = 2;
+  string assigned_id = 3;
+  ClusterConfig config = 4;
+  JobMessage current_job = 5;
+}
+
+message ClusterConfig {
+  string cluster_id = 1;
+  string cluster_name = 2;
+  uint64 target_difficulty = 3;
+  int32 heartbeat_interval_ms = 4;
+  int32 job_timeout_ms = 5;
+}
+
+// Unregister messages
+message UnregisterRequest {
+  string worker_id = 1;
+}
+
+message UnregisterResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Heartbeat messages
+message HeartbeatRequest {
+  string worker_id = 1;
+  double hashrate = 2;
+  uint64 shares_valid = 3;
+  uint64 shares_invalid = 4;
+  uint64 hashes_total = 5;
+  int64 uptime_ms = 6;
+  float cpu_usage = 7;
+  float memory_usage = 8;
+  float temperature = 9;
+}
+
+message HeartbeatResponse {
+  bool success = 1;
+  string message = 2;
+  WorkerCommand command = 3;
+}
+
+// Commands from coordinator to worker
+enum WorkerCommand {
+  COMMAND_NONE = 0;
+  COMMAND_PAUSE = 1;
+  COMMAND_RESUME = 2;
+  COMMAND_UPDATE_CONFIG = 3;
+  COMMAND_SHUTDOWN = 4;
+}
+
+// Job streaming
+message StreamJobsRequest {
+  string worker_id = 1;
+}
+
+message JobMessage {
+  string job_id = 1;
+  bytes blob = 2;
+  bytes target = 3;
+  bytes seed_hash = 4;
+  int64 height = 5;
+  uint32 extra_nonce = 6;
+  uint32 extra_nonce_size = 7;
+  int64 timestamp = 8;
+  bool clean_jobs = 9;
+}
+
+// Share submission
+message ShareRequest {
+  string worker_id = 1;
+  string job_id = 2;
+  bytes nonce = 3;
+  bytes result = 4;
+  int64 timestamp = 5;
+}
+
+message ShareResponse {
+  bool accepted = 1;
+  string reason = 2;
+  bool is_block = 3;
+  string block_hash = 4;
+  double difficulty = 5;
+}
+
+// Stats messages
+message ClusterStatsRequest {
+  // Empty for now
+}
+
+message ClusterStatsResponse {
+  string cluster_id = 1;
+  string cluster_name = 2;
+  int32 workers_online = 3;
+  int32 workers_total = 4;
+  double total_hashrate = 5;
+  uint64 shares_valid = 6;
+  uint64 shares_invalid = 7;
+  uint64 blocks_found = 8;
+  int64 uptime_ms = 9;
+  int64 last_block_time = 10;
+  double avg_block_time = 11;
+  repeated WorkerSummary workers = 12;
+}
+
+message WorkerSummary {
+  string worker_id = 1;
+  string worker_name = 2;
+  string status = 3;
+  double hashrate = 4;
+  uint64 shares = 5;
+  int64 last_seen = 6;
+}
+
+message WorkerStatsRequest {
+  string worker_id = 1;
+}
+
+message WorkerStatsResponse {
+  string worker_id = 1;
+  string worker_name = 2;
+  string status = 3;
+  double hashrate = 4;
+  uint64 shares_valid = 5;
+  uint64 shares_invalid = 6;
+  uint64 hashes_total = 7;
+  int64 uptime_ms = 8;
+  int32 threads = 9;
+  int64 connected_at = 10;
+  int64 last_share_at = 11;
+  string current_job_id = 12;
+}

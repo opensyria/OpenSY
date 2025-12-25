@@ -1,0 +1,171 @@
+version: '3.8'
+
+# OpenSY Mining Development Environment
+# Usage: docker-compose up -d
+
+services:
+  # ============================================================================
+  # OpenSY Testnet Node
+  # ============================================================================
+  opensy-node:
+    image: ubuntu:22.04
+    container_name: opensy-testnet-node
+    volumes:
+      # Mount OpenSY source for building
+      - ../../../:/opensy-src:ro
+      # Persistent data directory
+      - opensy-testnet-data:/data
+      # Build output (if pre-built)
+      - ../../../build_regular/bin:/opensy-bin:ro
+    ports:
+      - "19632:19632"  # Testnet RPC
+      - "19633:19633"  # Testnet P2P
+    environment:
+      - OPENSY_DATADIR=/data
+      - OPENSY_NETWORK=testnet
+    command: >
+      bash -c "
+        # Check if binary exists
+        if [ -f /opensy-bin/opensyd ]; then
+          echo 'Using pre-built OpenSY binary'
+          /opensy-bin/opensyd \
+            -testnet \
+            -datadir=/data \
+            -rpcuser=opensy \
+            -rpcpassword=devpassword \
+            -rpcallowip=0.0.0.0/0 \
+            -rpcbind=0.0.0.0 \
+            -server=1 \
+            -txindex=1 \
+            -printtoconsole
+        else
+          echo 'ERROR: OpenSY binary not found at /opensy-bin/opensyd'
+          echo 'Please build OpenSY first: cmake --build build_regular --target opensyd'
+          exit 1
+        fi
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://opensy:devpassword@localhost:19632", "-d", "{\"method\":\"getblockchaininfo\",\"params\":[],\"id\":1}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================================================
+  # PostgreSQL Database
+  # ============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: opensy-pool-postgres
+    environment:
+      POSTGRES_USER: pool
+      POSTGRES_PASSWORD: pooldevpass
+      POSTGRES_DB: opensy_pool
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pool -d opensy_pool"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================================================
+  # Redis Cache
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: opensy-pool-redis
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================================================
+  # Mining Pool (Development)
+  # ============================================================================
+  pool:
+    build:
+      context: ../pool
+      dockerfile: Dockerfile
+    container_name: opensy-pool
+    depends_on:
+      opensy-node:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - POOL_NODE_RPC=http://opensy:devpassword@opensy-node:19632
+      - POOL_DB_URL=postgres://pool:pooldevpass@postgres:5432/opensy_pool?sslmode=disable
+      - POOL_REDIS_URL=redis://redis:6379/0
+      - POOL_STRATUM_PORT=3333
+      - POOL_API_PORT=8080
+      - POOL_LOG_LEVEL=debug
+    ports:
+      - "3333:3333"   # Stratum
+      - "8080:8080"   # API
+    volumes:
+      - ./pool-config.yaml:/app/config.yaml:ro
+    restart: unless-stopped
+    profiles:
+      - pool  # Only start when explicitly requested
+
+  # ============================================================================
+  # Prometheus Monitoring
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: opensy-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # ============================================================================
+  # Grafana Dashboard
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: opensy-grafana
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+volumes:
+  opensy-testnet-data:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  default:
+    name: opensy-mining-network

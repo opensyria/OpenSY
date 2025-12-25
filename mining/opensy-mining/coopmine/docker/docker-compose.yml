@@ -1,0 +1,115 @@
+# CoopMine Docker Compose
+# Complete mining cluster deployment
+
+version: '3.8'
+
+services:
+  # Coordinator - central management node
+  coordinator:
+    build:
+      context: ../..
+      dockerfile: coopmine/docker/Dockerfile.coordinator
+    container_name: coopmine-coordinator
+    restart: unless-stopped
+    ports:
+      - "50051:50051"  # gRPC
+      - "8080:8080"    # Dashboard
+      - "9090:9090"    # Metrics
+    volumes:
+      - ./config/coordinator.yaml:/app/config/coordinator.yaml:ro
+      - ./certs:/app/certs:ro
+      - coordinator-data:/app/data
+    environment:
+      - COOPMINE_CLUSTER_ID=${CLUSTER_ID:-opensy-cluster}
+      - COOPMINE_POOL_ADDRESS=${POOL_ADDRESS:-stratum+tcp://pool.opensy.io:3333}
+      - COOPMINE_POOL_WALLET=${POOL_WALLET}
+      - COOPMINE_POOL_PASSWORD=${POOL_PASSWORD:-x}
+    networks:
+      - coopmine-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Worker nodes (scale with --scale worker=N)
+  worker:
+    build:
+      context: ../..
+      dockerfile: coopmine/docker/Dockerfile.worker
+    restart: unless-stopped
+    deploy:
+      mode: replicated
+      replicas: ${WORKER_COUNT:-1}
+      resources:
+        limits:
+          cpus: '${WORKER_CPUS:-4}'
+          memory: ${WORKER_MEMORY:-4G}
+    volumes:
+      - ./config/worker.yaml:/app/config/worker.yaml:ro
+      - ./certs:/app/certs:ro
+    environment:
+      - COOPMINE_COORDINATOR=coordinator:50051
+      - COOPMINE_WORKER_THREADS=${WORKER_THREADS:-4}
+      - COOPMINE_WORKER_HUGE_PAGES=${WORKER_HUGE_PAGES:-true}
+    depends_on:
+      coordinator:
+        condition: service_healthy
+    networks:
+      - coopmine-net
+    # Enable huge pages for better RandomX performance
+    # Requires host configuration: echo 1280 > /proc/sys/vm/nr_hugepages
+    # privileged: true
+
+  # Prometheus for monitoring (optional)
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: coopmine-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+    networks:
+      - coopmine-net
+    profiles:
+      - monitoring
+
+  # Grafana for dashboards (optional)
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: coopmine-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks:
+      - coopmine-net
+    profiles:
+      - monitoring
+
+networks:
+  coopmine-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  coordinator-data:
+  prometheus-data:
+  grafana-data:
